@@ -24,16 +24,13 @@
     <ClCompile Include="Engine_OnEvent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Engine_OnLoop.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Engine_OnRender.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Engine_OnCleanup.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Engine_matrix.cpp">
+    <ClCompile Include="Engine_OnLoop.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

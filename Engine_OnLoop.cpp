@@ -1,7 +1,7 @@
 #include "Engine.h"
 #include <cmath>
-#include <iostream>
 #include <algorithm>
+#include <Eigen/Geometry>
 
 void Engine::OnLoop(int elapsedTime) {
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
@@ -13,96 +13,88 @@ void Engine::OnLoop(int elapsedTime) {
 
 	theta += 2.5f * (float)elapsedTime / 1000.0f / 3.0f;
 
-	Matrix rotateX, rotateZ, rotateY;
-	rotateX.matrix[0][0] = 1;
-	rotateX.matrix[1][1] = cosf(theta * -1.0f);
-	rotateX.matrix[1][2] = sinf(theta * -1.0f);
-	rotateX.matrix[2][1] = -sinf(theta * -1.0f);
-	rotateX.matrix[2][2] = cosf(theta * -1.0f);
-	rotateX.matrix[3][3] = 1;
+	Matrix3f rotX = Matrix3f::Zero(), rotY = Matrix3f::Zero(), rotZ = Matrix3f::Zero(), transform = Matrix3f::Zero();
+	rotX(0, 0) = 1;
+	rotX(1, 1) = cosf(theta * -1.0f);
+	rotX(1, 2) = sinf(theta * -1.0f);
+	rotX(2, 1) = -sinf(theta * -1.0f);
+	rotX(2, 2) = cosf(theta * -1.0f);
 
-	rotateZ.matrix[0][0] = cosf(theta);
-	rotateZ.matrix[0][1] = sinf(theta);
-	rotateZ.matrix[1][0] = -sinf(theta);
-	rotateZ.matrix[1][1] = cosf(theta);
-	rotateZ.matrix[2][2] = 1;
-	rotateZ.matrix[3][3] = 1;
+	rotZ(0, 0) = cosf(theta + 2.0f);
+	rotZ(0, 1) = sinf(theta + 2.0f);
+	rotZ(1, 0) = -sinf(theta + 2.0f);
+	rotZ(1, 1) = cosf(theta + 2.0f);
+	rotZ(2, 2) = 1;
 
-	rotateY.matrix[0][0] = cosf(theta * -2.0f);
-	rotateY.matrix[0][2] = -sinf(theta * -2.0f);
-	rotateY.matrix[1][1] = 1;
-	rotateY.matrix[2][0] = sinf(theta * -2.0f);
-	rotateY.matrix[2][2] = cosf(theta * -2.0f);;
-	rotateY.matrix[3][3] = 1;
+	rotY(0, 0) = cosf(theta * -2.0f);
+	rotY(0, 2) = -sinf(theta * -2.0f);
+	rotY(1, 1) = 1;
+	rotY(2, 0) = sinf(theta * -2.0f);
+	rotY(2, 2) = cosf(theta * -2.0f);
 
-	std::vector<Triangle> trisToRaster;
+	transform = rotX * rotY;
+	transform = transform * rotZ;
 
-	for (auto tri : cube.tris) {
-		Triangle triProjected, triTranslated, triRotatedZ, triRotatedZX, triRotatedZXY;
+	std::vector<Trigon> trisToRaster;
+
+	for (auto& tri : matExternal.tris) {
+		Trigon triProjected, triTranslated, triRotatedZ, triRotatedZX, triRotatedZXY;
 
 		for (int i = 0; i < 3; i++) {
 			// Rotate
-			MultiplyMatrixVector(tri.v[i], triRotatedZ.v[i], rotateZ);
-			MultiplyMatrixVector(triRotatedZ.v[i], triRotatedZX.v[i], rotateX);
-			MultiplyMatrixVector(triRotatedZX.v[i], triRotatedZXY.v[i], rotateY);
+			triRotatedZXY.v[i] = tri.v[i] * transform;
 		}
 
 		triTranslated = triRotatedZXY;
 		for (int i = 0; i < 3; i++) {
 			// Translate into view space
-			triTranslated.v[i].z = triRotatedZXY.v[i].z + 3.0f;
+			triTranslated.v[i][Z] = triRotatedZXY.v[i][Z] + 6.0f;
 		}
 
 		// Get normals
-		Point3d normal, line1, line2;
-		line1.x = triTranslated.v[1].x - triTranslated.v[0].x;
-		line1.y = triTranslated.v[1].y - triTranslated.v[0].y;
-		line1.z = triTranslated.v[1].z - triTranslated.v[0].z;
+		RowVector3f normal, line1, line2;
+		line1[X] = triTranslated.v[1][X] - triTranslated.v[0][X];
+		line1[Y] = triTranslated.v[1][Y] - triTranslated.v[0][Y];
+		line1[Z] = triTranslated.v[1][Z] - triTranslated.v[0][Z];
 
-		line2.x = triTranslated.v[2].x - triTranslated.v[0].x;
-		line2.y = triTranslated.v[2].y - triTranslated.v[0].y;
-		line2.z = triTranslated.v[2].z - triTranslated.v[0].z;
+		line2[X] = triTranslated.v[2][X] - triTranslated.v[0][X];
+		line2[Y] = triTranslated.v[2][Y] - triTranslated.v[0][Y];
+		line2[Z] = triTranslated.v[2][Z] - triTranslated.v[0][Z];
+		normal = line1.cross(line2).normalized();
 
-		normal.x = line1.y * line2.z - line1.z * line2.y;
-		normal.y = line1.z * line2.x - line1.x * line2.z;
-		normal.z = line1.x * line2.y - line1.y * line2.x;
-
-		float l = sqrtf(normal.x * normal.x + normal.y * normal.y + normal.z * normal.z);
-		normal.x /= l;
-		normal.y /= l;
-		normal.z /= l;
-
-		if (normal.x * (triTranslated.v[0].x - virtualCam.x) +
-			normal.y * (triTranslated.v[0].y - virtualCam.y) + 
-			normal.z * (triTranslated.v[0].z - virtualCam.z) < 0.0f) {
+		if (normal[X] * (triTranslated.v[0][X] - virtCam[X]) +
+			normal[Y] * (triTranslated.v[0][Y] - virtCam[Y]) +
+			normal[Z] * (triTranslated.v[0][Z] - virtCam[Z]) < 0.0f) {
 
 			// Illumination
-			Point3d lightDirection{ 0.0f, -1.0f, 0.0f };
-			float mag = sqrtf(lightDirection.x * lightDirection.x + lightDirection.y * lightDirection.y + lightDirection.z * lightDirection.z);
-			lightDirection.x /= mag;
-			lightDirection.y /= mag;
-			lightDirection.z /= mag;
+			RowVector3f lightDirection{ 0.0f, 0.0f, -1.0f };
+			lightDirection = lightDirection.normalized();
 
-			float dotProd = normal.x * lightDirection.x + normal.y * lightDirection.y + normal.z * lightDirection.z;
-			float luminance = (int)(127.5f * (1.0 + dotProd));
-			triTranslated.shade = luminance;
+			float dotProd = normal.dot(lightDirection);
+			int luminance = (int)(127.5f * (1.0 + dotProd));
+			triTranslated.luminance = luminance;
 
 			for (int i = 0; i < 3; i++) {
 				// Project onto screen
-				MultiplyMatrixVector(triTranslated.v[i], triProjected.v[i], projection);
+				Eigen::RowVector4f tmp;
+				tmp << triTranslated.v[i], 1.0f;
+				Eigen::RowVector4f tmpProj = tmp * projMat;
+				if (tmpProj[W] != 0.0f) {
+					triProjected.v[i] << tmpProj[X] / tmpProj[W], tmpProj[Y] / tmpProj[W], tmpProj[Z] / tmpProj[W];
+				}
+				else {
+					triProjected.v[i] << tmpProj[X], tmpProj[Y], tmpProj[Z];
+				}
 
 				// Normalize and scale into view
-				triProjected.v[i].x += 1.0f;
-				triProjected.v[i].y += 1.0f;
+				triProjected.v[i][X] += 1.0f;
+				triProjected.v[i][Y] += 1.0f;
 
-				triProjected.v[i].x *= 0.5f * (float)SCREEN_WIDTH;
-				triProjected.v[i].y *= 0.5f * (float)SCREEN_HEIGHT;
-
-				// Draw vertices
-				// SDL_RenderDrawPoint(renderer, (float)triProjected.v[i].x, (float)triProjected.v[i].y);
+				triProjected.v[i][X] *= 0.5f * (float)SCREEN_WIDTH;
+				triProjected.v[i][Y] *= 0.5f * (float)SCREEN_HEIGHT;
 			}
 
-			triProjected.shade = triTranslated.shade;
+			triProjected.luminance = triTranslated.luminance;
 
 			// Store triangles for sorting
 			trisToRaster.push_back(triProjected);
@@ -110,22 +102,32 @@ void Engine::OnLoop(int elapsedTime) {
 	}
 
 	// Sort tris from back to front
-	std::sort(trisToRaster.begin(), trisToRaster.end(), [](Triangle& t1, Triangle& t2) {
-		float z1 = (t1.v[0].z + t1.v[1].z + t1.v[2].z) / 3.0f;
-		float z2 = (t2.v[0].z + t2.v[1].z + t2.v[2].z) / 3.0f;
+	std::sort(trisToRaster.begin(), trisToRaster.end(), [](Trigon& t1, Trigon& t2) {
+		float z1 = (t1.v[0][Z] + t1.v[1][Z] + t1.v[2][Z]) / 3.0f;
+		float z2 = (t2.v[0][Z] + t2.v[1][Z] + t2.v[2][Z]) / 3.0f;
 
 		return z1 > z2;
-	});
+		});
 
-	for (auto &triProjected : trisToRaster) {
-		SDL_SetRenderDrawColor(renderer, triProjected.shade, triProjected.shade, triProjected.shade, 255);
-		rasterize(triProjected);
-
+	for (auto& triProjected : trisToRaster) {
 		if (true) {
-			SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-			SDL_RenderDrawLine(renderer, (float)triProjected.v[0].x, (float)triProjected.v[0].y, (float)triProjected.v[1].x, (float)triProjected.v[1].y);
-			SDL_RenderDrawLine(renderer, (float)triProjected.v[1].x, (float)triProjected.v[1].y, (float)triProjected.v[2].x, (float)triProjected.v[2].y);
-			SDL_RenderDrawLine(renderer, (float)triProjected.v[2].x, (float)triProjected.v[2].y, (float)triProjected.v[0].x, (float)triProjected.v[0].y);
+			SDL_SetRenderDrawColor(renderer, triProjected.luminance, triProjected.luminance, triProjected.luminance, 255);
+			TriangleNoEigen toRaster = TriangleNoEigen(triProjected);
+			rasterize(toRaster);
+		}
+
+		if (false) {
+			SDL_SetRenderDrawColor(renderer, triProjected.luminance, 0, 0, 255);
+			SDL_RenderDrawLine(renderer, (int)triProjected.v[0][X], (int)triProjected.v[0][Y], (int)triProjected.v[1][X], (int)triProjected.v[1][Y]);
+			SDL_RenderDrawLine(renderer, (int)triProjected.v[1][X], (int)triProjected.v[1][Y], (int)triProjected.v[2][X], (int)triProjected.v[2][Y]);
+			SDL_RenderDrawLine(renderer, (int)triProjected.v[2][X], (int)triProjected.v[2][Y], (int)triProjected.v[0][X], (int)triProjected.v[0][Y]);
+		}
+
+		if (false) {
+			SDL_SetRenderDrawColor(renderer, triProjected.luminance, triProjected.luminance, 0, 255);
+			SDL_RenderDrawPoint(renderer, (int)triProjected.v[0][X], (int)triProjected.v[0][Y]);
+			SDL_RenderDrawPoint(renderer, (int)triProjected.v[1][X], (int)triProjected.v[1][Y]);
+			SDL_RenderDrawPoint(renderer, (int)triProjected.v[2][X], (int)triProjected.v[2][Y]);
 		}
 	}
 }

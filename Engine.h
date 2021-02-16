@@ -5,6 +5,12 @@
 #include <fstream>
 #include <strstream>
 #include <Eigen/Core>
+#include <iostream>
+
+using Eigen::Matrix3f;
+using Eigen::Matrix4f;
+using Eigen::RowVector3f;
+using Eigen::RowVector2f;
 
 class Engine {
 private:
@@ -12,6 +18,7 @@ private:
 		X,
 		Y,
 		Z,
+		W
 	};
 
 	struct Point3d {
@@ -19,28 +26,29 @@ private:
 	};
 
 	struct Trigon {
-		Eigen::RowVector3f v[3];
+		RowVector3f v[3];;
 		int luminance;
 	};
 
-	struct Triangle {
+	struct TriangleNoEigen {
 		Point3d v[3];
-		int shade;
+
+		TriangleNoEigen(Trigon& tri) {
+			v[0] = { tri.v[0][X], tri.v[0][Y], tri.v[0][Z], };
+			v[1] = { tri.v[1][X], tri.v[1][Y], tri.v[1][Z], };
+			v[2] = { tri.v[2][X], tri.v[2][Y], tri.v[2][Z], };
+		}
 	};
 
 	struct MatMesh {
 		std::vector<Trigon> tris;
-	};
-
-	struct Mesh {
-		std::vector<Triangle> tris;
 
 		bool loadObj(std::string filename) {
 			std::ifstream f(filename);
 			if (!f.is_open()) { return false; }
 
 			// Build vertex cache
-			std::vector<Point3d> verts;
+			std::vector<RowVector3f> verts;
 			while (!f.eof()) {
 				char line[128];
 				f.getline(line, 128);
@@ -50,8 +58,8 @@ private:
 
 				char tmp;
 				if (line[0] == 'v') {
-					Point3d v;
-					s >> tmp >> v.x >> v.y >> v.z;
+					RowVector3f v;
+					s >> tmp >> v[X] >> v[Y] >> v[Z];
 					verts.push_back(v);
 				}
 
@@ -82,23 +90,20 @@ private:
 	float theta = 0.0f;
 
 private:
-	Mesh cube;
 	MatMesh matCube;
-	Mesh external;
-	Matrix projection;
-	Eigen::Matrix4f projMat;
-	Point3d virtualCam{0.0f, 0.0f, 0.0f};
+	MatMesh matExternal;
+	Matrix4f projMat = Matrix4f::Zero();
+	RowVector3f virtCam = RowVector3f::Zero();
 
 private:
-	void MultiplyMatrixVector(Point3d& i, Point3d& o, Matrix& m);
-	bool naivePointInTriangle(Triangle tri, Point3d point);
-	bool doesTriangleContainPoint(Triangle tri, Point3d point, float epsilon);
-	float sqrPointDistanceToSegment(Point3d pos1, Point3d pos2, Point3d point);
+	bool naivePointInTriangle(TriangleNoEigen& tri, Point3d& point);
+	bool doesTriangleContainPoint(TriangleNoEigen& tri, Point3d& point, float epsilon);
+	float sqrPointDistanceToSegment(Point3d& pos1, Point3d& pos2, Point3d& point);
 
 public:
 	Engine();
 	int OnExecute();
-	void rasterize(Triangle triangle);
+	void rasterize(TriangleNoEigen& triangle);
 
 public:
 	bool OnInit();
