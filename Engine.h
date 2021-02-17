@@ -14,7 +14,7 @@ using Eigen::RowVector3f;
 using Eigen::RowVector4f;
 
 class Engine {
-private:
+public:
 	enum coordIndices {
 		X,
 		Y,
@@ -22,6 +22,7 @@ private:
 		W
 	};
 
+private:
 	struct Point3d {
 		float x, y, z;
 	};

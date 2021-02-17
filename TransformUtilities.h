@@ -16,3 +16,5 @@ Matrix4f getZRot(float theta);
 
 // Get projection matrix
 Matrix4f getProjectionMatrix(float fovRadians, float aspectRatio, float nearPlane, float farPlane);
+
+RowVector4f project(Eigen::RowVector4f& toProject, float fovRadians, float aspectRatio, float nearPlane, float farPlane);

@@ -61,3 +61,23 @@ Matrix4f getProjectionMatrix(float fovRadians, float aspectRatio, float nearPlan
 
 	return projMat;
 }
+
+RowVector4f project(Eigen::RowVector4f& toProject, float fovRadians, float aspectRatio, float nearPlane, float farPlane) {
+	Matrix4f projMat = Matrix4f::Zero();
+	projMat(0, 0) = aspectRatio * fovRadians;
+	projMat(1, 1) = fovRadians * -1.0f;
+	projMat(2, 2) = farPlane / (farPlane - nearPlane);
+	projMat(3, 2) = (-farPlane * nearPlane) / (farPlane - nearPlane);
+	projMat(2, 3) = 1.0f;
+
+	RowVector4f tmpProj = toProject * projMat;
+	RowVector4f projected;
+	if (tmpProj[Engine::coordIndices::W] != 0.0f) {
+		projected << tmpProj[Engine::coordIndices::X] / tmpProj[Engine::coordIndices::W], tmpProj[Engine::coordIndices::Y] / tmpProj[Engine::coordIndices::W], tmpProj[Engine::coordIndices::Z] / tmpProj[Engine::coordIndices::W], 1.0f;
+	}
+	else {
+		projected << tmpProj[Engine::coordIndices::X], tmpProj[Engine::coordIndices::Y], tmpProj[Engine::coordIndices::Z], 1.0f;
+	}
+
+	return projected;
+}

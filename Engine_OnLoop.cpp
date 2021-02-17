@@ -70,13 +70,7 @@ void Engine::OnLoop(int elapsedTime) {
 				float fovRad = 1.0f / tanf(fov * 0.5f / 180.0f * PI);
 				float aspectRatio = (float)SCREEN_HEIGHT / (float)SCREEN_WIDTH;
 
-				Eigen::RowVector4f tmpProj = triTranslated.v[i] * getProjectionMatrix(fovRad, aspectRatio, nearPlane, farPlane);
-				if (tmpProj[W] != 0.0f) {
-					triProjected.v[i] << tmpProj[X] / tmpProj[W], tmpProj[Y] / tmpProj[W], tmpProj[Z] / tmpProj[W], 1.0f;
-				}
-				else {
-					triProjected.v[i] << tmpProj[X], tmpProj[Y], tmpProj[Z], 1.0f;
-				}
+				triProjected.v[i] = project(triTranslated.v[i], fovRad, aspectRatio, nearPlane, farPlane);
 
 				// Normalize and scale into view
 				triProjected.v[i][X] += 1.0f;
