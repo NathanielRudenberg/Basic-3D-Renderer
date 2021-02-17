@@ -40,8 +40,10 @@ void Engine::OnKeyDown(SDL_Keycode sym, Uint16 mod) {
         break;
 
     case SDLK_ESCAPE:
-        SDL_SetRelativeMouseMode(SDL_FALSE);
-        SDL_WarpMouseInWindow(window, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
+        if (SDL_GetRelativeMouseMode() == SDL_TRUE) {
+            SDL_SetRelativeMouseMode(SDL_FALSE);
+            SDL_WarpMouseInWindow(window, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
+        }
         break;
 
     default:
