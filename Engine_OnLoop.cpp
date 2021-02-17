@@ -13,24 +13,27 @@ void Engine::OnLoop(int elapsedTime) {
 
 	theta += 2.5f * (float)elapsedTime / 1000.0f / 3.0f;
 
-	Matrix3f rotX = Matrix3f::Zero(), rotY = Matrix3f::Zero(), rotZ = Matrix3f::Zero(), transform = Matrix3f::Zero();
+	Matrix4f rotX = Matrix4f::Zero(), rotY = Matrix4f::Zero(), rotZ = Matrix4f::Zero(), transform = Matrix4f::Zero();
 	rotX(0, 0) = 1;
-	rotX(1, 1) = cosf(theta * -1.0f);
-	rotX(1, 2) = sinf(theta * -1.0f);
-	rotX(2, 1) = -sinf(theta * -1.0f);
-	rotX(2, 2) = cosf(theta * -1.0f);
+	rotX(1, 1) = cosf(theta * -2.0f);
+	rotX(1, 2) = sinf(theta * -2.0f);
+	rotX(2, 1) = -sinf(theta * -2.0f);
+	rotX(2, 2) = cosf(theta * -2.0f);
+	rotX(3, 3) = 1.0f;
 
-	rotZ(0, 0) = cosf(theta + 2.0f);
-	rotZ(0, 1) = sinf(theta + 2.0f);
-	rotZ(1, 0) = -sinf(theta + 2.0f);
-	rotZ(1, 1) = cosf(theta + 2.0f);
+	rotZ(0, 0) = cosf(theta);
+	rotZ(0, 1) = sinf(theta);
+	rotZ(1, 0) = -sinf(theta);
+	rotZ(1, 1) = cosf(theta);
 	rotZ(2, 2) = 1;
+	rotZ(3, 3) = 1.0f;
 
 	rotY(0, 0) = cosf(theta * -2.0f);
 	rotY(0, 2) = -sinf(theta * -2.0f);
 	rotY(1, 1) = 1;
 	rotY(2, 0) = sinf(theta * -2.0f);
 	rotY(2, 2) = cosf(theta * -2.0f);
+	rotY(3, 3) = 1.0f;
 
 	transform = rotX * rotY;
 	transform = transform * rotZ;
@@ -77,13 +80,13 @@ void Engine::OnLoop(int elapsedTime) {
 			for (int i = 0; i < 3; i++) {
 				// Project onto screen
 				Eigen::RowVector4f tmp;
-				tmp << triTranslated.v[i], 1.0f;
+				tmp << triTranslated.v[i];
 				Eigen::RowVector4f tmpProj = tmp * projMat;
 				if (tmpProj[W] != 0.0f) {
-					triProjected.v[i] << tmpProj[X] / tmpProj[W], tmpProj[Y] / tmpProj[W], tmpProj[Z] / tmpProj[W];
+					triProjected.v[i] << tmpProj[X] / tmpProj[W], tmpProj[Y] / tmpProj[W], tmpProj[Z] / tmpProj[W], 1.0f;
 				}
 				else {
-					triProjected.v[i] << tmpProj[X], tmpProj[Y], tmpProj[Z];
+					triProjected.v[i] << tmpProj[X], tmpProj[Y], tmpProj[Z], 1.0f;
 				}
 
 				// Normalize and scale into view

@@ -9,8 +9,9 @@
 
 using Eigen::Matrix3f;
 using Eigen::Matrix4f;
-using Eigen::RowVector3f;
 using Eigen::RowVector2f;
+using Eigen::RowVector3f;
+using Eigen::RowVector4f;
 
 class Engine {
 private:
@@ -26,7 +27,7 @@ private:
 	};
 
 	struct Trigon {
-		RowVector3f v[3];;
+		RowVector4f v[3];
 		int luminance;
 	};
 
@@ -48,7 +49,7 @@ private:
 			if (!f.is_open()) { return false; }
 
 			// Build vertex cache
-			std::vector<RowVector3f> verts;
+			std::vector<RowVector4f> verts;
 			while (!f.eof()) {
 				char line[128];
 				f.getline(line, 128);
@@ -58,15 +59,15 @@ private:
 
 				char tmp;
 				if (line[0] == 'v') {
-					RowVector3f v;
+					RowVector4f v;
 					s >> tmp >> v[X] >> v[Y] >> v[Z];
+					v[W] = 1.0f;
 					verts.push_back(v);
 				}
 
 				if (line[0] == 'f') {
 					int f[3];
 					s >> tmp >> f[0] >> f[1] >> f[2];
-
 					tris.push_back({ verts[f[0] - 1], verts[f[1] - 1], verts[f[2] - 1] });
 				}
 			}
