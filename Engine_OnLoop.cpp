@@ -1,3 +1,5 @@
+#define PI 3.14159f
+
 #include "Engine.h"
 #include <cmath>
 #include <algorithm>
@@ -62,9 +64,13 @@ void Engine::OnLoop(int elapsedTime) {
 
 			for (int i = 0; i < 3; i++) {
 				// Project onto screen
-				Eigen::RowVector4f tmp;
-				tmp << triTranslated.v[i];
-				Eigen::RowVector4f tmpProj = tmp * projMat;
+				float nearPlane = 0.1f;
+				float farPlane = 1000.0f;
+				float fov = 90.0f;
+				float fovRad = 1.0f / tanf(fov * 0.5f / 180.0f * PI);
+				float aspectRatio = (float)SCREEN_HEIGHT / (float)SCREEN_WIDTH;
+
+				Eigen::RowVector4f tmpProj = triTranslated.v[i] * getProjectionMatrix(fovRad, aspectRatio, nearPlane, farPlane);
 				if (tmpProj[W] != 0.0f) {
 					triProjected.v[i] << tmpProj[X] / tmpProj[W], tmpProj[Y] / tmpProj[W], tmpProj[Z] / tmpProj[W], 1.0f;
 				}

@@ -93,7 +93,6 @@ private:
 private:
 	MatMesh matCube;
 	MatMesh matExternal;
-	Matrix4f projMat = Matrix4f::Zero();
 	RowVector3f virtCam = RowVector3f::Zero();
 
 private:

@@ -1,5 +1,3 @@
-#define PI 3.14159f
-
 #include "Engine.h"
 #include <vector>
 
@@ -52,18 +50,6 @@ bool Engine::OnInit() {
     matCube.tris.push_back(b2);
 
     matExternal.loadObj("teapot.obj");
-
-    float nearPlane = 0.1f;
-    float farPlane = 1000.0f;
-    float fov = 90.0f;
-    float fovRad = 1.0f / tanf(fov * 0.5f / 180.0f * PI);
-    float aspectRatio = (float)SCREEN_HEIGHT / (float)SCREEN_WIDTH;
-
-    projMat(0, 0) = aspectRatio * fovRad;
-    projMat(1, 1) = fovRad * -1.0f;
-    projMat(2, 2) = farPlane / (farPlane - nearPlane);
-    projMat(3, 2) = (-farPlane * nearPlane) / (farPlane - nearPlane);
-    projMat(2, 3) = 1.0f;
 
     return true;
 }
