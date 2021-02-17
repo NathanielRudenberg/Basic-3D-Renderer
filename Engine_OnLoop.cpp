@@ -15,12 +15,10 @@ void Engine::OnLoop(float elapsedTime) {
 	int center_y = SCREEN_HEIGHT / 2;
 	int radius = 69;
 
-	//theta += 2.5f * (float)elapsedTime / 1000.0f;
-
 	Matrix4f rotX = getXRot(theta);
 	Matrix4f rotY = getYRot(theta);
 	Matrix4f rotZ = getZRot(theta);
-	Matrix4f translation = getTranslationMatrix(0.0f, 0.0f, 0.0f);
+	Matrix4f translation = getTranslationMatrix(0.0f, 0.0f, 3.0f);
 	Matrix4f worldMatrix = Matrix4f::Zero();
 
 	worldMatrix = rotY * rotX;
@@ -47,7 +45,7 @@ void Engine::OnLoop(float elapsedTime) {
 
 	std::vector<Trigon> trisToRaster;
 
-	for (auto& tri : matExternal.tris) {
+	for (auto& tri : matCube.tris) {
 		Trigon triProjected, triTransformed, triViewed;
 
 		for (int i = 0; i < 3; i++) {
@@ -96,7 +94,7 @@ void Engine::OnLoop(float elapsedTime) {
 					// Project onto screen
 					float nearPlane = 0.1f;
 					float farPlane = 1000.0f;
-					float fov = 90.0f;
+					float fov = 75.0f;
 					float fovRad = 1.0f / tanf(fov * 0.5f / 180.0f * PI);
 					float aspectRatio = (float)SCREEN_HEIGHT / (float)SCREEN_WIDTH;
 
