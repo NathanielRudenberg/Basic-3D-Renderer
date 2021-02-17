@@ -53,6 +53,6 @@ void Engine::OnKeyDown(SDL_Keycode sym, Uint16 mod) {
 void Engine::OnMouseMove(int mX, int mY, int relX, int relY, bool Left, bool Right, bool Middle) {
     if (SDL_GetRelativeMouseMode() == SDL_TRUE) {
         yaw -= ((float)relX * 0.05f) * elapsedTime;
-        pitch += ((float)relY * 0.05f) * elapsedTime;
+        //pitch += ((float)relY * 0.05f) * elapsedTime;
     }
 }

@@ -49,7 +49,7 @@ bool Engine::OnInit() {
     matCube.tris.push_back(b1);
     matCube.tris.push_back(b2);
 
-    matExternal.loadObj("axis.obj");
+    matExternal.loadObj("teapot.obj");
 
     virtCam = RowVector3f::Zero();
 

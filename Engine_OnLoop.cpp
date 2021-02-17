@@ -20,7 +20,7 @@ void Engine::OnLoop(float elapsedTime) {
 	Matrix4f rotX = getXRot(theta);
 	Matrix4f rotY = getYRot(theta);
 	Matrix4f rotZ = getZRot(theta);
-	Matrix4f translation = getTranslationMatrix(0.0f, 0.0f, 6.0f);
+	Matrix4f translation = getTranslationMatrix(0.0f, 0.0f, 0.0f);
 	Matrix4f worldMatrix = Matrix4f::Zero();
 
 	worldMatrix = rotY * rotX;
