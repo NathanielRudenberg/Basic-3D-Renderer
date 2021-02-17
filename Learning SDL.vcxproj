@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine.cpp" />
+    <ClCompile Include="EngineEvent.cpp" />
     <ClCompile Include="Engine_OnCleanup.cpp" />
     <ClCompile Include="Engine_OnEvent.cpp" />
     <ClCompile Include="Engine_OnInit.cpp" />
@@ -29,6 +30,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine.h" />
+    <ClInclude Include="EngineEvent.h" />
     <ClInclude Include="TransformUtilities.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

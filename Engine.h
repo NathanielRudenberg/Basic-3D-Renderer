@@ -6,6 +6,7 @@
 #include <strstream>
 #include <Eigen/Core>
 #include <iostream>
+#include "EngineEvent.h"
 
 using Eigen::Matrix3f;
 using Eigen::Matrix4f;
@@ -13,7 +14,7 @@ using Eigen::RowVector2f;
 using Eigen::RowVector3f;
 using Eigen::RowVector4f;
 
-class Engine {
+class Engine : public EngineEvent {
 public:
 	enum coordIndices {
 		X,
@@ -97,10 +98,13 @@ private:
 	RowVector3f virtCam;
 	RowVector3f lookDir;
 
+	float yaw;
+
 private:
 	bool naivePointInTriangle(TriangleNoEigen& tri, Point3d& point);
 	bool doesTriangleContainPoint(TriangleNoEigen& tri, Point3d& point, float epsilon);
 	float sqrPointDistanceToSegment(Point3d& pos1, Point3d& pos2, Point3d& point);
+	float elapsedTime;
 
 public:
 	Engine();
@@ -110,6 +114,8 @@ public:
 public:
 	bool OnInit();
 	void OnEvent(SDL_Event* event, float elapsedTime);
+	void OnExit();
+	void OnKeyDown(SDL_Keycode sym, Uint16 mod);
 	void OnLoop(float elapsedTime);
 	void OnRender();
 	void OnCleanup();

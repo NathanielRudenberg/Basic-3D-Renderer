@@ -75,7 +75,7 @@ int Engine::OnExecute() {
 
 	while (running) {
 		t2 = SDL_GetTicks();
-		float elapsedTime = (t2 - t1) / 1000.0f;
+		elapsedTime = (t2 - t1) / 1000.0f;
 		t1 = t2;
 
 		SDL_Event event;
