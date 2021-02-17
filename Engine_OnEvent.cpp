@@ -51,9 +51,6 @@ void Engine::OnKeyDown(SDL_Keycode sym, Uint16 mod) {
 }
 
 void Engine::OnMouseMove(int mX, int mY, int relX, int relY, bool Left, bool Right, bool Middle) {
-    /*virtCam[X] = virtCam[X] + float(relX) / 60.0f;
-    virtCam[Y] = virtCam[Y] + float(relY) / 60.0f;*/
-
     if (SDL_GetRelativeMouseMode() == SDL_TRUE) {
         yaw -= ((float)relX * 0.05f) * elapsedTime;
         pitch += ((float)relY * 0.05f) * elapsedTime;
