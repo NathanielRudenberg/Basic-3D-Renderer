@@ -45,5 +45,5 @@ void Engine::OnMouseMove(int mX, int mY, int relX, int relY, bool Left, bool Rig
     /*virtCam[X] = virtCam[X] + float(relX) / 60.0f;
     virtCam[Y] = virtCam[Y] + float(relY) / 60.0f;*/
 
-    yaw += relX * elapsedTime;
+    yaw -= ((float)relX * 0.01f) * elapsedTime;
 }

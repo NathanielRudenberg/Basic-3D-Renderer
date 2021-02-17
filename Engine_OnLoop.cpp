@@ -27,8 +27,18 @@ void Engine::OnLoop(float elapsedTime) {
 	worldMatrix *= translation;
 
 	lookDir = { 0.0f, 0.0f, 1.0f };
+	RowVector4f tmpLook, tmpCamLoc;
+	tmpCamLoc << virtCam, 1.0f;
 	RowVector3f upVec{ 0.0f, 1.0f, 0.0f };
+	RowVector4f tmpTarg = { 0.0f, 0.0f, 1.0f, 1.0f };
+	Matrix4f cameraRotation = getYRot(yaw);
+	tmpLook = tmpTarg * cameraRotation;
+	tmpTarg = tmpCamLoc + tmpLook;
+	
 	RowVector3f targetVec = virtCam + lookDir;
+
+	lookDir[X] = tmpLook[X]; lookDir[Y] = tmpLook[Y]; lookDir[Z] = tmpLook[Z];
+	targetVec[X] = tmpTarg[X]; targetVec[Y] = tmpTarg[Y]; targetVec[Z] = tmpTarg[Z];
 
 	Matrix4f cameraMatrix = getPointAtMatrix(virtCam, targetVec, upVec);
 	Matrix4f viewMatrix = cameraMatrix.inverse();
