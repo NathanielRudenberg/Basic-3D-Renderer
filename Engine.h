@@ -116,6 +116,7 @@ public:
 	void OnEvent(SDL_Event* event, float elapsedTime);
 	void OnExit();
 	void OnKeyDown(SDL_Keycode sym, Uint16 mod);
+	void OnMouseMove(int mX, int mY, int relX, int relY, bool Left, bool Right, bool Middle);
 	void OnLoop(float elapsedTime);
 	void OnRender();
 	void OnCleanup();

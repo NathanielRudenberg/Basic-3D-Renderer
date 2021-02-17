@@ -9,6 +9,7 @@ void Engine::OnExit() {
 }
 
 void Engine::OnKeyDown(SDL_Keycode sym, Uint16 mod) {
+    RowVector3f vForward = lookDir * (8.0f * elapsedTime);
     switch (sym) {
     case SDLK_SPACE:
         virtCam[Y] = virtCam[Y] + 8.0f * elapsedTime;
@@ -27,15 +28,22 @@ void Engine::OnKeyDown(SDL_Keycode sym, Uint16 mod) {
         break;
 
     case SDLK_w:
-        virtCam[Z] = virtCam[Z] + 8.0f * elapsedTime;
+        virtCam = virtCam + vForward;
         break;
 
     case SDLK_s:
-        virtCam[Z] = virtCam[Z] - 8.0f * elapsedTime;
+        virtCam = virtCam - vForward;
         break;
 
     default:
 
         break;
     }
+}
+
+void Engine::OnMouseMove(int mX, int mY, int relX, int relY, bool Left, bool Right, bool Middle) {
+    /*virtCam[X] = virtCam[X] + float(relX) / 60.0f;
+    virtCam[Y] = virtCam[Y] + float(relY) / 60.0f;*/
+
+    yaw += relX * elapsedTime;
 }
