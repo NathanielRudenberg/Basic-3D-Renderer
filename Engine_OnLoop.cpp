@@ -32,8 +32,9 @@ void Engine::OnLoop(float elapsedTime) {
 	tmpCamLoc << virtCam, 1.0f;
 	RowVector3f upVec{ 0.0f, 1.0f, 0.0f };
 	RowVector4f tmpTarg = { 0.0f, 0.0f, 1.0f, 1.0f };
-	Matrix4f cameraRotation = getYRot(yaw);
-	tmpLook = tmpTarg * cameraRotation;
+	Matrix4f cameraRotationX = getXRot(pitch);
+	Matrix4f cameraRotationY = getYRot(yaw);
+	tmpLook = tmpTarg * cameraRotationY * cameraRotationX;
 	tmpTarg = tmpCamLoc + tmpLook;
 	
 	RowVector3f targetVec = virtCam + lookDir;

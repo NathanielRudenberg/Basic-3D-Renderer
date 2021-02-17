@@ -99,7 +99,7 @@ private:
 	RowVector3f virtCam;
 	RowVector3f lookDir;
 
-	float yaw;
+	float yaw, pitch;
 
 private:
 	bool naivePointInTriangle(TriangleNoEigen& tri, Point3d& point);

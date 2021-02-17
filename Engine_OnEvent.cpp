@@ -35,6 +35,15 @@ void Engine::OnKeyDown(SDL_Keycode sym, Uint16 mod) {
         virtCam = virtCam - vForward;
         break;
 
+    case SDLK_g:
+        SDL_SetRelativeMouseMode(SDL_TRUE);
+        break;
+
+    case SDLK_ESCAPE:
+        SDL_SetRelativeMouseMode(SDL_FALSE);
+        SDL_WarpMouseInWindow(window, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
+        break;
+
     default:
 
         break;
@@ -45,5 +54,8 @@ void Engine::OnMouseMove(int mX, int mY, int relX, int relY, bool Left, bool Rig
     /*virtCam[X] = virtCam[X] + float(relX) / 60.0f;
     virtCam[Y] = virtCam[Y] + float(relY) / 60.0f;*/
 
-    yaw -= ((float)relX * 0.01f) * elapsedTime;
+    if (SDL_GetRelativeMouseMode() == SDL_TRUE) {
+        yaw -= ((float)relX * 0.05f) * elapsedTime;
+        pitch += ((float)relY * 0.05f) * elapsedTime;
+    }
 }
