@@ -23,7 +23,6 @@ public:
 		W
 	};
 
-private:
 	struct Point3d {
 		float x, y, z;
 	};
@@ -42,6 +41,8 @@ private:
 			v[2] = { tri.v[2][X], tri.v[2][Y], tri.v[2][Z], };
 		}
 	};
+
+private:
 
 	struct MatMesh {
 		std::vector<Trigon> tris;

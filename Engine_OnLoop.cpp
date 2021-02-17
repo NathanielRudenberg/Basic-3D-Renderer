@@ -69,38 +69,50 @@ void Engine::OnLoop(float elapsedTime) {
 			normal[Z] * (triTransformed.v[0][Z] - virtCam[Z]) < 0.0f) {
 
 			// Illumination
-			RowVector3f lightDirection{ 0.0f, 0.0f, -1.0f };
+			RowVector3f lightDirection{ 0.0f, 1.0f, 0.0f };
 			lightDirection = lightDirection.normalized();
 
 			float dotProd = normal.dot(lightDirection);
 			int luminance = (int)(127.5f * (1.0 + dotProd));
-			triTransformed.luminance = luminance;
 
 			for (int i = 0; i < 3; i++) {
 				// Convert from world space to view space
 				triViewed.v[i] = triTransformed.v[i] * viewMatrix;
-
-				// Project onto screen
-				float nearPlane = 0.1f;
-				float farPlane = 1000.0f;
-				float fov = 90.0f;
-				float fovRad = 1.0f / tanf(fov * 0.5f / 180.0f * PI);
-				float aspectRatio = (float)SCREEN_HEIGHT / (float)SCREEN_WIDTH;
-
-				triProjected.v[i] = project(triViewed.v[i], fovRad, aspectRatio, nearPlane, farPlane);
-
-				// Normalize and scale into view
-				triProjected.v[i][X] += 1.0f;
-				triProjected.v[i][Y] += 1.0f;
-
-				triProjected.v[i][X] *= 0.5f * (float)SCREEN_WIDTH;
-				triProjected.v[i][Y] *= 0.5f * (float)SCREEN_HEIGHT;
 			}
 
-			triProjected.luminance = triTransformed.luminance;
+			triViewed.luminance = luminance;
+
+			int clippedTriangleNum = 0;
+			Trigon clipped[2];
+			RowVector3f planePoint{ 0.0f, 0.0f, 3.0f };
+			RowVector3f planeNormal{ 0.0f, 0.0f, 1.0f };
+			clippedTriangleNum = clipTriangleAgainstPlane(planePoint, planeNormal, triViewed, clipped[0], clipped[1]);
+
+			for (int n = 0; n < clippedTriangleNum; n++) {
+
+				for (int i = 0; i < 3; i++) {
+					// Project onto screen
+					float nearPlane = 0.1f;
+					float farPlane = 1000.0f;
+					float fov = 90.0f;
+					float fovRad = 1.0f / tanf(fov * 0.5f / 180.0f * PI);
+					float aspectRatio = (float)SCREEN_HEIGHT / (float)SCREEN_WIDTH;
+
+					triProjected.v[i] = project(clipped[n].v[i], fovRad, aspectRatio, nearPlane, farPlane);
+
+					// Normalize and scale into view
+					triProjected.v[i][X] += 1.0f;
+					triProjected.v[i][Y] += 1.0f;
+
+					triProjected.v[i][X] *= 0.5f * (float)SCREEN_WIDTH;
+					triProjected.v[i][Y] *= 0.5f * (float)SCREEN_HEIGHT;
+				}
+
+				triProjected.luminance = clipped[n].luminance;
 
 			// Store triangles for sorting
 			trisToRaster.push_back(triProjected);
+			}
 		}
 	}
 
@@ -119,8 +131,8 @@ void Engine::OnLoop(float elapsedTime) {
 			rasterize(toRaster);
 		}
 
-		if (false) {
-			SDL_SetRenderDrawColor(renderer, triProjected.luminance, 0, 0, 255);
+		if (true) {
+			SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
 			SDL_RenderDrawLine(renderer, (int)triProjected.v[0][X], (int)triProjected.v[0][Y], (int)triProjected.v[1][X], (int)triProjected.v[1][Y]);
 			SDL_RenderDrawLine(renderer, (int)triProjected.v[1][X], (int)triProjected.v[1][Y], (int)triProjected.v[2][X], (int)triProjected.v[2][Y]);
 			SDL_RenderDrawLine(renderer, (int)triProjected.v[2][X], (int)triProjected.v[2][Y], (int)triProjected.v[0][X], (int)triProjected.v[0][Y]);

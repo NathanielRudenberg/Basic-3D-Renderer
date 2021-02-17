@@ -83,3 +83,102 @@ RowVector4f project(Eigen::RowVector4f& toProject, float fovRadians, float aspec
 
 	return projected;
 }
+
+RowVector4f vectorPlaneIntersect(RowVector3f& planePoint, RowVector3f& planeNormal, RowVector4f& lineStart, RowVector4f& lineEnd) {
+	planeNormal.normalize();
+	RowVector3f start, end;
+	RowVector4f toReturn;
+	start << lineStart[Engine::coordIndices::X], lineStart[Engine::coordIndices::Y], lineStart[Engine::coordIndices::Z];
+	end << lineEnd[Engine::coordIndices::X], lineEnd[Engine::coordIndices::Y], lineEnd[Engine::coordIndices::Z];
+
+	float planeD = -1.0f * planeNormal.dot(planePoint);
+	float ad = start.dot(planeNormal);
+	float bd = end.dot(planeNormal);
+	float t = (-planeD - ad) / (bd - ad);
+	RowVector3f lineStartToEnd = end - start;
+	RowVector3f lineToIntersect = lineStartToEnd * t;
+	toReturn << start + lineToIntersect, 1.0f;
+	return toReturn;
+}
+
+int clipTriangleAgainstPlane(RowVector3f& planePoint, RowVector3f& planeNormal, Engine::Trigon& inTri, Engine::Trigon& outTri1, Engine::Trigon& outTri2) {
+	planeNormal.normalize();
+
+	// Get shortest distance from point to plane
+	auto dist = [&](RowVector4f& n) {
+		RowVector3f p;
+		p << n[Engine::coordIndices::X], n[Engine::coordIndices::Y], n[Engine::coordIndices::Z];
+
+		return (planeNormal[Engine::coordIndices::X] * p[Engine::coordIndices::X]
+			+ planeNormal[Engine::coordIndices::Y] * p[Engine::coordIndices::Y]
+			+ planeNormal[Engine::coordIndices::Z] * p[Engine::coordIndices::Z]
+			- planeNormal.dot(planePoint));
+	};
+
+	// Classify vertices on either side of the plane
+	// Vertices on the inside have a positive sign
+	RowVector4f* pointsInside[3]; int insidePointCount = 0;
+	RowVector4f* pointsOutside[3]; int outsidePointCount = 0;
+
+	// Get distance of each triangle vertex to plane
+	float d0 = dist(inTri.v[0]);
+	float d1 = dist(inTri.v[1]);
+	float d2 = dist(inTri.v[2]);
+
+	if (d0 >= 0) {
+		pointsInside[insidePointCount++] = &inTri.v[0];
+	}
+	else {
+		pointsOutside[outsidePointCount++] = &inTri.v[0];
+	}
+	if (d1 >= 0) {
+		pointsInside[insidePointCount++] = &inTri.v[1];
+	}
+	else {
+		pointsOutside[outsidePointCount++] = &inTri.v[1];
+	}
+	if (d2 >= 0) {
+		pointsInside[insidePointCount++] = &inTri.v[2];
+	}
+	else {
+		pointsOutside[outsidePointCount++] = &inTri.v[2];
+	}
+
+	// Classify triangles based on how many vertices are outside the plane
+	if (insidePointCount == 0) {
+		return 0;
+	}
+	if (insidePointCount == 3) {
+		outTri1 = inTri;
+		return 1;
+	}
+	if (insidePointCount == 1 && outsidePointCount == 2) {
+		outTri1.luminance = inTri.luminance;
+
+		// Keep the inside vertex
+		outTri1.v[0] = *pointsInside[0];
+
+		// Clip the other two vertices
+		outTri1.v[1] = vectorPlaneIntersect(planePoint, planeNormal, *pointsInside[0], *pointsOutside[0]);
+		outTri1.v[2] = vectorPlaneIntersect(planePoint, planeNormal, *pointsInside[0], *pointsOutside[1]);
+
+		return 1;
+	}
+	if (insidePointCount == 2 && outsidePointCount == 1) {
+		// Clip triangle, return two new ones
+		outTri1.luminance = inTri.luminance;
+		outTri2.luminance = inTri.luminance;
+
+		// The first new triangle keeps the two inside vertices
+		outTri1.v[0] = *pointsInside[0];
+		outTri1.v[1] = *pointsInside[1];
+		outTri1.v[2] = vectorPlaneIntersect(planePoint, planeNormal, *pointsInside[0], *pointsOutside[0]);
+
+		// The second new triangle keeps one inside vertex
+		outTri2.v[0] = *pointsInside[1];
+		outTri2.v[1] = outTri1.v[2];
+		outTri2.v[2] = vectorPlaneIntersect(planePoint, planeNormal, *pointsInside[1], *pointsOutside[0]);
+
+		return 2;
+	}
+}
