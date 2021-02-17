@@ -2,6 +2,7 @@
 #include <cmath>
 #include <algorithm>
 #include <Eigen/Geometry>
+#include "TransformUtilities.h"
 
 void Engine::OnLoop(int elapsedTime) {
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
@@ -13,35 +14,17 @@ void Engine::OnLoop(int elapsedTime) {
 
 	theta += 2.5f * (float)elapsedTime / 1000.0f / 3.0f;
 
-	Matrix4f rotX = Matrix4f::Zero(), rotY = Matrix4f::Zero(), rotZ = Matrix4f::Zero(), transform = Matrix4f::Zero();
-	rotX(0, 0) = 1;
-	rotX(1, 1) = cosf(theta * -2.0f);
-	rotX(1, 2) = sinf(theta * -2.0f);
-	rotX(2, 1) = -sinf(theta * -2.0f);
-	rotX(2, 2) = cosf(theta * -2.0f);
-	rotX(3, 3) = 1.0f;
+	Matrix4f rotX = getXRot(theta);
+	Matrix4f rotY = getYRot(theta * 4.0f);
+	Matrix4f rotZ = getZRot(theta * 2.0f);
+	Matrix4f transform = Matrix4f::Zero();
 
-	rotZ(0, 0) = cosf(theta);
-	rotZ(0, 1) = sinf(theta);
-	rotZ(1, 0) = -sinf(theta);
-	rotZ(1, 1) = cosf(theta);
-	rotZ(2, 2) = 1;
-	rotZ(3, 3) = 1.0f;
-
-	rotY(0, 0) = cosf(theta * -2.0f);
-	rotY(0, 2) = -sinf(theta * -2.0f);
-	rotY(1, 1) = 1;
-	rotY(2, 0) = sinf(theta * -2.0f);
-	rotY(2, 2) = cosf(theta * -2.0f);
-	rotY(3, 3) = 1.0f;
-
-	transform = rotX * rotY;
-	transform = transform * rotZ;
+	transform = rotZ * rotY * rotZ;
 
 	std::vector<Trigon> trisToRaster;
 
-	for (auto& tri : matExternal.tris) {
-		Trigon triProjected, triTranslated, triRotatedZ, triRotatedZX, triRotatedZXY;
+	for (auto& tri : matCube.tris) {
+		Trigon triProjected, triTranslated, triRotatedZXY;
 
 		for (int i = 0; i < 3; i++) {
 			// Rotate
@@ -51,7 +34,7 @@ void Engine::OnLoop(int elapsedTime) {
 		triTranslated = triRotatedZXY;
 		for (int i = 0; i < 3; i++) {
 			// Translate into view space
-			triTranslated.v[i][Z] = triRotatedZXY.v[i][Z] + 6.0f;
+			triTranslated.v[i][Z] = triRotatedZXY.v[i][Z] + 3.0f;
 		}
 
 		// Get normals
