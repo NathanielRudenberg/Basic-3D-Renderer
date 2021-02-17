@@ -3,6 +3,7 @@
 #include "Engine.h"
 #include <cmath>
 #include <algorithm>
+#include <list>
 #include <Eigen/Geometry>
 #include "TransformUtilities.h"
 
@@ -84,7 +85,7 @@ void Engine::OnLoop(float elapsedTime) {
 
 			int clippedTriangleNum = 0;
 			Trigon clipped[2];
-			RowVector3f planePoint{ 0.0f, 0.0f, 3.0f };
+			RowVector3f planePoint{ 0.0f, 0.0f, 0.1f };
 			RowVector3f planeNormal{ 0.0f, 0.0f, 1.0f };
 			clippedTriangleNum = clipTriangleAgainstPlane(planePoint, planeNormal, triViewed, clipped[0], clipped[1]);
 
@@ -124,25 +125,70 @@ void Engine::OnLoop(float elapsedTime) {
 		return z1 > z2;
 		});
 
-	for (auto& triProjected : trisToRaster) {
-		if (true) {
-			SDL_SetRenderDrawColor(renderer, triProjected.luminance, triProjected.luminance, triProjected.luminance, 255);
-			TriangleNoEigen toRaster = TriangleNoEigen(triProjected);
-			rasterize(toRaster);
+	for (auto& triToRaster : trisToRaster) {
+		// Clip triangles against all screen edges
+		Trigon clipped[2];
+		std::list<Trigon> listTriangles;
+		listTriangles.push_back(triToRaster);
+		int newTrianglesNum = 1;
+
+		for (int i = 0; i < 4; i++) {
+			int numTrisToAdd = 0;
+			while (newTrianglesNum > 0) {
+				Trigon test = listTriangles.front();
+				listTriangles.pop_front();
+				newTrianglesNum--;
+
+				RowVector3f edge, edgeNorm;
+
+				switch (i) {
+				case 0:
+					edge << 0.0f, 0.0f, 0.0f;
+					edgeNorm << 0.0f, 1.0f, 0.0f;
+					break;
+				case 1:
+					edge << 0.0f, (float)SCREEN_HEIGHT - 1, 0.0f ;
+					edgeNorm << 0.0f, -1.0f, 0.0f;
+					break;
+				case 2:
+					edge << 0.0f, 0.0f, 0.0f ;
+					edgeNorm << 1.0f, 0.0f, 0.0f ;
+					break;
+				case 3:
+					edge << (float)SCREEN_WIDTH - 1, 0.0f, 0.0f ;
+					edgeNorm << -1.0f, 0.0f, 0.0f ;
+					break;
+				}
+
+				numTrisToAdd = clipTriangleAgainstPlane(edge, edgeNorm, test, clipped[0], clipped[1]);
+
+				for (int w = 0; w < numTrisToAdd; w++) {
+					listTriangles.push_back(clipped[w]);
+				}
+			}
+			newTrianglesNum = listTriangles.size();
 		}
 
-		if (true) {
-			SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-			SDL_RenderDrawLine(renderer, (int)triProjected.v[0][X], (int)triProjected.v[0][Y], (int)triProjected.v[1][X], (int)triProjected.v[1][Y]);
-			SDL_RenderDrawLine(renderer, (int)triProjected.v[1][X], (int)triProjected.v[1][Y], (int)triProjected.v[2][X], (int)triProjected.v[2][Y]);
-			SDL_RenderDrawLine(renderer, (int)triProjected.v[2][X], (int)triProjected.v[2][Y], (int)triProjected.v[0][X], (int)triProjected.v[0][Y]);
-		}
+		for (Trigon& t : listTriangles) {
+			if (true) {
+				SDL_SetRenderDrawColor(renderer, t.luminance, t.luminance, t.luminance, 255);
+				TriangleNoEigen toRaster = TriangleNoEigen(t);
+				rasterize(toRaster);
+			}
 
-		if (false) {
-			SDL_SetRenderDrawColor(renderer, triProjected.luminance, triProjected.luminance, 0, 255);
-			SDL_RenderDrawPoint(renderer, (int)triProjected.v[0][X], (int)triProjected.v[0][Y]);
-			SDL_RenderDrawPoint(renderer, (int)triProjected.v[1][X], (int)triProjected.v[1][Y]);
-			SDL_RenderDrawPoint(renderer, (int)triProjected.v[2][X], (int)triProjected.v[2][Y]);
+			if (true) {
+				SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+				SDL_RenderDrawLine(renderer, (int)t.v[0][X], (int)t.v[0][Y], (int)t.v[1][X], (int)t.v[1][Y]);
+				SDL_RenderDrawLine(renderer, (int)t.v[1][X], (int)t.v[1][Y], (int)t.v[2][X], (int)t.v[2][Y]);
+				SDL_RenderDrawLine(renderer, (int)t.v[2][X], (int)t.v[2][Y], (int)t.v[0][X], (int)t.v[0][Y]);
+			}
+
+			if (false) {
+				SDL_SetRenderDrawColor(renderer, t.luminance, t.luminance, 0, 255);
+				SDL_RenderDrawPoint(renderer, (int)t.v[0][X], (int)t.v[0][Y]);
+				SDL_RenderDrawPoint(renderer, (int)t.v[1][X], (int)t.v[1][Y]);
+				SDL_RenderDrawPoint(renderer, (int)t.v[2][X], (int)t.v[2][Y]);
+			}
 		}
 	}
 }
