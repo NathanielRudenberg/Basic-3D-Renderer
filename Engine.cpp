@@ -75,13 +75,13 @@ int Engine::OnExecute() {
 
 	while (running) {
 		t2 = SDL_GetTicks();
-		int elapsedTime = t2 - t1;
+		float elapsedTime = (t2 - t1) / 1000.0f;
 		t1 = t2;
 
 		SDL_Event event;
 
 		while (SDL_PollEvent(&event)) {
-			OnEvent(&event);
+			OnEvent(&event, elapsedTime);
 		}
 
 		OnLoop(elapsedTime);

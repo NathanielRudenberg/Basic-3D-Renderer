@@ -94,7 +94,8 @@ private:
 private:
 	MatMesh matCube;
 	MatMesh matExternal;
-	RowVector3f virtCam = RowVector3f::Zero();
+	RowVector3f virtCam;
+	RowVector3f lookDir;
 
 private:
 	bool naivePointInTriangle(TriangleNoEigen& tri, Point3d& point);
@@ -108,8 +109,8 @@ public:
 
 public:
 	bool OnInit();
-	void OnEvent(SDL_Event* event);
-	void OnLoop(int elapsedTime);
+	void OnEvent(SDL_Event* event, float elapsedTime);
+	void OnLoop(float elapsedTime);
 	void OnRender();
 	void OnCleanup();
 };

@@ -6,7 +6,7 @@
 #include <Eigen/Geometry>
 #include "TransformUtilities.h"
 
-void Engine::OnLoop(int elapsedTime) {
+void Engine::OnLoop(float elapsedTime) {
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
 	SDL_RenderClear(renderer);
 
@@ -14,45 +14,49 @@ void Engine::OnLoop(int elapsedTime) {
 	int center_y = SCREEN_HEIGHT / 2;
 	int radius = 69;
 
-	theta += 2.5f * (float)elapsedTime / 1000.0f / 3.0f;
+	//theta += 2.5f * (float)elapsedTime / 1000.0f;
 
 	Matrix4f rotX = getXRot(theta);
-	Matrix4f rotY = getYRot(theta * 4.0f);
-	Matrix4f rotZ = getZRot(theta * 2.0f);
-	Matrix4f transform = Matrix4f::Zero();
+	Matrix4f rotY = getYRot(theta);
+	Matrix4f rotZ = getZRot(theta);
+	Matrix4f translation = getTranslationMatrix(0.0f, 0.0f, 6.0f);
+	Matrix4f worldMatrix = Matrix4f::Zero();
 
-	transform = rotZ * rotY * rotZ;
+	worldMatrix = rotY * rotX;
+	worldMatrix *= rotZ;
+	worldMatrix *= translation;
+
+	lookDir = { 0.0f, 0.0f, 1.0f };
+	RowVector3f upVec{ 0.0f, 1.0f, 0.0f };
+	RowVector3f targetVec = virtCam + lookDir;
+
+	Matrix4f cameraMatrix = getPointAtMatrix(virtCam, targetVec, upVec);
+	Matrix4f viewMatrix = cameraMatrix.inverse();
 
 	std::vector<Trigon> trisToRaster;
 
-	for (auto& tri : matCube.tris) {
-		Trigon triProjected, triTranslated, triRotatedZXY;
+	for (auto& tri : matExternal.tris) {
+		Trigon triProjected, triTransformed, triViewed;
 
 		for (int i = 0; i < 3; i++) {
 			// Rotate
-			triRotatedZXY.v[i] = tri.v[i] * transform;
-		}
-
-		triTranslated = triRotatedZXY;
-		for (int i = 0; i < 3; i++) {
-			// Translate into view space
-			triTranslated.v[i][Z] = triRotatedZXY.v[i][Z] + 3.0f;
+			triTransformed.v[i] = tri.v[i] * worldMatrix;
 		}
 
 		// Get normals
 		RowVector3f normal, line1, line2;
-		line1[X] = triTranslated.v[1][X] - triTranslated.v[0][X];
-		line1[Y] = triTranslated.v[1][Y] - triTranslated.v[0][Y];
-		line1[Z] = triTranslated.v[1][Z] - triTranslated.v[0][Z];
+		line1[X] = triTransformed.v[1][X] - triTransformed.v[0][X];
+		line1[Y] = triTransformed.v[1][Y] - triTransformed.v[0][Y];
+		line1[Z] = triTransformed.v[1][Z] - triTransformed.v[0][Z];
 
-		line2[X] = triTranslated.v[2][X] - triTranslated.v[0][X];
-		line2[Y] = triTranslated.v[2][Y] - triTranslated.v[0][Y];
-		line2[Z] = triTranslated.v[2][Z] - triTranslated.v[0][Z];
+		line2[X] = triTransformed.v[2][X] - triTransformed.v[0][X];
+		line2[Y] = triTransformed.v[2][Y] - triTransformed.v[0][Y];
+		line2[Z] = triTransformed.v[2][Z] - triTransformed.v[0][Z];
 		normal = line1.cross(line2).normalized();
 
-		if (normal[X] * (triTranslated.v[0][X] - virtCam[X]) +
-			normal[Y] * (triTranslated.v[0][Y] - virtCam[Y]) +
-			normal[Z] * (triTranslated.v[0][Z] - virtCam[Z]) < 0.0f) {
+		if (normal[X] * (triTransformed.v[0][X] - virtCam[X]) +
+			normal[Y] * (triTransformed.v[0][Y] - virtCam[Y]) +
+			normal[Z] * (triTransformed.v[0][Z] - virtCam[Z]) < 0.0f) {
 
 			// Illumination
 			RowVector3f lightDirection{ 0.0f, 0.0f, -1.0f };
@@ -60,9 +64,12 @@ void Engine::OnLoop(int elapsedTime) {
 
 			float dotProd = normal.dot(lightDirection);
 			int luminance = (int)(127.5f * (1.0 + dotProd));
-			triTranslated.luminance = luminance;
+			triTransformed.luminance = luminance;
 
 			for (int i = 0; i < 3; i++) {
+				// Convert from world space to view space
+				triViewed.v[i] = triTransformed.v[i] * viewMatrix;
+
 				// Project onto screen
 				float nearPlane = 0.1f;
 				float farPlane = 1000.0f;
@@ -70,7 +77,7 @@ void Engine::OnLoop(int elapsedTime) {
 				float fovRad = 1.0f / tanf(fov * 0.5f / 180.0f * PI);
 				float aspectRatio = (float)SCREEN_HEIGHT / (float)SCREEN_WIDTH;
 
-				triProjected.v[i] = project(triTranslated.v[i], fovRad, aspectRatio, nearPlane, farPlane);
+				triProjected.v[i] = project(triViewed.v[i], fovRad, aspectRatio, nearPlane, farPlane);
 
 				// Normalize and scale into view
 				triProjected.v[i][X] += 1.0f;
@@ -80,7 +87,7 @@ void Engine::OnLoop(int elapsedTime) {
 				triProjected.v[i][Y] *= 0.5f * (float)SCREEN_HEIGHT;
 			}
 
-			triProjected.luminance = triTranslated.luminance;
+			triProjected.luminance = triTransformed.luminance;
 
 			// Store triangles for sorting
 			trisToRaster.push_back(triProjected);
