@@ -9,9 +9,8 @@ void Engine::OnExit() {
 }
 
 void Engine::OnKeyDown(SDL_Keycode sym, Uint16 mod) {
-    RowVector3f vForward = lookDir * (8.0f * elapsedTime);
     switch (sym) {
-    case SDLK_SPACE:
+        /*case SDLK_SPACE:
         virtCam[Y] = virtCam[Y] + 8.0f * elapsedTime;
         break;
 
@@ -33,7 +32,7 @@ void Engine::OnKeyDown(SDL_Keycode sym, Uint16 mod) {
 
     case SDLK_s:
         virtCam = virtCam - vForward;
-        break;
+        break;*/
 
     case SDLK_g:
         SDL_SetRelativeMouseMode(SDL_TRUE);

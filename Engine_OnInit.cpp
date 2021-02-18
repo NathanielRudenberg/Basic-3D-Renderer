@@ -6,6 +6,8 @@ bool Engine::OnInit() {
         return false;
     }
 
+    depthBuffer = new float[SCREEN_WIDTH * SCREEN_HEIGHT];
+
     window = SDL_CreateWindow("Basic 3D Engine", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
     if (window == NULL) { return false; }
 
@@ -49,7 +51,7 @@ bool Engine::OnInit() {
     matCube.tris.push_back(b1);
     matCube.tris.push_back(b2);
 
-    //matExternal.loadObj("teapot.obj");
+    matExternal.loadObj("teapot.obj");
 
     virtCam = RowVector3f::Zero();
 

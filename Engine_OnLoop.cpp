@@ -45,7 +45,7 @@ void Engine::OnLoop(float elapsedTime) {
 
 	std::vector<Trigon> trisToRaster;
 
-	for (auto& tri : matCube.tris) {
+	for (auto& tri : matExternal.tris) {
 		Trigon triProjected, triTransformed, triViewed;
 
 		for (int i = 0; i < 3; i++) {
@@ -175,7 +175,7 @@ void Engine::OnLoop(float elapsedTime) {
 				rasterize(toRaster);
 			}
 
-			if (false) {
+			if (true) {
 				SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
 				SDL_RenderDrawLine(renderer, (int)t.v[0][X], (int)t.v[0][Y], (int)t.v[1][X], (int)t.v[1][Y]);
 				SDL_RenderDrawLine(renderer, (int)t.v[1][X], (int)t.v[1][Y], (int)t.v[2][X], (int)t.v[2][Y]);

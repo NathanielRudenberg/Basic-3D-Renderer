@@ -6,6 +6,9 @@
 #include <strstream>
 #include <Eigen/Core>
 #include <iostream>
+#include <tuple>
+#include <type_traits>
+#include <utility>
 #include "EngineEvent.h"
 
 using Eigen::Matrix3f;
@@ -99,17 +102,19 @@ private:
 	RowVector3f virtCam;
 	RowVector3f lookDir;
 
-	float yaw, pitch;
-
 private:
 	bool naivePointInTriangle(TriangleNoEigen& tri, Point3d& point);
 	bool doesTriangleContainPoint(TriangleNoEigen& tri, Point3d& point, float epsilon);
 	float sqrPointDistanceToSegment(Point3d& pos1, Point3d& pos2, Point3d& point);
 	float elapsedTime;
+	float yaw;
+	float pitch;
+	float* depthBuffer = nullptr;
 
 public:
 	Engine();
 	int OnExecute();
+	void FillTriangle(TriangleNoEigen& tri);
 	void rasterize(TriangleNoEigen& triangle);
 
 public:
