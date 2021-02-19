@@ -216,6 +216,7 @@ void Engine::rasterize(TriangleNoEigen& triangle) {
 
 int Engine::OnExecute() {
 	if (!OnInit()) {
+		std::cerr << "You effed up" << std::endl;
 		return -1;
 	}
 

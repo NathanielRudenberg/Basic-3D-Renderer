@@ -1,13 +1,13 @@
 #include "EngineEvent.h"
 
-EngineEvent::EngineEvent() {
+EngineEventHandler::EngineEventHandler() {
 }
 
-EngineEvent::~EngineEvent() {
+EngineEventHandler::~EngineEventHandler() {
     //Do nothing
 }
 
-void EngineEvent::OnEvent(SDL_Event* Event) {
+void EngineEventHandler::OnEvent(SDL_Event* Event) {
     switch (Event->type) {
     /*case SDL_ACTIVEEVENT: {
         switch (Event->active.state) {
@@ -135,102 +135,102 @@ void EngineEvent::OnEvent(SDL_Event* Event) {
     }
 }
 
-void EngineEvent::OnInputFocus() {
+void EngineEventHandler::OnInputFocus() {
     //Pure virtual, do nothing
 }
 
-void EngineEvent::OnInputBlur() {
+void EngineEventHandler::OnInputBlur() {
     //Pure virtual, do nothing
 }
 
-void EngineEvent::OnKeyDown(SDL_Keycode sym, Uint16 mod) {
+void EngineEventHandler::OnKeyDown(SDL_Keycode sym, Uint16 mod) {
     //Pure virtual, do nothing
 }
 
-void EngineEvent::OnKeyUp(SDL_Keycode sym, Uint16 mod) {
+void EngineEventHandler::OnKeyUp(SDL_Keycode sym, Uint16 mod) {
     //Pure virtual, do nothing
 }
 
-void EngineEvent::OnMouseFocus() {
+void EngineEventHandler::OnMouseFocus() {
     //Pure virtual, do nothing
 }
 
-void EngineEvent::OnMouseBlur() {
+void EngineEventHandler::OnMouseBlur() {
     //Pure virtual, do nothing
 }
 
-void EngineEvent::OnMouseMove(int mX, int mY, int relX, int relY, bool Left, bool Right, bool Middle) {
+void EngineEventHandler::OnMouseMove(int mX, int mY, int relX, int relY, bool Left, bool Right, bool Middle) {
     //Pure virtual, do nothing
 }
 
-void EngineEvent::OnMouseWheel(bool Up, bool Down) {
+void EngineEventHandler::OnMouseWheel(bool Up, bool Down) {
     //Pure virtual, do nothing
 }
 
-void EngineEvent::OnLButtonDown(int mX, int mY) {
+void EngineEventHandler::OnLButtonDown(int mX, int mY) {
     //Pure virtual, do nothing
 }
 
-void EngineEvent::OnLButtonUp(int mX, int mY) {
+void EngineEventHandler::OnLButtonUp(int mX, int mY) {
     //Pure virtual, do nothing
 }
 
-void EngineEvent::OnRButtonDown(int mX, int mY) {
+void EngineEventHandler::OnRButtonDown(int mX, int mY) {
     //Pure virtual, do nothing
 }
 
-void EngineEvent::OnRButtonUp(int mX, int mY) {
+void EngineEventHandler::OnRButtonUp(int mX, int mY) {
     //Pure virtual, do nothing
 }
 
-void EngineEvent::OnMButtonDown(int mX, int mY) {
+void EngineEventHandler::OnMButtonDown(int mX, int mY) {
     //Pure virtual, do nothing
 }
 
-void EngineEvent::OnMButtonUp(int mX, int mY) {
+void EngineEventHandler::OnMButtonUp(int mX, int mY) {
     //Pure virtual, do nothing
 }
 
-void EngineEvent::OnJoyAxis(Uint8 which, Uint8 axis, Sint16 value) {
+void EngineEventHandler::OnJoyAxis(Uint8 which, Uint8 axis, Sint16 value) {
     //Pure virtual, do nothing
 }
 
-void EngineEvent::OnJoyButtonDown(Uint8 which, Uint8 button) {
+void EngineEventHandler::OnJoyButtonDown(Uint8 which, Uint8 button) {
     //Pure virtual, do nothing
 }
 
-void EngineEvent::OnJoyButtonUp(Uint8 which, Uint8 button) {
+void EngineEventHandler::OnJoyButtonUp(Uint8 which, Uint8 button) {
     //Pure virtual, do nothing
 }
 
-void EngineEvent::OnJoyHat(Uint8 which, Uint8 hat, Uint8 value) {
+void EngineEventHandler::OnJoyHat(Uint8 which, Uint8 hat, Uint8 value) {
     //Pure virtual, do nothing
 }
 
-void EngineEvent::OnJoyBall(Uint8 which, Uint8 ball, Sint16 xrel, Sint16 yrel) {
+void EngineEventHandler::OnJoyBall(Uint8 which, Uint8 ball, Sint16 xrel, Sint16 yrel) {
     //Pure virtual, do nothing
 }
 
-void EngineEvent::OnMinimize() {
+void EngineEventHandler::OnMinimize() {
     //Pure virtual, do nothing
 }
 
-void EngineEvent::OnRestore() {
+void EngineEventHandler::OnRestore() {
     //Pure virtual, do nothing
 }
 
-void EngineEvent::OnResize(int w, int h) {
+void EngineEventHandler::OnResize(int w, int h) {
     //Pure virtual, do nothing
 }
 
-void EngineEvent::OnExpose() {
+void EngineEventHandler::OnExpose() {
     //Pure virtual, do nothing
 }
 
-void EngineEvent::OnExit() {
+void EngineEventHandler::OnExit() {
     //Pure virtual, do nothing
 }
 
-void EngineEvent::OnUser(Uint8 type, int code, void* data1, void* data2) {
+void EngineEventHandler::OnUser(Uint8 type, int code, void* data1, void* data2) {
     //Pure virtual, do nothing
 }

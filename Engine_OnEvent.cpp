@@ -1,7 +1,7 @@
 #include "Engine.h"
 
 void Engine::OnEvent(SDL_Event* event, float elapsedTime) {
-    EngineEvent::OnEvent(event);
+    EngineEventHandler::OnEvent(event);
 }
 
 void Engine::OnExit() {

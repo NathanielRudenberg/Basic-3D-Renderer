@@ -24,6 +24,7 @@
     <ClCompile Include="Engine_OnCleanup.cpp" />
     <ClCompile Include="Engine_OnEvent.cpp" />
     <ClCompile Include="Engine_OnInit.cpp" />
+    <ClCompile Include="Engine_OnInitGL.cpp" />
     <ClCompile Include="Engine_OnLoop.cpp" />
     <ClCompile Include="Engine_OnRender.cpp" />
     <ClCompile Include="TransformUtilities.cpp" />
@@ -143,7 +144,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;opengl32.lib;glew32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

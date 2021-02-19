@@ -1,11 +1,11 @@
 #pragma once
 #include "SDL.h"
 
-class EngineEvent {
+class EngineEventHandler {
 public:
-    EngineEvent();
+    EngineEventHandler();
 
-    virtual ~EngineEvent();
+    virtual ~EngineEventHandler();
 
     virtual void OnEvent(SDL_Event* Event);
 

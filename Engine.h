@@ -1,5 +1,8 @@
 #pragma once
 #include <SDL.h>
+#include <gl\glew.h>
+#include <SDL_opengl.h>
+#include <gl\glu.h>
 #include <vector>
 #include <string>
 #include <fstream>
@@ -17,7 +20,7 @@ using Eigen::RowVector2f;
 using Eigen::RowVector3f;
 using Eigen::RowVector4f;
 
-class Engine : public EngineEvent {
+class Engine : public EngineEventHandler {
 public:
 	enum coordIndices {
 		X,
@@ -92,6 +95,8 @@ private:
 	SDL_Surface* buffSurface = NULL;
 	SDL_Renderer* renderer = NULL;
 	SDL_Window* window = NULL;
+	SDL_GLContext glContext;
+	GLuint programID = 0;
 	const int SCREEN_WIDTH = 1200;
 	const int SCREEN_HEIGHT = 700;
 	float theta = 0.0f;
@@ -109,7 +114,6 @@ private:
 	float elapsedTime;
 	float yaw;
 	float pitch;
-	float* depthBuffer = nullptr;
 
 public:
 	Engine();
@@ -119,6 +123,7 @@ public:
 
 public:
 	bool OnInit();
+	bool OnInitGL();
 	void OnEvent(SDL_Event* event, float elapsedTime);
 	void OnExit();
 	void OnKeyDown(SDL_Keycode sym, Uint16 mod);
@@ -126,4 +131,5 @@ public:
 	void OnLoop(float elapsedTime);
 	void OnRender();
 	void OnCleanup();
+	float* depthBuffer = nullptr;
 };

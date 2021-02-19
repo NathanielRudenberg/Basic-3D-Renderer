@@ -2,17 +2,39 @@
 #include <vector>
 
 bool Engine::OnInit() {
+    // Initialize SDL
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         return false;
     }
+    
+    //Use OpenGL 3.3 core
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
+    /*SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
+    SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
+    SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
+    SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
+    SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE, 32);*/
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
-    depthBuffer = new float[SCREEN_WIDTH * SCREEN_HEIGHT];
+    // Create a window to use for display
+    window = SDL_CreateWindow("Basic 3D Engine", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+    if (window == NULL) { std::cerr << "Failed to create window!" << std::endl; return false; }
 
-    window = SDL_CreateWindow("Basic 3D Engine", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
-    if (window == NULL) { return false; }
+    // Create an OpenGL context for rendering
+    glContext = SDL_GL_CreateContext(window);
+    if (glContext == NULL) { std::cerr << "Could not create context!" << std::endl; return false; }
 
-    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-    if (renderer == NULL) { return false; }
+    // Initialize GLEW
+    GLenum glewStatus = glewInit();
+    if (glewStatus != GLEW_OK) { std::cerr << "Could not initialize GLEW!\n"; }
+
+    // Initialize OpenGL
+    if (!OnInitGL()) { std::cerr << "Could not initialize OpenGL!\n"; return NULL; }
+
+    /*renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+    if (renderer == NULL) { return false; }*/
 
     Trigon s1, s2;
     s1.v[0] = { -0.5f, -0.5f, -0.5f, 1.0f }; s1.v[1] = { -0.5f, 0.5f, -0.5f, 1.0f }; s1.v[2] = { 0.5f, 0.5f, -0.5f, 1.0f };

@@ -8,8 +8,8 @@
 #include "TransformUtilities.h"
 
 void Engine::OnLoop(float elapsedTime) {
-	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
-	SDL_RenderClear(renderer);
+	glClearColor(0.0f, 0.3f, 0.15f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	int center_x = SCREEN_WIDTH / 2;
 	int center_y = SCREEN_HEIGHT / 2;
@@ -169,13 +169,13 @@ void Engine::OnLoop(float elapsedTime) {
 		}
 
 		for (Trigon& t : listTriangles) {
-			if (true) {
+			if (false) {
 				SDL_SetRenderDrawColor(renderer, t.luminance, t.luminance, t.luminance, 255);
 				TriangleNoEigen toRaster = TriangleNoEigen(t);
 				rasterize(toRaster);
 			}
 
-			if (true) {
+			if (false) {
 				SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
 				SDL_RenderDrawLine(renderer, (int)t.v[0][X], (int)t.v[0][Y], (int)t.v[1][X], (int)t.v[1][Y]);
 				SDL_RenderDrawLine(renderer, (int)t.v[1][X], (int)t.v[1][Y], (int)t.v[2][X], (int)t.v[2][Y]);
