@@ -17,6 +17,10 @@ Matrix4f getYRot(float theta);
 // Get Z rotation matrix
 Matrix4f getZRot(float theta);
 
+// Get a rotation matrix with combined angle rotations.
+// Rotation order: X -> Y -> Z
+Matrix4f getRotationMatrix(float thetaX, float thetaY, float thetaZ);
+
 // Get projection matrix
 Matrix4f getProjectionMatrix(float fovRadians, float aspectRatio, float nearPlane, float farPlane);
 

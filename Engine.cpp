@@ -59,7 +59,7 @@ void Engine::FillTriangle(TriangleNoEigen& tri) {
 	int y2 = tri.v[1].y;
 	int y3 = tri.v[2].y;
 	auto swap = [](int& x, int& y) {int t = x; x = y; y = t; };
-	auto drawLine = [&](int sx, int ex, int ny) { for (int i = sx; i < ex; i++) SDL_RenderDrawPoint(renderer, i, ny); };
+	auto drawLine = [&](int sx, int ex, int ny) { SDL_RenderDrawLine(renderer, sx, ny, ex, ny); };
 
 	int t1x, t2x, y, minx, maxx, t1xp, t2xp;
 	bool changed1 = false;

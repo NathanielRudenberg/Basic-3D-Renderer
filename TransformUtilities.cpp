@@ -60,6 +60,10 @@ Matrix4f getZRot(float theta) {
 	return m;
 }
 
+Matrix4f getRotationMatrix(float thetaX, float thetaY, float thetaZ) {
+	return getZRot(thetaZ) * getYRot(thetaY) * getXRot(thetaX);
+}
+
 Matrix4f getProjectionMatrix(float fovRadians, float aspectRatio, float nearPlane, float farPlane) {
 	Matrix4f projMat = Matrix4f::Zero();
 	projMat(0, 0) = (aspectRatio * fovRadians) * -1.0f;

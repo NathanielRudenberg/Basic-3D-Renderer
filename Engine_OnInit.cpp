@@ -52,6 +52,9 @@ bool Engine::OnInit() {
     matCube.tris.push_back(b2);
 
     matExternal.loadObj("teapot.obj");
+    Model pyramid;
+    pyramid.load("pyramid.obj");
+    objects.push_back(pyramid);
 
     virtCam = RowVector3f::Zero();
 

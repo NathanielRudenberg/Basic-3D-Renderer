@@ -26,12 +26,18 @@
     <ClCompile Include="Engine_OnInit.cpp" />
     <ClCompile Include="Engine_OnLoop.cpp" />
     <ClCompile Include="Engine_OnRender.cpp" />
+    <ClCompile Include="mesh.cpp" />
+    <ClCompile Include="Model.cpp" />
     <ClCompile Include="TransformUtilities.cpp" />
+    <ClCompile Include="Triangle.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine.h" />
     <ClInclude Include="EngineEvent.h" />
+    <ClInclude Include="mesh.h" />
+    <ClInclude Include="Model.h" />
     <ClInclude Include="TransformUtilities.h" />
+    <ClInclude Include="Triangle.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
@@ -139,6 +145,7 @@
       <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
       <Optimization>MaxSpeed</Optimization>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

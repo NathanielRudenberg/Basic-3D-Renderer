@@ -1,4 +1,5 @@
 #pragma once
+#define _SILENCE_CXX17_STRSTREAM_DEPRECATION_WARNING
 #include <SDL.h>
 #include <vector>
 #include <string>
@@ -10,6 +11,7 @@
 #include <type_traits>
 #include <utility>
 #include "EngineEvent.h"
+#include "model.h"
 
 using Eigen::Matrix3f;
 using Eigen::Matrix4f;
@@ -44,8 +46,6 @@ public:
 			v[2] = { tri.v[2][X], tri.v[2][Y], tri.v[2][Z], };
 		}
 	};
-
-private:
 
 	struct MatMesh {
 		std::vector<Trigon> tris;
@@ -82,11 +82,11 @@ private:
 		}
 	};
 
+private:
+
 	struct Matrix {
 		float matrix[4][4] = { 0.0f };
 	};
-
-private:
 	bool running;
 	SDL_Surface* displaySurface = NULL;
 	SDL_Surface* buffSurface = NULL;
@@ -95,6 +95,7 @@ private:
 	const int SCREEN_WIDTH = 1200;
 	const int SCREEN_HEIGHT = 700;
 	float theta = 0.0f;
+	std::vector<Model> objects;
 
 private:
 	MatMesh matCube;
@@ -103,21 +104,22 @@ private:
 	RowVector3f lookDir;
 
 private:
-	bool naivePointInTriangle(TriangleNoEigen& tri, Point3d& point);
-	bool doesTriangleContainPoint(TriangleNoEigen& tri, Point3d& point, float epsilon);
-	float sqrPointDistanceToSegment(Point3d& pos1, Point3d& pos2, Point3d& point);
 	float elapsedTime;
 	float yaw;
 	float pitch;
 	float* depthBuffer = nullptr;
 
 public:
-	Engine();
-	int OnExecute();
+	bool naivePointInTriangle(TriangleNoEigen& tri, Point3d& point);
+	bool doesTriangleContainPoint(TriangleNoEigen& tri, Point3d& point, float epsilon);
+	float sqrPointDistanceToSegment(Point3d& pos1, Point3d& pos2, Point3d& point);
 	void FillTriangle(TriangleNoEigen& tri);
 	void rasterize(TriangleNoEigen& triangle);
+	void render(Model obj);
 
 public:
+	Engine();
+	int OnExecute();
 	bool OnInit();
 	void OnEvent(SDL_Event* event, float elapsedTime);
 	void OnExit();

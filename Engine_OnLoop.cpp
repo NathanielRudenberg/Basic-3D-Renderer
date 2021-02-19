@@ -15,15 +15,12 @@ void Engine::OnLoop(float elapsedTime) {
 	int center_y = SCREEN_HEIGHT / 2;
 	int radius = 69;
 
-	Matrix4f rotX = getXRot(theta);
-	Matrix4f rotY = getYRot(theta);
-	Matrix4f rotZ = getZRot(theta);
 	Matrix4f translation = getTranslationMatrix(0.0f, 0.0f, 3.0f);
 	Matrix4f worldMatrix = Matrix4f::Zero();
 
-	worldMatrix = rotY * rotX;
-	worldMatrix *= rotZ;
-	worldMatrix *= translation;
+	/*worldMatrix = rotY * rotX;
+	worldMatrix *= rotZ;*/
+	worldMatrix = translation;
 
 	lookDir = { 0.0f, 0.0f, 1.0f };
 	RowVector4f tmpLook, tmpCamLoc;
@@ -45,12 +42,12 @@ void Engine::OnLoop(float elapsedTime) {
 
 	std::vector<Trigon> trisToRaster;
 
-	for (auto& tri : matExternal.tris) {
+	for (Triangle& tri : objects[0].getMesh().getTris()) {
 		Trigon triProjected, triTransformed, triViewed;
 
 		for (int i = 0; i < 3; i++) {
-			// Rotate
-			triTransformed.v[i] = tri.v[i] * worldMatrix;
+			// Transform
+			triTransformed.v[i] = tri.getVerts().at(i) * worldMatrix;
 		}
 
 		// Get normals
