@@ -1,6 +1,11 @@
 #include "triangle.h"
 #include <iostream>
 
+Triangle::Triangle() {
+	luminance = 0;
+	v.reserve(3);
+}
+
 Triangle::Triangle(RowVector4f& v1, RowVector4f& v2, RowVector4f& v3) {
 	luminance = 0;
 	v.push_back(v1); v.push_back(v2); v.push_back(v3);
@@ -25,4 +30,13 @@ int Triangle::getLuminance() {
 
 void Triangle::setLuminance(int lum) {
 	luminance = lum;
+}
+
+Triangle& Triangle::operator=(const Triangle& tri) {
+	if (this != &tri) {
+		this->luminance = tri.luminance;
+		this->v = std::vector<RowVector4f>(tri.v);
+	}
+
+	return *this;
 }

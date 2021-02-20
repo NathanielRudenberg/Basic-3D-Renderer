@@ -10,7 +10,7 @@ bool Mesh::loadObj(std::string filename) {
 		char line[128];
 		objFile.getline(line, 128);
 
-		std::strstream s;
+		std::stringstream s;
 		s << line;
 
 		char tmp;

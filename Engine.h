@@ -1,10 +1,9 @@
 #pragma once
-#define _SILENCE_CXX17_STRSTREAM_DEPRECATION_WARNING
 #include <SDL.h>
 #include <vector>
 #include <string>
 #include <fstream>
-#include <strstream>
+#include <sstream>
 #include <Eigen/Core>
 #include <iostream>
 #include <tuple>
@@ -45,6 +44,12 @@ public:
 			v[1] = { tri.v[1][X], tri.v[1][Y], tri.v[1][Z], };
 			v[2] = { tri.v[2][X], tri.v[2][Y], tri.v[2][Z], };
 		}
+
+		TriangleNoEigen(Triangle& tri) {
+			v[0] = { tri.getVerts()[0][X], tri.getVerts()[0][Y], tri.getVerts()[0][Z], };
+			v[1] = { tri.getVerts()[1][X], tri.getVerts()[1][Y], tri.getVerts()[1][Z], };
+			v[2] = { tri.getVerts()[2][X], tri.getVerts()[2][Y], tri.getVerts()[2][Z], };
+		}
 	};
 
 	struct MatMesh {
@@ -60,7 +65,7 @@ public:
 				char line[128];
 				f.getline(line, 128);
 
-				std::strstream s;
+				std::stringstream s;
 				s << line;
 
 				char tmp;
@@ -95,6 +100,7 @@ private:
 	const int SCREEN_WIDTH = 1200;
 	const int SCREEN_HEIGHT = 700;
 	float cameraMoveSpeed;
+	float cameraYawSpeed;
 	float theta = 0.0f;
 	std::vector<Model> objects;
 
@@ -116,7 +122,7 @@ public:
 	float sqrPointDistanceToSegment(Point3d& pos1, Point3d& pos2, Point3d& point);
 	void FillTriangle(TriangleNoEigen& tri);
 	void rasterize(TriangleNoEigen& triangle);
-	void render(Model& obj);
+	void render(Model& obj, Matrix4f viewMatrix, float translateX = 0.0f, float translateY = 0.0f, float translateZ = 0.0f);
 
 public:
 	Engine();

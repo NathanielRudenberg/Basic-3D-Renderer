@@ -1,7 +1,6 @@
 #pragma once
-#define _SILENCE_CXX17_STRSTREAM_DEPRECATION_WARNING
 #include <fstream>
-#include <strstream>
+#include <sstream>
 #include "triangle.h"
 #include <iostream>
 

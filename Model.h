@@ -1,5 +1,4 @@
 #pragma once
-#define _SILENCE_CXX17_STRSTREAM_DEPRECATION_WARNING
 #include <fstream>
 #include <iostream>
 #include "mesh.h"

@@ -31,4 +31,4 @@ RowVector4f project(Eigen::RowVector4f& toProject, float fovRadians, float aspec
 RowVector4f vectorPlaneIntersect(RowVector3f& planeP, RowVector3f& planeN, RowVector4f& lineStart, RowVector4f& lineEnd);
 
 // Clip triangle against plane
-int clipTriangleAgainstPlane(RowVector3f& planePoint, RowVector3f& planeNormal, Engine::Trigon& inTri, Engine::Trigon& outTri1, Engine::Trigon& outTri2);
+int clipTriangleAgainstPlane(RowVector3f& planePoint, RowVector3f& planeNormal, Triangle& inTri, Triangle& outTri1, Triangle& outTri2);

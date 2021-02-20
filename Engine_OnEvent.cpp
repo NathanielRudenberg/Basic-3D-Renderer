@@ -10,30 +10,6 @@ void Engine::OnExit() {
 
 void Engine::OnKeyDown(SDL_Keycode sym, Uint16 mod) {
     switch (sym) {
-        /*case SDLK_SPACE:
-        virtCam[Y] = virtCam[Y] + 8.0f * elapsedTime;
-        break;
-
-    case SDLK_LSHIFT:
-        virtCam[Y] = virtCam[Y] - 8.0f * elapsedTime;
-        break;
-
-    case SDLK_a:
-        virtCam[X] = virtCam[X] + 8.0f * elapsedTime;
-        break;
-
-    case SDLK_d:
-        virtCam[X] = virtCam[X] - 8.0f * elapsedTime;
-        break;
-
-    case SDLK_w:
-        virtCam = virtCam + vForward;
-        break;
-
-    case SDLK_s:
-        virtCam = virtCam - vForward;
-        break;*/
-
     case SDLK_g:
         SDL_SetRelativeMouseMode(SDL_TRUE);
         break;
@@ -52,8 +28,9 @@ void Engine::OnKeyDown(SDL_Keycode sym, Uint16 mod) {
 }
 
 void Engine::OnMouseMove(int mX, int mY, int relX, int relY, bool Left, bool Right, bool Middle) {
+    cameraYawSpeed = 0.2f;
     if (SDL_GetRelativeMouseMode() == SDL_TRUE) {
-        yaw -= ((float)relX * 1.0f) * elapsedTime;
-        pitch -= ((float)relY * 1.0f) * elapsedTime;
+        yaw -= ((float)relX * cameraYawSpeed) * elapsedTime;
+        //pitch -= ((float)relY * cameraYawSpeed) * elapsedTime;
     }
 }
