@@ -11,7 +11,9 @@ Triangle::Triangle(const Triangle& old) {
 	v = std::vector<RowVector4f>(old.v);
 }
 
-Triangle::Triangle(Triangle&& old) noexcept : luminance(std::move(old.luminance)), v(std::move(old.v)) { old.luminance = 0; }
+Triangle::Triangle(Triangle&& old) noexcept : luminance(std::move(old.luminance)), v(std::move(old.v)) {
+	old.luminance = 0;
+}
 
 std::vector<RowVector4f>& Triangle::getVerts() {
 	return v;

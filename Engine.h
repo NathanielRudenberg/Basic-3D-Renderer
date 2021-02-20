@@ -116,7 +116,7 @@ public:
 	float sqrPointDistanceToSegment(Point3d& pos1, Point3d& pos2, Point3d& point);
 	void FillTriangle(TriangleNoEigen& tri);
 	void rasterize(TriangleNoEigen& triangle);
-	void render(Model obj);
+	void render(Model& obj);
 
 public:
 	Engine();
