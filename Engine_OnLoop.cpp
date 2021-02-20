@@ -27,7 +27,14 @@ void Engine::OnLoop(float elapsedTime) {
 	tmpCamLoc << virtCam, 1.0f;
 	RowVector3f upVec{ 0.0f, 1.0f, 0.0f };
 	RowVector4f tmpTarg = { 0.0f, 0.0f, 1.0f, 1.0f };
-	Matrix4f cameraRotationX = getXRot(pitch);
+	Eigen::Quaternionf pitchChange;
+	pitchChange = Eigen::AngleAxisf(pitch, rightDir.normalized());
+	Matrix3f camRotX = pitchChange.toRotationMatrix();
+	Matrix4f cameraRotationX;
+	cameraRotationX <<	camRotX(0, 0),	camRotX(0, 1),	camRotX(0, 2),	0.0f,
+						camRotX(1, 0),	camRotX(1, 1),	camRotX(1, 2),	0.0f,
+						camRotX(2, 0),	camRotX(2, 1),	camRotX(2, 2),	0.0f,
+						0.0f,			0.0f,			0.0f,			1.0f;
 	Matrix4f cameraRotationY = getYRot(yaw);
 	tmpLook = tmpTarg * cameraRotationY * cameraRotationX;
 	tmpTarg = tmpCamLoc + tmpLook;
@@ -75,7 +82,7 @@ void Engine::OnLoop(float elapsedTime) {
 				normal[Z] * (triTransformed.v[0][Z] - virtCam[Z]) < 0.0f) {
 
 				// Illumination
-				RowVector3f lightDirection{ 0.0f, 1.0f, 0.0f };
+				RowVector3f lightDirection{ 0.5f, 1.0f, 0.0f };
 				lightDirection = lightDirection.normalized();
 
 				float dotProd = normal.dot(lightDirection);
@@ -176,13 +183,13 @@ void Engine::OnLoop(float elapsedTime) {
 		}
 
 		for (Trigon& t : listTriangles) {
-			if (false) {
+			if (true) {
 				SDL_SetRenderDrawColor(renderer, t.luminance, t.luminance, t.luminance, 255);
 				TriangleNoEigen toRaster = TriangleNoEigen(t);
 				rasterize(toRaster);
 			}
 
-			if (true) {
+			if (false) {
 				SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
 				SDL_RenderDrawLine(renderer, (int)t.v[0][X], (int)t.v[0][Y], (int)t.v[1][X], (int)t.v[1][Y]);
 				SDL_RenderDrawLine(renderer, (int)t.v[1][X], (int)t.v[1][Y], (int)t.v[2][X], (int)t.v[2][Y]);
