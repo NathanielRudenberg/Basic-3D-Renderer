@@ -25,8 +25,7 @@ bool Mesh::loadObj(std::string filename) {
 		if (line[0] == 'f') {
 			int face[3];
 			s >> tmp >> face[0] >> face[1] >> face[2];
-			Triangle t = Triangle(verts[face[0] - 1], verts[face[1] - 1], verts[face[2] - 1]);
-			tris.push_back(t);
+			tris.push_back(Triangle(verts[face[0] - 1], verts[face[1] - 1], verts[face[2] - 1]));
 		}
 	}
 

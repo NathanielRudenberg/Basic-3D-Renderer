@@ -51,7 +51,7 @@ bool Engine::OnInit() {
     matCube.tris.push_back(b1);
     matCube.tris.push_back(b2);
 
-    matExternal.loadObj("teapot.obj");
+    matExternal.loadObj("pyramid.obj");
     Model pyramid;
     pyramid.load("pyramid.obj");
     objects.push_back(pyramid);

@@ -50,6 +50,14 @@ void Engine::OnLoop(float elapsedTime) {
 			triTransformed.v[i] = tri.getVerts().at(i) * worldMatrix;
 		}
 
+	//for (Trigon tri : matExternal.tris) {
+	//	Trigon triProjected, triTransformed, triViewed;
+
+	//	for (int i = 0; i < 3; i++) {
+	//		// Transform
+	//		triTransformed.v[i] = tri.v[i] * worldMatrix;
+	//	}
+
 		// Get normals
 		RowVector3f normal, line1, line2;
 		line1[X] = triTransformed.v[1][X] - triTransformed.v[0][X];
