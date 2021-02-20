@@ -105,7 +105,6 @@ private:
 	std::vector<Model> objects;
 
 private:
-	MatMesh matExternal;
 	RowVector3f virtCam;
 	RowVector3f lookDir;
 	RowVector3f rightDir{ 1.0f, 0.0f, 0.0f };

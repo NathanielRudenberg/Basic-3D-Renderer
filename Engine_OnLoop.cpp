@@ -33,9 +33,9 @@ void Engine::OnLoop(float elapsedTime) {
 	Matrix4f cameraMatrix = getPointAtMatrix(virtCam, targetVec, upVec, rightDir);
 	Matrix4f viewMatrix = cameraMatrix.inverse();
 
-	for (int i = 0; i < 8; i++) {
-		for (int j = 0; j < 8; j++) {
-			render(objects[0], viewMatrix, (float)i, 0.0f, float(j));
+	for (int i = -4; i < 4; i++) {
+		for (int j = -4; j < 4; j++) {
+			render(objects[0], viewMatrix, (float)i*2, -2.0f, (float)j*2);
 		}
 	}
 
