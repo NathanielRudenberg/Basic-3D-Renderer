@@ -1,10 +1,11 @@
 #include "TransformUtilities.h"
 
-Matrix4f getPointAtMatrix(RowVector3f& pos, RowVector3f& target, RowVector3f& up) {
+Matrix4f getPointAtMatrix(RowVector3f& pos, RowVector3f& target, RowVector3f& up, RowVector3f& right) {
 	RowVector3f newForward = (target - pos).normalized();
 	RowVector3f a = newForward * up.dot(newForward);
 	RowVector3f newUp = (up - a).normalized();
 	RowVector3f newRight = newUp.cross(newForward);
+	right = newRight;
 
 	Matrix4f pointAt;
 	pointAt <<	newRight, 0,

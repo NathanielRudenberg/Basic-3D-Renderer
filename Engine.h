@@ -94,14 +94,15 @@ private:
 	SDL_Window* window = NULL;
 	const int SCREEN_WIDTH = 1200;
 	const int SCREEN_HEIGHT = 700;
+	float cameraMoveSpeed;
 	float theta = 0.0f;
 	std::vector<Model> objects;
 
 private:
-	MatMesh matCube;
 	MatMesh matExternal;
 	RowVector3f virtCam;
 	RowVector3f lookDir;
+	RowVector3f rightDir{ 1.0f, 0.0f, 0.0f };
 
 private:
 	float elapsedTime;
@@ -122,6 +123,7 @@ public:
 	int OnExecute();
 	bool OnInit();
 	void OnEvent(SDL_Event* event, float elapsedTime);
+	void CheckKeystate();
 	void OnExit();
 	void OnKeyDown(SDL_Keycode sym, Uint16 mod);
 	void OnMouseMove(int mX, int mY, int relX, int relY, bool Left, bool Right, bool Middle);

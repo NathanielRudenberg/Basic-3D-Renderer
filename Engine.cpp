@@ -231,27 +231,7 @@ int Engine::OnExecute() {
 			OnEvent(&event, elapsedTime);
 		}
 
-		const Uint8* keystate = SDL_GetKeyboardState(NULL);
-		RowVector3f vForward = lookDir * (1.0f * elapsedTime);
-		if (keystate[SDL_SCANCODE_SPACE]) {
-			virtCam[Y] = virtCam[Y] + 1.0f * elapsedTime;
-		}
-		if (keystate[SDL_SCANCODE_LSHIFT]) {
-			virtCam[Y] = virtCam[Y] - 1.0f * elapsedTime;
-		}
-		if (keystate[SDL_SCANCODE_A]) {
-			virtCam[X] = virtCam[X] + 1.0f * elapsedTime;
-		}
-		if (keystate[SDL_SCANCODE_D]) {
-			virtCam[X] = virtCam[X] - 1.0f * elapsedTime;
-		}
-		if (keystate[SDL_SCANCODE_W]) {
-			virtCam = virtCam + vForward;
-		}
-		if (keystate[SDL_SCANCODE_S]) {
-			virtCam = virtCam - vForward;
-		}
-
+		CheckKeystate();
 		OnLoop(elapsedTime);
 		OnRender();
 	}

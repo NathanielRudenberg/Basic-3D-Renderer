@@ -37,86 +37,88 @@ void Engine::OnLoop(float elapsedTime) {
 	lookDir[X] = tmpLook[X]; lookDir[Y] = tmpLook[Y]; lookDir[Z] = tmpLook[Z];
 	targetVec[X] = tmpTarg[X]; targetVec[Y] = tmpTarg[Y]; targetVec[Z] = tmpTarg[Z];
 
-	Matrix4f cameraMatrix = getPointAtMatrix(virtCam, targetVec, upVec);
+	Matrix4f cameraMatrix = getPointAtMatrix(virtCam, targetVec, upVec, rightDir);
 	Matrix4f viewMatrix = cameraMatrix.inverse();
 
 	std::vector<Trigon> trisToRaster;
 
-	for (Triangle& tri : objects[0].getMesh().getTris()) {
-		Trigon triProjected, triTransformed, triViewed;
-
-		for (int i = 0; i < 3; i++) {
-			// Transform
-			triTransformed.v[i] = tri.getVerts().at(i) * worldMatrix;
-		}
-
-	//for (Trigon tri : matExternal.tris) {
-	//	Trigon triProjected, triTransformed, triViewed;
-
-	//	for (int i = 0; i < 3; i++) {
-	//		// Transform
-	//		triTransformed.v[i] = tri.v[i] * worldMatrix;
-	//	}
-
-		// Get normals
-		RowVector3f normal, line1, line2;
-		line1[X] = triTransformed.v[1][X] - triTransformed.v[0][X];
-		line1[Y] = triTransformed.v[1][Y] - triTransformed.v[0][Y];
-		line1[Z] = triTransformed.v[1][Z] - triTransformed.v[0][Z];
-
-		line2[X] = triTransformed.v[2][X] - triTransformed.v[0][X];
-		line2[Y] = triTransformed.v[2][Y] - triTransformed.v[0][Y];
-		line2[Z] = triTransformed.v[2][Z] - triTransformed.v[0][Z];
-		normal = line1.cross(line2).normalized();
-
-		if (normal[X] * (triTransformed.v[0][X] - virtCam[X]) +
-			normal[Y] * (triTransformed.v[0][Y] - virtCam[Y]) +
-			normal[Z] * (triTransformed.v[0][Z] - virtCam[Z]) < 0.0f) {
-
-			// Illumination
-			RowVector3f lightDirection{ 0.0f, 1.0f, 0.0f };
-			lightDirection = lightDirection.normalized();
-
-			float dotProd = normal.dot(lightDirection);
-			int luminance = (int)(127.5f * (1.0 + dotProd));
+	for (Model& object : objects) {
+		for (Triangle& tri : object.getMesh().getTris()) {
+			Trigon triProjected, triTransformed, triViewed;
 
 			for (int i = 0; i < 3; i++) {
-				// Convert from world space to view space
-				triViewed.v[i] = triTransformed.v[i] * viewMatrix;
+				// Transform
+				triTransformed.v[i] = tri.getVerts().at(i) * worldMatrix;
 			}
 
-			triViewed.luminance = luminance;
+			//for (Trigon tri : matExternal.tris) {
+			//	Trigon triProjected, triTransformed, triViewed;
 
-			int clippedTriangleNum = 0;
-			Trigon clipped[2];
-			RowVector3f planePoint{ 0.0f, 0.0f, 0.1f };
-			RowVector3f planeNormal{ 0.0f, 0.0f, 1.0f };
-			clippedTriangleNum = clipTriangleAgainstPlane(planePoint, planeNormal, triViewed, clipped[0], clipped[1]);
+			//	for (int i = 0; i < 3; i++) {
+			//		// Transform
+			//		triTransformed.v[i] = tri.v[i] * worldMatrix;
+			//	}
 
-			for (int n = 0; n < clippedTriangleNum; n++) {
+				// Get normals
+			RowVector3f normal, line1, line2;
+			line1[X] = triTransformed.v[1][X] - triTransformed.v[0][X];
+			line1[Y] = triTransformed.v[1][Y] - triTransformed.v[0][Y];
+			line1[Z] = triTransformed.v[1][Z] - triTransformed.v[0][Z];
+
+			line2[X] = triTransformed.v[2][X] - triTransformed.v[0][X];
+			line2[Y] = triTransformed.v[2][Y] - triTransformed.v[0][Y];
+			line2[Z] = triTransformed.v[2][Z] - triTransformed.v[0][Z];
+			normal = line1.cross(line2).normalized();
+
+			if (normal[X] * (triTransformed.v[0][X] - virtCam[X]) +
+				normal[Y] * (triTransformed.v[0][Y] - virtCam[Y]) +
+				normal[Z] * (triTransformed.v[0][Z] - virtCam[Z]) < 0.0f) {
+
+				// Illumination
+				RowVector3f lightDirection{ 0.0f, 1.0f, 0.0f };
+				lightDirection = lightDirection.normalized();
+
+				float dotProd = normal.dot(lightDirection);
+				int luminance = (int)(127.5f * (1.0 + dotProd));
 
 				for (int i = 0; i < 3; i++) {
-					// Project onto screen
-					float nearPlane = 0.1f;
-					float farPlane = 1000.0f;
-					float fov = 75.0f;
-					float fovRad = 1.0f / tanf(fov * 0.5f / 180.0f * PI);
-					float aspectRatio = (float)SCREEN_HEIGHT / (float)SCREEN_WIDTH;
-
-					triProjected.v[i] = project(clipped[n].v[i], fovRad, aspectRatio, nearPlane, farPlane);
-
-					// Normalize and scale into view
-					triProjected.v[i][X] += 1.0f;
-					triProjected.v[i][Y] += 1.0f;
-
-					triProjected.v[i][X] *= 0.5f * (float)SCREEN_WIDTH;
-					triProjected.v[i][Y] *= 0.5f * (float)SCREEN_HEIGHT;
+					// Convert from world space to view space
+					triViewed.v[i] = triTransformed.v[i] * viewMatrix;
 				}
 
-				triProjected.luminance = clipped[n].luminance;
+				triViewed.luminance = luminance;
 
-			// Store triangles for sorting
-			trisToRaster.push_back(triProjected);
+				int clippedTriangleNum = 0;
+				Trigon clipped[2];
+				RowVector3f planePoint{ 0.0f, 0.0f, 0.1f };
+				RowVector3f planeNormal{ 0.0f, 0.0f, 1.0f };
+				clippedTriangleNum = clipTriangleAgainstPlane(planePoint, planeNormal, triViewed, clipped[0], clipped[1]);
+
+				for (int n = 0; n < clippedTriangleNum; n++) {
+
+					for (int i = 0; i < 3; i++) {
+						// Project onto screen
+						float nearPlane = 0.1f;
+						float farPlane = 1000.0f;
+						float fov = 75.0f;
+						float fovRad = 1.0f / tanf(fov * 0.5f / 180.0f * PI);
+						float aspectRatio = (float)SCREEN_HEIGHT / (float)SCREEN_WIDTH;
+
+						triProjected.v[i] = project(clipped[n].v[i], fovRad, aspectRatio, nearPlane, farPlane);
+
+						// Normalize and scale into view
+						triProjected.v[i][X] += 1.0f;
+						triProjected.v[i][Y] += 1.0f;
+
+						triProjected.v[i][X] *= 0.5f * (float)SCREEN_WIDTH;
+						triProjected.v[i][Y] *= 0.5f * (float)SCREEN_HEIGHT;
+					}
+
+					triProjected.luminance = clipped[n].luminance;
+
+					// Store triangles for sorting
+					trisToRaster.push_back(triProjected);
+				}
 			}
 		}
 	}
@@ -174,7 +176,7 @@ void Engine::OnLoop(float elapsedTime) {
 		}
 
 		for (Trigon& t : listTriangles) {
-			if (true) {
+			if (false) {
 				SDL_SetRenderDrawColor(renderer, t.luminance, t.luminance, t.luminance, 255);
 				TriangleNoEigen toRaster = TriangleNoEigen(t);
 				rasterize(toRaster);

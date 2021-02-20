@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="EngineEvent.cpp" />
+    <ClCompile Include="Engine_CheckKeystate.cpp" />
     <ClCompile Include="Engine_OnCleanup.cpp" />
     <ClCompile Include="Engine_OnEvent.cpp" />
     <ClCompile Include="Engine_OnInit.cpp" />
