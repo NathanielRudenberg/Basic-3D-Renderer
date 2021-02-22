@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="camera.cpp" />
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="EngineEvent.cpp" />
     <ClCompile Include="Engine_CheckKeystate.cpp" />
@@ -33,6 +34,7 @@
     <ClCompile Include="Triangle.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="camera.h" />
     <ClInclude Include="Engine.h" />
     <ClInclude Include="EngineEvent.h" />
     <ClInclude Include="mesh.h" />

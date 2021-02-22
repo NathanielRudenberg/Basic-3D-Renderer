@@ -34,8 +34,10 @@ void Triangle::setLuminance(int lum) {
 
 Triangle& Triangle::operator=(const Triangle& tri) {
 	if (this != &tri) {
-		this->luminance = tri.luminance;
-		this->v = std::vector<RowVector4f>(tri.v);
+		Triangle tmp(tri);
+
+		std::swap(luminance, tmp.luminance);
+		v.swap(tmp.v);
 	}
 
 	return *this;

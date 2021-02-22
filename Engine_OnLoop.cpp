@@ -9,19 +9,18 @@ void Engine::OnLoop(float elapsedTime) {
 	SDL_RenderClear(renderer);
 
 	lookDir = { 0.0f, 0.0f, 1.0f };
+	rightDir = { 1.0f, 0.0f, 0.0f };
+
+	RowVector3f upVec{ 0.0f, 1.0f, 0.0f };
+	RowVector4f tmpTarg{ 0.0f, 0.0f, 1.0f, 1.0f };
+
+	Matrix4f cameraRotationX = getXRot(pitch);
+
+	// Get camera yaw
+	Matrix4f cameraRotationY = getYRot(yaw);
+
 	RowVector4f tmpLook, tmpCamLoc;
 	tmpCamLoc << virtCam, 1.0f;
-	RowVector3f upVec{ 0.0f, 1.0f, 0.0f };
-	RowVector4f tmpTarg = { 0.0f, 0.0f, 1.0f, 1.0f };
-	Eigen::Quaternionf pitchChange;
-	pitchChange = Eigen::AngleAxisf(pitch, rightDir.normalized());
-	Matrix3f camRotX = pitchChange.toRotationMatrix();
-	Matrix4f cameraRotationX;
-	cameraRotationX << camRotX(0, 0), camRotX(0, 1), camRotX(0, 2), 0.0f,
-		camRotX(1, 0), camRotX(1, 1), camRotX(1, 2), 0.0f,
-		camRotX(2, 0), camRotX(2, 1), camRotX(2, 2), 0.0f,
-		0.0f, 0.0f, 0.0f, 1.0f;
-	Matrix4f cameraRotationY = getYRot(yaw);
 	tmpLook = tmpTarg * cameraRotationY * cameraRotationX;
 	tmpTarg = tmpCamLoc + tmpLook;
 

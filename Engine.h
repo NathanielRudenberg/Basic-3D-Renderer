@@ -107,7 +107,7 @@ private:
 private:
 	RowVector3f virtCam;
 	RowVector3f lookDir;
-	RowVector3f rightDir{ 1.0f, 0.0f, 0.0f };
+	RowVector3f rightDir;
 
 private:
 	float elapsedTime;

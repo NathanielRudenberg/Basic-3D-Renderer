@@ -4,8 +4,8 @@ Matrix4f getPointAtMatrix(RowVector3f& pos, RowVector3f& target, RowVector3f& up
 	RowVector3f newForward = (target - pos).normalized();
 	RowVector3f a = newForward * up.dot(newForward);
 	RowVector3f newUp = (up - a).normalized();
-	RowVector3f newRight = newUp.cross(newForward);
-	right = newRight;
+	RowVector3f newRight = newUp.cross(newForward).normalized();
+	right = up.cross(newForward).normalized();
 
 	Matrix4f pointAt;
 	pointAt <<	newRight, 0,
@@ -106,7 +106,7 @@ RowVector4f vectorPlaneIntersect(RowVector3f& planePoint, RowVector3f& planeNorm
 	return toReturn;
 }
 
-int clipTriangleAgainstPlane(RowVector3f& planePoint, RowVector3f& planeNormal, Triangle& inTri, Triangle& outTri1, Triangle& outTri2) {
+int clipTriangleAgainstPlane(RowVector3f& planePoint, RowVector3f& planeNormal, Engine::Trigon& inTri, Engine::Trigon& outTri1, Engine::Trigon& outTri2) {
 	planeNormal.normalize();
 
 	// Get shortest distance from point to plane
@@ -126,27 +126,27 @@ int clipTriangleAgainstPlane(RowVector3f& planePoint, RowVector3f& planeNormal, 
 	RowVector4f* pointsOutside[3]; int outsidePointCount = 0;
 
 	// Get distance of each triangle vertex to plane
-	float d0 = dist(inTri.getVerts()[0]);
-	float d1 = dist(inTri.getVerts()[1]);
-	float d2 = dist(inTri.getVerts()[2]);
+	float d0 = dist(inTri.v[0]);
+	float d1 = dist(inTri.v[1]);
+	float d2 = dist(inTri.v[2]);
 
 	if (d0 >= 0) {
-		pointsInside[insidePointCount++] = &inTri.getVerts()[0];
+		pointsInside[insidePointCount++] = &inTri.v[0];
 	}
 	else {
-		pointsOutside[outsidePointCount++] = &inTri.getVerts()[0];
+		pointsOutside[outsidePointCount++] = &inTri.v[0];
 	}
 	if (d1 >= 0) {
-		pointsInside[insidePointCount++] = &inTri.getVerts()[1];
+		pointsInside[insidePointCount++] = &inTri.v[1];
 	}
 	else {
-		pointsOutside[outsidePointCount++] = &inTri.getVerts()[1];
+		pointsOutside[outsidePointCount++] = &inTri.v[1];
 	}
 	if (d2 >= 0) {
-		pointsInside[insidePointCount++] = &inTri.getVerts()[2];
+		pointsInside[insidePointCount++] = &inTri.v[2];
 	}
 	else {
-		pointsOutside[outsidePointCount++] = &inTri.getVerts()[2];
+		pointsOutside[outsidePointCount++] = &inTri.v[2];
 	}
 
 	// Classify triangles based on how many vertices are outside the plane
@@ -158,31 +158,31 @@ int clipTriangleAgainstPlane(RowVector3f& planePoint, RowVector3f& planeNormal, 
 		return 1;
 	}
 	if (insidePointCount == 1 && outsidePointCount == 2) {
-		outTri1.setLuminance(inTri.getLuminance());
+		outTri1.luminance = inTri.luminance;
 
 		// Keep the inside vertex
-		outTri1.getVerts().push_back(*pointsInside[0]);
+		outTri1.v[0] = (*pointsInside[0]);
 
 		// Clip the other two vertices
-		outTri1.getVerts().push_back(vectorPlaneIntersect(planePoint, planeNormal, *pointsInside[0], *pointsOutside[0]));
-		outTri1.getVerts().push_back(vectorPlaneIntersect(planePoint, planeNormal, *pointsInside[0], *pointsOutside[1]));
+		outTri1.v[1] = (vectorPlaneIntersect(planePoint, planeNormal, *pointsInside[0], *pointsOutside[0]));
+		outTri1.v[2] = (vectorPlaneIntersect(planePoint, planeNormal, *pointsInside[0], *pointsOutside[1]));
 
 		return 1;
 	}
 	if (insidePointCount == 2 && outsidePointCount == 1) {
 		// Clip triangle, return two new ones
-		outTri1.setLuminance(inTri.getLuminance());
-		outTri2.setLuminance(inTri.getLuminance());
+		outTri1.luminance = inTri.luminance;
+		outTri2.luminance = inTri.luminance;
 
 		// The first new triangle keeps the two inside vertices
-		outTri1.getVerts().push_back(*pointsInside[0]);
-		outTri1.getVerts().push_back(*pointsInside[1]);
-		outTri1.getVerts().push_back(vectorPlaneIntersect(planePoint, planeNormal, *pointsInside[0], *pointsOutside[0]));
+		outTri1.v[0] = (*pointsInside[0]);
+		outTri1.v[1] = (*pointsInside[1]);
+		outTri1.v[2] = (vectorPlaneIntersect(planePoint, planeNormal, *pointsInside[0], *pointsOutside[0]));
 
 		// The second new triangle keeps one inside vertex
-		outTri2.getVerts().push_back(*pointsInside[1]);
-		outTri2.getVerts().push_back(outTri1.getVerts()[2]);
-		outTri2.getVerts().push_back(vectorPlaneIntersect(planePoint, planeNormal, *pointsInside[1], *pointsOutside[0]));
+		outTri2.v[0] = (*pointsInside[1]);
+		outTri2.v[1] = (outTri1.v[2]);
+		outTri2.v[2] = (vectorPlaneIntersect(planePoint, planeNormal, *pointsInside[1], *pointsOutside[0]));
 
 		return 2;
 	}

@@ -28,9 +28,9 @@ void Engine::OnKeyDown(SDL_Keycode sym, Uint16 mod) {
 }
 
 void Engine::OnMouseMove(int mX, int mY, int relX, int relY, bool Left, bool Right, bool Middle) {
-    cameraYawSpeed = 0.2f;
+    cameraYawSpeed = 1.0f;
     if (SDL_GetRelativeMouseMode() == SDL_TRUE) {
-        yaw -= ((float)relX * cameraYawSpeed) * elapsedTime;
-        //pitch -= ((float)relY * cameraYawSpeed) * elapsedTime;
+        // yaw -= ((float)relX * cameraYawSpeed) * elapsedTime;
+        pitch += ((float)relY * cameraYawSpeed) * elapsedTime;
     }
 }
