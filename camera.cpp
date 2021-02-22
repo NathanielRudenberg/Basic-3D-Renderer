@@ -1,5 +1,6 @@
 #include "camera.h"
 #include <Eigen/Geometry>
+#include <cmath>
 
 using Eigen::Quaternionf;
 
@@ -29,6 +30,16 @@ RowVector3f& Camera::getUp() {
 	return _up;
 }
 
+RowVector3f& Camera::getFront() {
+	_front = _yAxis.cross(getRight());
+	return _front;
+}
+
+RowVector3f& Camera::getBack() {
+	_back = getRight().cross(_yAxis);
+	return _back;
+}
+
 void Camera::translate(RowVector3f& translateBy, float amount, int dir) {
 	if (dir == PLUS) {
 		_pos = _pos + (translateBy * amount);
@@ -43,22 +54,23 @@ void Camera::rotate(float angle, RowVector3f& axis) {
 	Eigen::Matrix3f rotMat = rotation.toRotationMatrix();
 
 	_forward = _forward * rotMat;
+	_up = _up * rotMat;
 }
 
 RowVector3f Camera::getHoriz() {
-	return _yAxis.cross(_forward).normalized();
+	return _up.cross(_forward).normalized();
 }
 
 void Camera::rotateX(float angle) {
 	RowVector3f horiz = getHoriz();
 	rotate(angle, horiz);
-	_up = _forward.cross(horiz).normalized();
 }
 
 void Camera::rotateY(float angle) {
-	RowVector3f horiz = getHoriz();
-	rotate(angle, _yAxis);
-	_up = _forward.cross(horiz).normalized();
+	// Change the rotation direction based on the sign of the
+	// up vector's Y component
+	int sign = _up[Y] / std::abs(_up[Y]);
+	rotate(angle * sign, _yAxis);
 }
 
 void Camera::setPos(RowVector3f& pos) {

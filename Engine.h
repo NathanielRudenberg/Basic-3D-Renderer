@@ -63,12 +63,12 @@ private:
 	SDL_Window* window = NULL;
 	const int SCREEN_WIDTH = 1200;
 	const int SCREEN_HEIGHT = 700;
-	float cameraMoveSpeed;
-	float cameraRotSpeed;
-	std::vector<Model> objects;
 
 private:
+	float cameraMoveSpeed;
+	float cameraRotSpeed;
 	Camera camera;
+	std::vector<Model> objects;
 
 private:
 	const float pi = 3.14159f;
