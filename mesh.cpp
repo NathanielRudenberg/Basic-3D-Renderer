@@ -16,7 +16,6 @@ bool Mesh::loadObj(std::string filename) {
 		char tmp;
 		if (line[0] == 'v') {
 			RowVector4f v;
-			float x, y, z;
 			s >> tmp >> v[X] >> v[Y] >> v[Z];
 			v[W] = 1.0f;
 			verts.push_back(v);

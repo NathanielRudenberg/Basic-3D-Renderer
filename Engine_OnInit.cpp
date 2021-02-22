@@ -19,11 +19,13 @@ bool Engine::OnInit() {
     pyramid.load("pyramid.obj");
     objects.push_back(pyramid);*/
 
-    Model cube;
+    /*Model cube;
     cube.load("cube.obj");
-    objects.push_back(cube);
+    objects.push_back(cube);*/
 
-    virtCam = RowVector3f::Zero();
+    Model axis;
+    axis.load("axis.obj");
+    objects.push_back(axis);
 
     return true;
 }

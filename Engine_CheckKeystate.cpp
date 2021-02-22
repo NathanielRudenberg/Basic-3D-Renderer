@@ -3,24 +3,25 @@
 void Engine::CheckKeystate() {
 	cameraMoveSpeed = 2.0f;
 	const Uint8* keystate = SDL_GetKeyboardState(NULL);
-	RowVector3f vForward = lookDir * (cameraMoveSpeed * elapsedTime);
-	RowVector3f vRight = rightDir * (cameraMoveSpeed * elapsedTime);
+	if (keystate[SDL_SCANCODE_LCTRL]) {
+		cameraMoveSpeed = 8.0f;
+	}
 	if (keystate[SDL_SCANCODE_SPACE]) {
-		virtCam[Y] = virtCam[Y] + cameraMoveSpeed * elapsedTime;
+		camera.translate(camera._yAxis, (cameraMoveSpeed * elapsedTime), Camera::PLUS);
 	}
 	if (keystate[SDL_SCANCODE_LSHIFT]) {
-		virtCam[Y] = virtCam[Y] - cameraMoveSpeed * elapsedTime;
+		camera.translate(camera._yAxis, (cameraMoveSpeed * elapsedTime), Camera::MINUS);
 	}
 	if (keystate[SDL_SCANCODE_A]) {
-		virtCam = virtCam + vRight;
+		camera.translate(camera.getLeft(), (cameraMoveSpeed * elapsedTime), Camera::PLUS);
 	}
 	if (keystate[SDL_SCANCODE_D]) {
-		virtCam = virtCam - vRight;
+		camera.translate(camera.getRight(), (cameraMoveSpeed * elapsedTime), Camera::PLUS);
 	}
 	if (keystate[SDL_SCANCODE_W]) {
-		virtCam = virtCam + vForward;
+		camera.translate(camera.getForward(), (cameraMoveSpeed * elapsedTime), Camera::PLUS);
 	}
 	if (keystate[SDL_SCANCODE_S]) {
-		virtCam = virtCam - vForward;
+		camera.translate(camera.getForward(), (cameraMoveSpeed * elapsedTime), Camera::MINUS);
 	}
 }

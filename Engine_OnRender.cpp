@@ -37,9 +37,9 @@ void Engine::render(Model& obj, Matrix4f viewMatrix, float translateX, float tra
 		line2[Z] = triTransformed.v[2][Z] - triTransformed.v[0][Z];
 		normal = line1.cross(line2).normalized();
 
-		if (normal[X] * (triTransformed.v[0][X] - virtCam[X]) +
-			normal[Y] * (triTransformed.v[0][Y] - virtCam[Y]) +
-			normal[Z] * (triTransformed.v[0][Z] - virtCam[Z]) < 0.0f) {
+		if (normal[X] * (triTransformed.v[0][X] - camera.getPos()[X]) +
+			normal[Y] * (triTransformed.v[0][Y] - camera.getPos()[Y]) +
+			normal[Z] * (triTransformed.v[0][Z] - camera.getPos()[Z]) < 0.0f) {
 
 			// Illumination
 			RowVector3f lightDirection{ 0.5f, 1.0f, 0.0f };
@@ -142,7 +142,7 @@ void Engine::render(Model& obj, Matrix4f viewMatrix, float translateX, float tra
 		}
 
 		for (Trigon& t : listTriangles) {
-			if (true) {
+			if (false) {
 				SDL_SetRenderDrawColor(renderer, t.luminance, t.luminance, t.luminance, 255);
 				TriangleNoEigen toRaster = TriangleNoEigen(t);
 				rasterize(toRaster);

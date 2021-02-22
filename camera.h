@@ -9,17 +9,23 @@ private:
 	RowVector3f _pos;
 	RowVector3f _forward;
 	RowVector3f _up;
+	RowVector3f _right;
+	RowVector3f _left;
 	void rotate(float angle, RowVector3f& axis);
 	RowVector3f getHoriz();
 
 public:
+	enum direction {
+		PLUS,
+		MINUS
+	};
 	RowVector3f _yAxis{0.0f, 1.0f, 0.0f};
-	RowVector3f getPos();
-	RowVector3f getForward();
-	RowVector3f getLeft();
-	RowVector3f getRight();
-	RowVector3f getUp();
-	void translate(RowVector3f& translateBy);
+	RowVector3f& getPos();
+	RowVector3f& getForward();
+	RowVector3f& getLeft();
+	RowVector3f& getRight();
+	RowVector3f& getUp();
+	void translate(RowVector3f& translateBy, float amount, int dir);
 	void rotateX(float angle);
 	void rotateY(float angle);
 	void setPos(RowVector3f& pos);
@@ -28,5 +34,6 @@ public:
 
 // Constructor
 public:
+	Camera();
 	Camera(RowVector3f& pos, RowVector3f& forward, RowVector3f& up);
 };

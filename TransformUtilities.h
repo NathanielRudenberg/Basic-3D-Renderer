@@ -3,7 +3,7 @@
 #include "Engine.h"
 
 // Get matrix used to move the camera around the world
-Matrix4f getPointAtMatrix(RowVector3f& pos, RowVector3f& target, RowVector3f& up, RowVector3f& right);
+Matrix4f getPointAtMatrix(RowVector3f& pos, RowVector3f& target, RowVector3f& up);
 
 // Get translation matrix
 Matrix4f getTranslationMatrix(float x, float y, float z);

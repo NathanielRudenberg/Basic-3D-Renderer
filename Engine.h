@@ -11,6 +11,7 @@
 #include <utility>
 #include "EngineEvent.h"
 #include "model.h"
+#include "camera.h"
 
 using Eigen::Matrix3f;
 using Eigen::Matrix4f;
@@ -52,41 +53,6 @@ public:
 		}
 	};
 
-	struct MatMesh {
-		std::vector<Trigon> tris;
-
-		bool loadObj(std::string filename) {
-			std::ifstream f(filename);
-			if (!f.is_open()) { return false; }
-
-			// Build vertex cache
-			std::vector<RowVector4f> verts;
-			while (!f.eof()) {
-				char line[128];
-				f.getline(line, 128);
-
-				std::stringstream s;
-				s << line;
-
-				char tmp;
-				if (line[0] == 'v') {
-					RowVector4f v;
-					s >> tmp >> v[X] >> v[Y] >> v[Z];
-					v[W] = 1.0f;
-					verts.push_back(v);
-				}
-
-				if (line[0] == 'f') {
-					int f[3];
-					s >> tmp >> f[0] >> f[1] >> f[2];
-					tris.push_back({ verts[f[0] - 1], verts[f[1] - 1], verts[f[2] - 1] });
-				}
-			}
-
-			return true;
-		}
-	};
-
 private:
 
 	struct Matrix {
@@ -100,25 +66,19 @@ private:
 	const int SCREEN_WIDTH = 1200;
 	const int SCREEN_HEIGHT = 700;
 	float cameraMoveSpeed;
-	float cameraYawSpeed;
+	float cameraRotSpeed;
 	float theta = 0.0f;
 	std::vector<Model> objects;
 
 private:
-	RowVector3f virtCam;
-	RowVector3f lookDir;
-	RowVector3f rightDir;
+	Camera camera;
 
 private:
+	const float pi = 3.14159f;
 	float elapsedTime;
-	float yaw;
-	float pitch;
 	float* depthBuffer = nullptr;
 
 public:
-	bool naivePointInTriangle(TriangleNoEigen& tri, Point3d& point);
-	bool doesTriangleContainPoint(TriangleNoEigen& tri, Point3d& point, float epsilon);
-	float sqrPointDistanceToSegment(Point3d& pos1, Point3d& pos2, Point3d& point);
 	void FillTriangle(TriangleNoEigen& tri);
 	void rasterize(TriangleNoEigen& triangle);
 	void render(Model& obj, Matrix4f viewMatrix, float translateX = 0.0f, float translateY = 0.0f, float translateZ = 0.0f);

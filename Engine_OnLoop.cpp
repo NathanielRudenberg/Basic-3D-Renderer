@@ -7,36 +7,16 @@
 void Engine::OnLoop(float elapsedTime) {
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
 	SDL_RenderClear(renderer);
+	RowVector3f targetVec = camera.getPos() + camera.getForward();
 
-	lookDir = { 0.0f, 0.0f, 1.0f };
-	rightDir = { 1.0f, 0.0f, 0.0f };
-
-	RowVector3f upVec{ 0.0f, 1.0f, 0.0f };
-	RowVector4f tmpTarg{ 0.0f, 0.0f, 1.0f, 1.0f };
-
-	Matrix4f cameraRotationX = getXRot(pitch);
-
-	// Get camera yaw
-	Matrix4f cameraRotationY = getYRot(yaw);
-
-	RowVector4f tmpLook, tmpCamLoc;
-	tmpCamLoc << virtCam, 1.0f;
-	tmpLook = tmpTarg * cameraRotationY * cameraRotationX;
-	tmpTarg = tmpCamLoc + tmpLook;
-
-	RowVector3f targetVec = virtCam + lookDir;
-
-	lookDir[X] = tmpLook[X]; lookDir[Y] = tmpLook[Y]; lookDir[Z] = tmpLook[Z];
-	targetVec[X] = tmpTarg[X]; targetVec[Y] = tmpTarg[Y]; targetVec[Z] = tmpTarg[Z];
-
-	Matrix4f cameraMatrix = getPointAtMatrix(virtCam, targetVec, upVec, rightDir);
+	Matrix4f cameraMatrix = getPointAtMatrix(camera.getPos(), targetVec, camera.getUp());
 	Matrix4f viewMatrix = cameraMatrix.inverse();
 
-	/*for (int i = -2; i < 2; i++) {
-		for (int j = -2; j < 2; j++) {
-			render(objects[0], viewMatrix, (float)i*2, -2.0f, (float)j*2);
+	/*for (int i = -4; i <= 4; i++) {
+		for (int j = -4; j <= 4; j++) {
+			render(objects[0], viewMatrix, (float)(i*2), -2.0f, (float)(j*2));
 		}
 	}*/
 
-	render(objects[0], viewMatrix, 0.0f, 0.0f, 4.0f);
+	render(objects[0], viewMatrix, 0.0f, 0.0f, 0.0f);
 }
