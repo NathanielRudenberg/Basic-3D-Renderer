@@ -1,6 +1,6 @@
 #include "Engine.h"
 
-void Engine::OnEvent(SDL_Event* event, float elapsedTime) {
+void Engine::OnEvent(SDL_Event* event) {
     EngineEvent::OnEvent(event);
 }
 

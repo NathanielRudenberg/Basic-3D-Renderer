@@ -170,11 +170,11 @@ int Engine::OnExecute() {
 		SDL_Event event;
 
 		while (SDL_PollEvent(&event)) {
-			OnEvent(&event, elapsedTime);
+			OnEvent(&event);
 		}
 
 		CheckKeystate();
-		OnLoop(elapsedTime);
+		OnLoop();
 		OnRender();
 	}
 

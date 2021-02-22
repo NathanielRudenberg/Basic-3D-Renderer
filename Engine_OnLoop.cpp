@@ -4,7 +4,7 @@
 #include "Engine.h"
 #include "TransformUtilities.h"
 
-void Engine::OnLoop(float elapsedTime) {
+void Engine::OnLoop() {
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
 	SDL_RenderClear(renderer);
 	RowVector3f targetVec = camera.getPos() + camera.getForward();

@@ -59,15 +59,12 @@ private:
 		float matrix[4][4] = { 0.0f };
 	};
 	bool running;
-	SDL_Surface* displaySurface = NULL;
-	SDL_Surface* buffSurface = NULL;
 	SDL_Renderer* renderer = NULL;
 	SDL_Window* window = NULL;
 	const int SCREEN_WIDTH = 1200;
 	const int SCREEN_HEIGHT = 700;
 	float cameraMoveSpeed;
 	float cameraRotSpeed;
-	float theta = 0.0f;
 	std::vector<Model> objects;
 
 private:
@@ -87,12 +84,12 @@ public:
 	Engine();
 	int OnExecute();
 	bool OnInit();
-	void OnEvent(SDL_Event* event, float elapsedTime);
+	void OnEvent(SDL_Event* event);
 	void CheckKeystate();
 	void OnExit();
 	void OnKeyDown(SDL_Keycode sym, Uint16 mod);
 	void OnMouseMove(int mX, int mY, int relX, int relY, bool Left, bool Right, bool Middle);
-	void OnLoop(float elapsedTime);
+	void OnLoop();
 	void OnRender();
 	void OnCleanup();
 };
