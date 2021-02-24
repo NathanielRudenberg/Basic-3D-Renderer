@@ -72,6 +72,7 @@ void Engine::render(Model& obj, Matrix4f viewMatrix, float translateX, float tra
 					float aspectRatio = (float)SCREEN_HEIGHT / (float)SCREEN_WIDTH;
 
 					triProjected.v[i] = project(clipped[n].v[i], fovRad, aspectRatio, nearPlane, farPlane);
+					triProjected.v[i][Z] = triProjected.v[i][W];
 
 					// Normalize and scale into view
 					triProjected.v[i][X] += 1.0f;
@@ -119,7 +120,7 @@ void Engine::render(Model& obj, Matrix4f viewMatrix, float translateX, float tra
 					edgeNorm << 0.0f, 1.0f, 0.0f;
 					break;
 				case 1:
-					edge << 0.0f, (float)SCREEN_HEIGHT - 1, 0.0f;
+					edge << 0.0f, (float)(SCREEN_HEIGHT - 1), 0.0f;
 					edgeNorm << 0.0f, -1.0f, 0.0f;
 					break;
 				case 2:
@@ -127,7 +128,7 @@ void Engine::render(Model& obj, Matrix4f viewMatrix, float translateX, float tra
 					edgeNorm << 1.0f, 0.0f, 0.0f;
 					break;
 				case 3:
-					edge << (float)SCREEN_WIDTH - 1, 0.0f, 0.0f;
+					edge << (float)(SCREEN_WIDTH - 1), 0.0f, 0.0f;
 					edgeNorm << -1.0f, 0.0f, 0.0f;
 					break;
 				}
@@ -142,7 +143,7 @@ void Engine::render(Model& obj, Matrix4f viewMatrix, float translateX, float tra
 		}
 
 		for (Trigon& t : listTriangles) {
-			if (false) {
+			if (true) {
 				SDL_SetRenderDrawColor(renderer, t.luminance, t.luminance, t.luminance, 255);
 				TriangleNoEigen toRaster = TriangleNoEigen(t);
 				rasterize(toRaster);

@@ -1,7 +1,7 @@
 #include "Engine.h"
 
 void Engine::CheckKeystate() {
-	cameraMoveSpeed = 2.0f;
+	float cameraMoveSpeed = 2.0f;
 	const Uint8* keystate = SDL_GetKeyboardState(NULL);
 	if (keystate[SDL_SCANCODE_LCTRL]) {
 		cameraMoveSpeed = 8.0f;
