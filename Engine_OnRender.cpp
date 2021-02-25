@@ -19,27 +19,28 @@ void Engine::render(Model& obj, Matrix4f viewMatrix, float translateX, float tra
 	std::vector<Trigon> trisToRaster;
 
 	for (Triangle& tri : obj.getMesh().getTris()) {
-		Trigon triViewed, triTransformed, triProjected;
+		Trigon triViewed, triProjected;
+		Triangle triTransformed;
 
 		for (int i = 0; i < 3; i++) {
 			// Transform
-			triTransformed.v[i] = tri.getVerts().at(i) * worldMatrix;
+			triTransformed.getVerts().push_back(tri.getVerts().at(i) * worldMatrix);
 		}
 
 			// Get normals
 		RowVector3f normal, line1, line2;
-		line1[X] = triTransformed.v[1][X] - triTransformed.v[0][X];
-		line1[Y] = triTransformed.v[1][Y] - triTransformed.v[0][Y];
-		line1[Z] = triTransformed.v[1][Z] - triTransformed.v[0][Z];
+		line1[X] = triTransformed.getVerts()[1][X] - triTransformed.getVerts()[0][X];
+		line1[Y] = triTransformed.getVerts()[1][Y] - triTransformed.getVerts()[0][Y];
+		line1[Z] = triTransformed.getVerts()[1][Z] - triTransformed.getVerts()[0][Z];
 
-		line2[X] = triTransformed.v[2][X] - triTransformed.v[0][X];
-		line2[Y] = triTransformed.v[2][Y] - triTransformed.v[0][Y];
-		line2[Z] = triTransformed.v[2][Z] - triTransformed.v[0][Z];
+		line2[X] = triTransformed.getVerts()[2][X] - triTransformed.getVerts()[0][X];
+		line2[Y] = triTransformed.getVerts()[2][Y] - triTransformed.getVerts()[0][Y];
+		line2[Z] = triTransformed.getVerts()[2][Z] - triTransformed.getVerts()[0][Z];
 		normal = line1.cross(line2).normalized();
 
-		if (normal[X] * (triTransformed.v[0][X] - camera.getPos()[X]) +
-			normal[Y] * (triTransformed.v[0][Y] - camera.getPos()[Y]) +
-			normal[Z] * (triTransformed.v[0][Z] - camera.getPos()[Z]) < 0.0f) {
+		if (normal[X] * (triTransformed.getVerts()[0][X] - camera.getPos()[X]) +
+			normal[Y] * (triTransformed.getVerts()[0][Y] - camera.getPos()[Y]) +
+			normal[Z] * (triTransformed.getVerts()[0][Z] - camera.getPos()[Z]) < 0.0f) {
 
 			// Illumination
 			RowVector3f lightDirection{ 0.5f, 1.0f, 0.0f };
@@ -50,7 +51,7 @@ void Engine::render(Model& obj, Matrix4f viewMatrix, float translateX, float tra
 
 			for (int i = 0; i < 3; i++) {
 				// Convert from world space to view space
-				triViewed.v[i] = triTransformed.v[i] * viewMatrix;
+				triViewed.v[i] = triTransformed.getVerts()[i] * viewMatrix;
 			}
 
 			triViewed.luminance = luminance;
@@ -149,7 +150,7 @@ void Engine::render(Model& obj, Matrix4f viewMatrix, float translateX, float tra
 				rasterize(toRaster);
 			}
 
-			if (false) {
+			if (1) {
 				SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
 				SDL_RenderDrawLine(renderer, (int)t.v[0][X], (int)t.v[0][Y], (int)t.v[1][X], (int)t.v[1][Y]);
 				SDL_RenderDrawLine(renderer, (int)t.v[1][X], (int)t.v[1][Y], (int)t.v[2][X], (int)t.v[2][Y]);

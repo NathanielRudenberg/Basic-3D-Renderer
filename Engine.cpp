@@ -234,8 +234,8 @@ next:
 }
 
 void Engine::rasterize(TriangleNoEigen& triangle) {
-	FillTriangle(triangle);
-	//TriFill(triangle);
+	//FillTriangle(triangle);
+	TriFill(triangle);
 }
 
 int Engine::OnExecute() {
