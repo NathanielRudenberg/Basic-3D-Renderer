@@ -32,19 +32,8 @@ public:
 		float x, y, z;
 	};
 
-	struct Trigon {
-		RowVector4f v[3];
-		int luminance;
-	};
-
 	struct TriangleNoEigen {
 		Point3d v[3];
-
-		TriangleNoEigen(Trigon& tri) {
-			v[0] = { tri.v[0][X], tri.v[0][Y], tri.v[0][Z], };
-			v[1] = { tri.v[1][X], tri.v[1][Y], tri.v[1][Z], };
-			v[2] = { tri.v[2][X], tri.v[2][Y], tri.v[2][Z], };
-		}
 
 		TriangleNoEigen(Triangle& tri) {
 			v[0] = { tri.getVerts()[0][X], tri.getVerts()[0][Y], tri.getVerts()[0][Z], };
