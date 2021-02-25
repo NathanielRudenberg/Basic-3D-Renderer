@@ -149,7 +149,7 @@ void Engine::render(Model& obj, Matrix4f viewMatrix, float translateX, float tra
 				rasterize(toRaster);
 			}
 
-			if (true) {
+			if (false) {
 				SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
 				SDL_RenderDrawLine(renderer, (int)t.v[0][X], (int)t.v[0][Y], (int)t.v[1][X], (int)t.v[1][Y]);
 				SDL_RenderDrawLine(renderer, (int)t.v[1][X], (int)t.v[1][Y], (int)t.v[2][X], (int)t.v[2][Y]);

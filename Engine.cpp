@@ -37,7 +37,7 @@ void Engine::TriFill(TriangleNoEigen& tri) {
 			int w2 = orient2d(x3, y3, x1, y1, x, y);
 
 			// Render pixel if p is on an edge or inside all edges
-			if (w0 >= 0 && w1 >= 0 && w2 >= 0) {
+			if ((w0 | w1 | w2) >= 0) {
 				SDL_RenderDrawPoint(renderer, x, y);
 			}
 		}
@@ -46,10 +46,10 @@ void Engine::TriFill(TriangleNoEigen& tri) {
 
 void Engine::FillTriangle(TriangleNoEigen& tri) {
 	int x1 = tri.v[0].x;
-	int x2 = tri.v[1].x;
-	int x3 = tri.v[2].x;
 	int y1 = tri.v[0].y;
+	int x2 = tri.v[1].x;
 	int y2 = tri.v[1].y;
+	int x3 = tri.v[2].x;
 	int y3 = tri.v[2].y;
 	auto swap = [](int& x, int& y) {int t = x; x = y; y = t; };
 	auto drawLine = [&](int sx, int ex, int ny) { SDL_RenderDrawLine(renderer, sx, ny, ex, ny); };
@@ -234,8 +234,8 @@ next:
 }
 
 void Engine::rasterize(TriangleNoEigen& triangle) {
-	//FillTriangle(triangle);
-	TriFill(triangle);
+	FillTriangle(triangle);
+	//TriFill(triangle);
 }
 
 int Engine::OnExecute() {
