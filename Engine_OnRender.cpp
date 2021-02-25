@@ -26,20 +26,18 @@ void Engine::render(Model& obj, Matrix4f viewMatrix, float translateX, float tra
 			triTransformed.getVerts()[i] = tri.getVerts()[i] * worldMatrix;
 		}
 
-			// Get normals
-		RowVector3f normal, line1, line2;
-		line1[X] = triTransformed.getVerts()[1][X] - triTransformed.getVerts()[0][X];
-		line1[Y] = triTransformed.getVerts()[1][Y] - triTransformed.getVerts()[0][Y];
-		line1[Z] = triTransformed.getVerts()[1][Z] - triTransformed.getVerts()[0][Z];
+		// Get normals
+		RowVector3f normal, line1, line2, v1, v2, v3, cameraRay;
+		v1 << triTransformed.getVerts()[0][X], triTransformed.getVerts()[0][Y], triTransformed.getVerts()[0][Z];
+		v2 << triTransformed.getVerts()[1][X], triTransformed.getVerts()[1][Y], triTransformed.getVerts()[1][Z];
+		v3 << triTransformed.getVerts()[2][X], triTransformed.getVerts()[2][Y], triTransformed.getVerts()[2][Z];
 
-		line2[X] = triTransformed.getVerts()[2][X] - triTransformed.getVerts()[0][X];
-		line2[Y] = triTransformed.getVerts()[2][Y] - triTransformed.getVerts()[0][Y];
-		line2[Z] = triTransformed.getVerts()[2][Z] - triTransformed.getVerts()[0][Z];
+		cameraRay = v1 - camera.getPos();
+		line1 = v2 - v1;
+		line2 = v3 - v1;
 		normal = line1.cross(line2).normalized();
 
-		if (normal[X] * (triTransformed.getVerts()[0][X] - camera.getPos()[X]) +
-			normal[Y] * (triTransformed.getVerts()[0][Y] - camera.getPos()[Y]) +
-			normal[Z] * (triTransformed.getVerts()[0][Z] - camera.getPos()[Z]) < 0.0f) {
+		if (normal.dot(cameraRay) < 0.0f) {
 
 			// Illumination
 			RowVector3f lightDirection{ 0.5f, 1.0f, 0.0f };
