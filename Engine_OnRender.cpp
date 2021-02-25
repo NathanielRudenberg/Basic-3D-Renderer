@@ -24,7 +24,7 @@ void Engine::render(Model& obj, Matrix4f viewMatrix, float translateX, float tra
 
 		for (int i = 0; i < 3; i++) {
 			// Transform
-			triTransformed.getVerts().push_back(tri.getVerts().at(i) * worldMatrix);
+			triTransformed.getVerts()[i] = tri.getVerts()[i] * worldMatrix;
 		}
 
 			// Get normals
