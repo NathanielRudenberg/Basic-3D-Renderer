@@ -70,6 +70,7 @@ public:
 
 public:
 	Engine();
+	~Engine();
 	int OnExecute();
 	bool OnInit();
 	void OnEvent(SDL_Event* event);

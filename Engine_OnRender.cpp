@@ -66,11 +66,11 @@ void Engine::render(Model& obj, Matrix4f viewMatrix, float translateX, float tra
 					float nearPlane = 0.1f;
 					float farPlane = 1000.0f;
 					float fov = 75.0f;
-					float fovRad = 1.0f / tanf(fov * 0.5f / 180.0f * PI);
+					float fovRad = 1.0f / tanf(fov * 0.5f / PI * 180.0f);
 					float aspectRatio = (float)SCREEN_HEIGHT / (float)SCREEN_WIDTH;
 
 					triProjected.getVerts()[i] = project(clipped[n].getVerts()[i], fovRad, aspectRatio, nearPlane, farPlane);
-					//triProjected.v[i][Z] = triProjected.v[i][W];
+					//triProjected.getVerts()[i][Z] = triProjected.getVerts()[i][W];
 
 					// Normalize and scale into view
 					triProjected.getVerts()[i][X] += 1.0f;
@@ -89,12 +89,12 @@ void Engine::render(Model& obj, Matrix4f viewMatrix, float translateX, float tra
 	}
 
 	// Sort tris from back to front
-	std::sort(trisToRaster.begin(), trisToRaster.end(), [](Triangle& t1, Triangle& t2) {
+	/*std::sort(trisToRaster.begin(), trisToRaster.end(), [](Triangle& t1, Triangle& t2) {
 		float z1 = (t1.getVerts()[0][Z] + t1.getVerts()[1][Z] + t1.getVerts()[2][Z]) / 3.0f;
 		float z2 = (t2.getVerts()[0][Z] + t2.getVerts()[1][Z] + t2.getVerts()[2][Z]) / 3.0f;
 
 		return z1 > z2;
-		});
+		});*/
 
 	for (auto& triToRaster : trisToRaster) {
 		// Clip triangles against all screen edges
@@ -141,7 +141,7 @@ void Engine::render(Model& obj, Matrix4f viewMatrix, float translateX, float tra
 		}
 
 		for (Triangle& t : listTriangles) {
-			if (true) {
+			if (1) {
 				SDL_SetRenderDrawColor(renderer, t.getLuminance(), t.getLuminance(), t.getLuminance(), 255);
 				TriangleNoEigen toRaster = TriangleNoEigen(t);
 				rasterize(toRaster);
@@ -154,7 +154,7 @@ void Engine::render(Model& obj, Matrix4f viewMatrix, float translateX, float tra
 				SDL_RenderDrawLine(renderer, (int)t.getVerts()[2][X], (int)t.getVerts()[2][Y], (int)t.getVerts()[0][X], (int)t.getVerts()[0][Y]);
 			}
 
-			if (false) {
+			if (0) {
 				SDL_SetRenderDrawColor(renderer, t.getLuminance(), t.getLuminance(), 0, 255);
 				SDL_RenderDrawPoint(renderer, (int)t.getVerts()[0][X], (int)t.getVerts()[0][Y]);
 				SDL_RenderDrawPoint(renderer, (int)t.getVerts()[1][X], (int)t.getVerts()[1][Y]);
