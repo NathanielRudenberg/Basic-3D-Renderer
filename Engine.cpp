@@ -270,7 +270,7 @@ next:
 }
 
 void Engine::rasterize(TriangleNoEigen& triangle) {
-	FillTriangle(triangle);
+	// FillTriangle(triangle);
 }
 
 int Engine::OnExecute() {
