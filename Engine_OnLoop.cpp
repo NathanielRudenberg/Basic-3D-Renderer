@@ -8,6 +8,9 @@ void Engine::OnLoop() {
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
 	SDL_RenderClear(renderer);
 
+	int numberOfCubesPerSide = 4;
+	int calculatedNumOfCubesPerSide = numberOfCubesPerSide - 2;
+
 	// Clear Z-buffer
 	for (int i = 0; i < SCREEN_WIDTH * SCREEN_HEIGHT; i++) {
 		depthBuffer[i] = INFINITY;
@@ -19,8 +22,8 @@ void Engine::OnLoop() {
 
 	//render(objects[0], viewMatrix, 0.0f, -0.5f, 0.0f);
 
-	for (int i = -1; i <= 1; i++) {
-		for (int j = -1; j <= 1; j++) {
+	for (int i = -calculatedNumOfCubesPerSide; i <= calculatedNumOfCubesPerSide; i++) {
+		for (int j = -calculatedNumOfCubesPerSide; j <= calculatedNumOfCubesPerSide; j++) {
 			render(objects[1], viewMatrix, (float)(i*2), -1.0f, (float)(j*2));
 		}
 	}

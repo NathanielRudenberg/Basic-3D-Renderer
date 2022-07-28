@@ -140,21 +140,19 @@ void Engine::render(Model& obj, Matrix4f viewMatrix, float translateX, float tra
 			newTrianglesNum = listTriangles.size();
 		}
 
-		for (Triangle& t : listTriangles) {
-			if (1) {
-				SDL_SetRenderDrawColor(renderer, t.getLuminance(), t.getLuminance(), t.getLuminance(), 255);
-				TriangleNoEigen toRaster = TriangleNoEigen(t);
-				rasterize(toRaster);
-			}
+		bool drawEdges = true;
+		bool drawVerts = false;
 
-			if (1) {
+		for (Triangle& t : listTriangles) {
+			// Draw edges
+			if (drawEdges) {
 				SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
 				SDL_RenderDrawLine(renderer, (int)t.getVerts()[0][X], (int)t.getVerts()[0][Y], (int)t.getVerts()[1][X], (int)t.getVerts()[1][Y]);
 				SDL_RenderDrawLine(renderer, (int)t.getVerts()[1][X], (int)t.getVerts()[1][Y], (int)t.getVerts()[2][X], (int)t.getVerts()[2][Y]);
 				SDL_RenderDrawLine(renderer, (int)t.getVerts()[2][X], (int)t.getVerts()[2][Y], (int)t.getVerts()[0][X], (int)t.getVerts()[0][Y]);
 			}
-
-			if (0) {
+			// Draw vertices
+			if (drawVerts) {
 				SDL_SetRenderDrawColor(renderer, t.getLuminance(), t.getLuminance(), 0, 255);
 				SDL_RenderDrawPoint(renderer, (int)t.getVerts()[0][X], (int)t.getVerts()[0][Y]);
 				SDL_RenderDrawPoint(renderer, (int)t.getVerts()[1][X], (int)t.getVerts()[1][Y]);
