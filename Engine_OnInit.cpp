@@ -6,7 +6,7 @@ bool Engine::OnInit() {
         return false;
     }
 
-    depthBuffer = new float[SCREEN_WIDTH * SCREEN_HEIGHT];
+    //depthBuffer = new float[SCREEN_WIDTH * SCREEN_HEIGHT];
 
     window = SDL_CreateWindow("Basic 3D Engine", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
     if (window == NULL) { return false; }
@@ -19,13 +19,13 @@ bool Engine::OnInit() {
     pyramid.load("pyramid.obj");
     objects.push_back(pyramid);*/
 
-    /*Model cube;
+    Model cube;
     cube.load("cube.obj");
-    objects.push_back(cube);*/
+    objects.push_back(cube);
 
-    Model axis;
+    /*Model axis;
     axis.load("axis.obj");
-    objects.push_back(axis);
+    objects.push_back(axis);*/
 
     return true;
 }

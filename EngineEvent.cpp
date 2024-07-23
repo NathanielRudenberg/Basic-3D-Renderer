@@ -9,26 +9,32 @@ EngineEvent::~EngineEvent() {
 
 void EngineEvent::OnEvent(SDL_Event* Event) {
     switch (Event->type) {
-    /*case SDL_ACTIVEEVENT: {
-        switch (Event->active.state) {
-        case SDL_APPMOUSEFOCUS: {
-            if (Event->active.gain)    OnMouseFocus();
-            else                OnMouseBlur();
-
+    /*case SDL_WINDOWEVENT: {
+        switch (Event->window.event) {
+        case SDL_WINDOWEVENT_ENTER:
+            if (Event->active.gain) {
+                OnMouseFocus();
+            }
+            else {
+                OnMouseBlur();
+            }
             break;
-        }
-        case SDL_APPINPUTFOCUS: {
-            if (Event->active.gain)    OnInputFocus();
-            else                OnInputBlur();
-
+        case SDL_WINDOWEVENT_FOCUS_GAINED:
+            if (Event->active.gain) {
+                OnInputFocus();
+            }
+            else {
+                OnInputBlur();
+            }
             break;
-        }
-        case SDL_APPACTIVE: {
-            if (Event->active.gain)    OnRestore();
-            else                OnMinimize();
-
+        case SDL_APPACTIVE:
+            if (Event->active.gain) {
+                OnRestore();
+            }
+            else {
+                OnMinimize();
+            }
             break;
-        }
         }
         break;
     }*/
@@ -118,7 +124,7 @@ void EngineEvent::OnEvent(SDL_Event* Event) {
         break;
     }
 
-    case SDL_WINDOWEVENT_SIZE_CHANGED: {
+    case SDL_WINDOWEVENT_RESIZED: {
         OnResize(Event->window.data1, Event->window.data2);
         break;
     }
