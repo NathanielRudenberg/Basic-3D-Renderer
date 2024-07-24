@@ -63,7 +63,8 @@ private:
 	float* depthBuffer = nullptr;
 
 public:
-	void TriFill(TriangleNoEigen& tri);
+	template<typename V>
+	void rasterizeTriangle(const V* v0, const V* v1, const V* v2, auto&& getXY, auto&& makeSlope, auto&& drawScanline);
 	void FillTriangle(TriangleNoEigen& tri);
 	void rasterize(TriangleNoEigen& triangle);
 	void render(Model& obj, Matrix4f viewMatrix, float translateX = 0.0f, float translateY = 0.0f, float translateZ = 0.0f);

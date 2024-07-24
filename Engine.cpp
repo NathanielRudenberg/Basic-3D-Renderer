@@ -10,37 +10,38 @@ Engine::Engine() {
 auto t1 = SDL_GetTicks();
 auto t2 = SDL_GetTicks();
 
-int orient2d(int vx1, int vy1, int vx2, int vy2, int vx3, int vy3) {
-	return (vx3 - vx1) * (vy2 - vy1) - (vy3 - vy1) * (vx2 - vx1);
-};
+template<typename V>
+void Engine::rasterizeTriangle(const V* v0, const V* v1, const V* v2, auto&& getXY, auto&& makeSlope, auto&& drawScanline) {
 
-void Engine::TriFill(TriangleNoEigen& tri) {
-	int x1 = (int)tri.v[0].x;
-	int y1 = (int)tri.v[0].y;
-	int x2 = (int)tri.v[1].x;
-	int y2 = (int)tri.v[1].y;
-	int x3 = (int)tri.v[2].x;
-	int y3 = (int)tri.v[2].y;
+	// Rasterize from top to bottom
+	auto [x0,y0, x1,y1, x2,y2] = std::tuple_cat(getXY(*v0), getXY(*v1), getXY(*v2));
 
-	// Get triangle bounding box
-	int minX = std::min(x1, std::min(x2, x3));
-	int minY = std::min(y1, std::min(y2, y3));
-	int maxX = std::max(x1, std::max(x2, x3));
-	int maxY = std::max(y1, std::max(y2, y3));
+	// Sort the vertices by Y coordinate in descending order
+	// Sort by X coordinate if the Y coordinates are equal
+	if (std::tie(y1, x1) < std::tie(y0, x0)) { std::swap(x0, x1); std::swap(y0, y1); std::swap(v0, v1); }
+	if (std::tie(y2, x2) < std::tie(y0, x0)) { std::swap(x0, x2); std::swap(y0, y2); std::swap(v0, v2); }
+	if (std::tie(y2, x2) < std::tie(y1, x1)) { std::swap(x1, x2); std::swap(y1, y2); std::swap(v1, v2); }
 
-	// Rasterize
-	for (int y = minY; y <= maxY; y++) {
-		for (int x = minX; x <= maxX; x++) {
-			// Get barycentric coordinates
-			int w0 = orient2d(x1, y1, x2, y2, x, y);
-			int w1 = orient2d(x2, y2, x3, y3, x, y);
-			int w2 = orient2d(x3, y3, x1, y1, x, y);
+	// Do nothing if the triangle has no area
+	if (y0 == y2) return;
 
-			// Render pixel if p is on an edge or inside all edges
-			if ((w0 | w1 | w2) >= 0) {
-				SDL_RenderDrawPoint(renderer, x, y);
-			}
+	// Find the short side.
+	// If the bend is on the right, this evaluates to true.
+	bool shortSide = (y1 - y0) * (x2 - x0) < (x1 - x0) * (y2 - y0);
+
+	// Create two slops: v0 to v1 (to the bend) and v0 to v2 (long side)
+	std::invoke_result_t<decltype(makeSlope), V*, V*, int> sides[2];
+	sides[!shortSide] = makeSlope(v0, v2, y2 - y0);
+
+	// Main rasterizing loop
+	for (auto y = y0, endY = y0; ; ++y) {
+		if (y >= endY) {
+			if (y >= y2) break;
+			sides[shortSide] = std::apply(makeSlope, (y < y1) ? std::tuple(v0, v1, (endY = y1) - y0)
+															  : std::tuple(v1, v2, (endY = y2) - y1));
 		}
+		// Draw line of pixels
+		drawScanline(y, sides[0], sides[1]);
 	}
 }
 
@@ -52,7 +53,16 @@ void Engine::FillTriangle(TriangleNoEigen& tri) {
 	int x3 = tri.v[2].x;
 	int y3 = tri.v[2].y;
 	auto swap = [](int& x, int& y) {int t = x; x = y; y = t; };
-	auto drawLine = [&](int sx, int ex, int ny) { SDL_RenderDrawLine(renderer, sx, ny, ex, ny); };
+	auto drawLine = [&](int startX, int endX, int ny) {
+		//SDL_RenderDrawLine(renderer, startX, ny, endX, ny);
+
+		// Interpolate Z values
+ 
+		// Draw line of pixels
+		for (int i = startX; i <= endX; i++) {
+			SDL_RenderDrawPoint(renderer, i, ny);
+		}
+	};
 
 	int t1x, t2x, y, minx, maxx, t1xp, t2xp;
 	bool changed1 = false;
@@ -234,8 +244,36 @@ next:
 }
 
 void Engine::rasterize(TriangleNoEigen& triangle) {
-	FillTriangle(triangle);
-	//TriFill(triangle);
+	// FillTriangle(triangle);
+	std::array<int, 2> v0{ triangle.v[0].x, triangle.v[0].y };
+	std::array<int, 2> v1{ triangle.v[1].x, triangle.v[1].y };
+	std::array<int, 2> v2{ triangle.v[2].x, triangle.v[2].y };
+
+	using SlopeData = std::pair<float /*begin*/, float /*step*/>;
+
+	rasterizeTriangle(&v0, &v1, &v2,
+		// coord extractor
+		[&](const auto& v) { return v; },
+		// Slope generator
+		[&](const auto* from, const auto* to, int numSteps) {
+			// Get X coordinates for begin and end
+			int begin = (*from)[0], end = (*to)[0];
+			// Number of steps is the number of scanlines
+			float invSteps = 1.0f / numSteps;
+			return SlopeData{ begin, (end - begin) * invSteps };
+		},
+		// Draw scanline
+		[&](int y, SlopeData& left, SlopeData& right) {
+			int startX = left.first, endX = right.first;
+			for (int x = startX; x <= endX; ++x) {
+				SDL_RenderDrawPoint(renderer, x, y);
+			}
+
+			// Update the X coordinate on both sides
+			left.first += left.second;
+			right.first += right.second;
+		}
+	);
 }
 
 int Engine::OnExecute() {
