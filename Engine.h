@@ -12,6 +12,8 @@
 #include "EngineEvent.h"
 #include "model.h"
 #include "camera.h"
+#include "Slope.h"
+#include "Plane.h"
 
 using Eigen::Matrix3f;
 using Eigen::Matrix4f;
@@ -29,16 +31,16 @@ public:
 	};
 
 	struct Point3d {
-		float x, y, z;
+		float x, y, z, w;
 	};
 
 	struct TriangleNoEigen {
 		Point3d v[3];
 
 		TriangleNoEigen(Triangle& tri) {
-			v[0] = { tri.getVerts()[0][X], tri.getVerts()[0][Y], tri.getVerts()[0][Z], };
-			v[1] = { tri.getVerts()[1][X], tri.getVerts()[1][Y], tri.getVerts()[1][Z], };
-			v[2] = { tri.getVerts()[2][X], tri.getVerts()[2][Y], tri.getVerts()[2][Z], };
+			v[0] = { tri.getVerts()[0][X], tri.getVerts()[0][Y], tri.getVerts()[0][Z], tri.getVerts()[0][W], };
+			v[1] = { tri.getVerts()[1][X], tri.getVerts()[1][Y], tri.getVerts()[0][Z], tri.getVerts()[1][W], };
+			v[2] = { tri.getVerts()[2][X], tri.getVerts()[2][Y], tri.getVerts()[0][Z], tri.getVerts()[2][W], };
 		}
 	};
 
@@ -52,6 +54,11 @@ private:
 	SDL_Window* window = NULL;
 	const int SCREEN_WIDTH = 1200;
 	const int SCREEN_HEIGHT = 700;
+	float cameraRotSpeed;
+	float cameraMoveSpeed;
+	bool slowMode = false;
+	bool fastMode = false;
+	bool showTriEdges = false;
 
 private:
 	Camera camera;
@@ -60,7 +67,13 @@ private:
 private:
 	const float pi = 3.14159f;
 	float elapsedTime = 0;
-	float* depthBuffer = nullptr;
+	double* depthBuffer = nullptr;
+	const int DEPTH_BUFFER_SIZE = SCREEN_WIDTH * SCREEN_HEIGHT;
+	RowVector3f getTriangleNormal(Triangle& triTransformed);
+	RowVector3f getCameraRay(RowVector3f& v);
+	std::string windowTitle;
+	int getLuminance(RowVector3f& normal);
+	int xMousePos, yMousePos;
 
 public:
 	template<typename V>
@@ -77,6 +90,8 @@ public:
 	void OnExit();
 	void OnKeyDown(SDL_Keycode sym, Uint16 mod);
 	void OnMouseMove(int mX, int mY, int relX, int relY, bool Left, bool Right, bool Middle);
+	void OnMButtonDown(int mX, int mY);
+	void OnMButtonUp(int mX, int mY);
 	void OnLoop();
 	void OnRender();
 	void OnCleanup();
