@@ -30,6 +30,7 @@
     <ClCompile Include="Engine_OnRender.cpp" />
     <ClCompile Include="mesh.cpp" />
     <ClCompile Include="Model.cpp" />
+    <ClCompile Include="Slope.cpp" />
     <ClCompile Include="TransformUtilities.cpp" />
     <ClCompile Include="Triangle.cpp" />
   </ItemGroup>
@@ -39,6 +40,7 @@
     <ClInclude Include="EngineEvent.h" />
     <ClInclude Include="mesh.h" />
     <ClInclude Include="Model.h" />
+    <ClInclude Include="Slope.h" />
     <ClInclude Include="TransformUtilities.h" />
     <ClInclude Include="Triangle.h" />
   </ItemGroup>
@@ -109,7 +111,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>D:\vclib\eigen-3.4.0;D:\vclib\SDL2-2.30.5\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\Natou\Documents\vs libs\lib\x64;$(LibraryPath)</LibraryPath>
+    <LibraryPath>D:\vclib\SDL2-2.30.5\lib\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
