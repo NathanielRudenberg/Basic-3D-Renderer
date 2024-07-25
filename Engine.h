@@ -12,6 +12,7 @@
 #include "EngineEvent.h"
 #include "model.h"
 #include "camera.h"
+#include "Slope.h"
 
 using Eigen::Matrix3f;
 using Eigen::Matrix4f;
@@ -36,9 +37,9 @@ public:
 		Point3d v[3];
 
 		TriangleNoEigen(Triangle& tri) {
-			v[0] = { tri.getVerts()[0][X], tri.getVerts()[0][Y], tri.getVerts()[0][Z], };
-			v[1] = { tri.getVerts()[1][X], tri.getVerts()[1][Y], tri.getVerts()[1][Z], };
-			v[2] = { tri.getVerts()[2][X], tri.getVerts()[2][Y], tri.getVerts()[2][Z], };
+			v[0] = { tri.getVerts()[0][X], tri.getVerts()[0][Y], tri.getVerts()[0][W], };
+			v[1] = { tri.getVerts()[1][X], tri.getVerts()[1][Y], tri.getVerts()[1][W], };
+			v[2] = { tri.getVerts()[2][X], tri.getVerts()[2][Y], tri.getVerts()[2][W], };
 		}
 	};
 
@@ -52,6 +53,8 @@ private:
 	SDL_Window* window = NULL;
 	const int SCREEN_WIDTH = 1200;
 	const int SCREEN_HEIGHT = 700;
+	float cameraRotSpeed;
+	bool slowMode = false;
 
 private:
 	Camera camera;
@@ -61,6 +64,7 @@ private:
 	const float pi = 3.14159f;
 	float elapsedTime = 0;
 	float* depthBuffer = nullptr;
+	const int DEPTH_BUFFER_SIZE = SCREEN_WIDTH * SCREEN_HEIGHT;
 
 public:
 	template<typename V>

@@ -65,7 +65,7 @@ void Engine::render(Model& obj, Matrix4f viewMatrix, float translateX, float tra
 					// Project onto screen
 					float nearPlane = 0.1f;
 					float farPlane = 1000.0f;
-					float fov = 75.0f;
+					float fov = 80.0f;
 					float fovRad = 1.0f / tanf(fov * 0.5f / 180.0f * PI);
 					float aspectRatio = (float)SCREEN_HEIGHT / (float)SCREEN_WIDTH;
 
@@ -89,12 +89,12 @@ void Engine::render(Model& obj, Matrix4f viewMatrix, float translateX, float tra
 	}
 
 	// Sort tris from back to front
-	std::sort(trisToRaster.begin(), trisToRaster.end(), [](Triangle& t1, Triangle& t2) {
-		float z1 = (t1.getVerts()[0][Z] + t1.getVerts()[1][Z] + t1.getVerts()[2][Z]) / 3.0f;
-		float z2 = (t2.getVerts()[0][Z] + t2.getVerts()[1][Z] + t2.getVerts()[2][Z]) / 3.0f;
+	/*std::sort(trisToRaster.begin(), trisToRaster.end(), [](Triangle& t1, Triangle& t2) {
+		float w1 = (t1.getVerts()[0][W] + t1.getVerts()[1][W] + t1.getVerts()[2][W]) / 3.0f;
+		float w2 = (t2.getVerts()[0][W] + t2.getVerts()[1][W] + t2.getVerts()[2][W]) / 3.0f;
 
-		return z1 > z2;
-		});
+		return w1 > w2;
+		});*/
 
 	for (auto& triToRaster : trisToRaster) {
 		// Clip triangles against all screen edges
@@ -147,7 +147,8 @@ void Engine::render(Model& obj, Matrix4f viewMatrix, float translateX, float tra
 				rasterize(toRaster);
 			}
 
-			if (1) {
+			// Draw triangles
+			if (true) {
 				SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
 				SDL_RenderDrawLine(renderer, (int)t.getVerts()[0][X], (int)t.getVerts()[0][Y], (int)t.getVerts()[1][X], (int)t.getVerts()[1][Y]);
 				SDL_RenderDrawLine(renderer, (int)t.getVerts()[1][X], (int)t.getVerts()[1][Y], (int)t.getVerts()[2][X], (int)t.getVerts()[2][Y]);

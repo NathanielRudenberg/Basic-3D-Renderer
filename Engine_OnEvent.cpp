@@ -21,6 +21,9 @@ void Engine::OnKeyDown(SDL_Keycode sym, Uint16 mod) {
         }
         break;
 
+    case SDLK_TAB:
+        slowMode = !slowMode;
+
     default:
 
         break;
@@ -28,7 +31,12 @@ void Engine::OnKeyDown(SDL_Keycode sym, Uint16 mod) {
 }
 
 void Engine::OnMouseMove(int mX, int mY, int relX, int relY, bool Left, bool Right, bool Middle) {
-    float cameraRotSpeed = 0.8f;
+    if (slowMode) {
+        cameraRotSpeed = 0.04f;
+    }
+    else {
+        cameraRotSpeed = 0.4f;
+    }
     if (SDL_GetRelativeMouseMode() == SDL_TRUE) {
         float yaw = ((float)relX * cameraRotSpeed) * elapsedTime;
         float pitch = ((float)relY * cameraRotSpeed) * elapsedTime;

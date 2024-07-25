@@ -11,7 +11,10 @@ auto t1 = SDL_GetTicks();
 auto t2 = SDL_GetTicks();
 
 template<typename V>
-void Engine::rasterizeTriangle(const V* v0, const V* v1, const V* v2, auto&& getXY, auto&& makeSlope, auto&& drawScanline) {
+void Engine::rasterizeTriangle(const V* v0, const V* v1, const V* v2,
+	auto&& getXY,
+	auto&& makeSlope,
+	auto&& drawScanline) {
 
 	// Rasterize from top to bottom
 	auto [x0,y0, x1,y1, x2,y2] = std::tuple_cat(getXY(*v0), getXY(*v1), getXY(*v2));
@@ -34,7 +37,7 @@ void Engine::rasterizeTriangle(const V* v0, const V* v1, const V* v2, auto&& get
 	sides[!shortSide] = makeSlope(v0, v2, y2 - y0);
 
 	// Main rasterizing loop
-	for (auto y = y0, endY = y0; ; ++y) {
+	for (auto y = y0, endY = y0; ; y++) {
 		if (y >= endY) {
 			if (y >= y2) break;
 			sides[shortSide] = std::apply(makeSlope, (y < y1) ? std::tuple(v0, v1, (endY = y1) - y0)
@@ -47,33 +50,45 @@ void Engine::rasterizeTriangle(const V* v0, const V* v1, const V* v2, auto&& get
 
 void Engine::rasterize(TriangleNoEigen& triangle) {
 	// FillTriangle(triangle);
-	std::array<int, 2> v0{ triangle.v[0].x, triangle.v[0].y };
-	std::array<int, 2> v1{ triangle.v[1].x, triangle.v[1].y };
-	std::array<int, 2> v2{ triangle.v[2].x, triangle.v[2].y };
+	std::array<int, 3> v0{ triangle.v[0].x, triangle.v[0].y, triangle.v[0].z };
+	std::array<int, 3> v1{ triangle.v[1].x, triangle.v[1].y, triangle.v[1].z };
+	std::array<int, 3> v2{ triangle.v[2].x, triangle.v[2].y, triangle.v[2].z };
 
-	using SlopeData = std::pair<float /*begin*/, float /*step*/>;
+	using SlopeData = std::array<Slope,2>; // x and z-buffer
 
 	rasterizeTriangle(&v0, &v1, &v2,
 		// coord extractor
-		[&](const auto& v) { return v; },
+		[&](const auto& v) { return std::tuple{ v[0], v[1] }; },
 		// Slope generator
 		[&](const auto* from, const auto* to, int numSteps) {
-			// Get X coordinates for begin and end
-			int begin = (*from)[0], end = (*to)[0];
-			// Number of steps is the number of scanlines
-			float invSteps = 1.0f / numSteps;
-			return SlopeData{ begin, (end - begin) * invSteps };
+			SlopeData result;
+			// Get begin and end X coordinates
+			result[0] = Slope{ (float)(*from)[0], (float)(*to)[0], numSteps };
+			// Get begin and end W coordinates
+			result[1] = Slope{ (float)(*from)[2], (float)(*to)[2], numSteps };
+			return result;
 		},
 		// Draw scanline
 		[&](int y, SlopeData& left, SlopeData& right) {
-			int startX = left.first, endX = right.first;
-			for (int x = startX; x <= endX; ++x) {
-				SDL_RenderDrawPoint(renderer, x, y);
+			int startX = left[0].get(), endX = right[0].get();
+
+			// Horizontal interpolation for depth values
+			Slope pixelDepth;
+			int numSteps = endX - startX;
+			pixelDepth = Slope(left[1].get(), right[1].get(), numSteps);
+
+			for (; startX <= endX; startX++) {
+				// Update z-buffer if the pixel is closer than the current buffer value
+				if (left[1].get() < depthBuffer[(y * SCREEN_WIDTH) + startX]) {
+					depthBuffer[(y * SCREEN_WIDTH) + startX] = pixelDepth.get();
+					SDL_RenderDrawPoint(renderer, startX, y);
+				}
+				pixelDepth.advance();
 			}
 
-			// Update the X coordinate on both sides
-			left.first += left.second;
-			right.first += right.second;
+			// Update the X and Z coordinates on both sides
+			for (auto& slope : left) slope.advance();
+			for (auto& slope : right) slope.advance();
 		}
 	);
 }

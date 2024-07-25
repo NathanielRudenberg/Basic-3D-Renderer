@@ -6,6 +6,9 @@ void Engine::CheckKeystate() {
 	if (keystate[SDL_SCANCODE_LCTRL]) {
 		cameraMoveSpeed = 8.0f;
 	}
+	if (keystate[SDL_SCANCODE_E]) {
+		cameraMoveSpeed = 0.1f;
+	}
 	if (keystate[SDL_SCANCODE_SPACE]) {
 		camera.translate(camera._yAxis, (cameraMoveSpeed * elapsedTime), Camera::PLUS);
 	}
