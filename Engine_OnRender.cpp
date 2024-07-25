@@ -10,6 +10,32 @@ void Engine::OnRender() {
 	SDL_RenderPresent(renderer);
 }
 
+RowVector3f Engine::getTriangleNormal(Triangle& triTransformed) {
+	RowVector3f normal, line1, line2, v1, v2, v3, cameraRay;
+	v1 << triTransformed.getVerts()[0][X], triTransformed.getVerts()[0][Y], triTransformed.getVerts()[0][Z];
+	v2 << triTransformed.getVerts()[1][X], triTransformed.getVerts()[1][Y], triTransformed.getVerts()[1][Z];
+	v3 << triTransformed.getVerts()[2][X], triTransformed.getVerts()[2][Y], triTransformed.getVerts()[2][Z];
+
+	cameraRay = getCameraRay(v1);
+	line1 = v2 - v1;
+	line2 = v3 - v1;
+	return line1.cross(line2).normalized();
+}
+
+RowVector3f Engine::getCameraRay(RowVector3f& v) {
+	return v - camera.getPos();
+}
+
+int Engine::getLuminance(RowVector3f& normal) {
+	RowVector3f lightDirection{ 0.5f, 1.0f, 0.0f };
+	lightDirection = lightDirection.normalized();
+
+	float dotProd = normal.dot(lightDirection);
+	int luminance = (int)(127.5f * (1.0 + dotProd));
+
+	return luminance;
+}
+
 void Engine::render(Model& obj, Matrix4f viewMatrix, float translateX, float translateY, float translateZ) {
 	Matrix4f translation = getTranslationMatrix(translateX, translateY, translateZ);
 	Matrix4f worldMatrix = Matrix4f::Zero();
@@ -26,51 +52,38 @@ void Engine::render(Model& obj, Matrix4f viewMatrix, float translateX, float tra
 			triTransformed.getVerts()[i] = tri.getVerts()[i] * worldMatrix;
 		}
 
-		// Get normals
-		RowVector3f normal, line1, line2, v1, v2, v3, cameraRay;
-		v1 << triTransformed.getVerts()[0][X], triTransformed.getVerts()[0][Y], triTransformed.getVerts()[0][Z];
-		v2 << triTransformed.getVerts()[1][X], triTransformed.getVerts()[1][Y], triTransformed.getVerts()[1][Z];
-		v3 << triTransformed.getVerts()[2][X], triTransformed.getVerts()[2][Y], triTransformed.getVerts()[2][Z];
+		// Get triangle normals
+		RowVector3f v;
+		v << triTransformed.getVerts()[0][X], triTransformed.getVerts()[0][Y], triTransformed.getVerts()[0][Z];
+		RowVector3f normal = getTriangleNormal(triTransformed);
 
-		cameraRay = v1 - camera.getPos();
-		line1 = v2 - v1;
-		line2 = v3 - v1;
-		normal = line1.cross(line2).normalized();
+		// Only render triangles that are facing the camera
+		if (normal.dot(getCameraRay(v)) < 0.0f) {
 
-		if (normal.dot(cameraRay) < 0.0f) {
+			// Illuminate the triangle
+			triViewed.setLuminance(getLuminance(normal));
 
-			// Illumination
-			RowVector3f lightDirection{ 0.5f, 1.0f, 0.0f };
-			lightDirection = lightDirection.normalized();
-
-			float dotProd = normal.dot(lightDirection);
-			int luminance = (int)(127.5f * (1.0 + dotProd));
-
+			// Convert from world space to view space
 			for (int i = 0; i < 3; i++) {
-				// Convert from world space to view space
 				triViewed.getVerts()[i] = triTransformed.getVerts()[i] * viewMatrix;
 			}
 
-			triViewed.setLuminance(luminance);
-
 			int clippedTriangleNum = 0;
 			Triangle clipped[2];
-			RowVector3f planePoint{ 0.0f, 0.0f, 0.1f };
-			RowVector3f planeNormal{ 0.0f, 0.0f, 1.0f };
-			clippedTriangleNum = clipTriangleAgainstPlane(planePoint, planeNormal, triViewed, clipped[0], clipped[1]);
+			Plane near = Plane(RowVector3f{ 0.0f, 0.0f, 0.1f }, RowVector3f{ 0.0f, 0.0f, 1.0f });
+			Plane far = Plane(RowVector3f{ 0.0f, 0.0f, 1000.0f }, RowVector3f{ 0.0f, 0.0f, -1.0f });
+			clippedTriangleNum = clipTriangleAgainstPlane(near.point(), near.normal(), triViewed, clipped[0], clipped[1]);
+
+			float fov = 80.0f;
+			float fovRad = 1.0f / tanf(fov * 0.5f / 180.0f * PI);
+			float aspectRatio = (float)SCREEN_HEIGHT / (float)SCREEN_WIDTH;
 
 			for (int n = 0; n < clippedTriangleNum; n++) {
 
 				for (int i = 0; i < 3; i++) {
 					// Project onto screen
-					float nearPlane = 0.1f;
-					float farPlane = 1000.0f;
-					float fov = 80.0f;
-					float fovRad = 1.0f / tanf(fov * 0.5f / 180.0f * PI);
-					float aspectRatio = (float)SCREEN_HEIGHT / (float)SCREEN_WIDTH;
-
-					triProjected.getVerts()[i] = project(clipped[n].getVerts()[i], fovRad, aspectRatio, nearPlane, farPlane);
-					//triProjected.v[i][Z] = triProjected.v[i][W];
+					triProjected.getVerts()[i] = project(clipped[n].getVerts()[i], fovRad, aspectRatio, near.point()[Z], far.point()[Z]);
+					//triProjected.getVerts()[i][Z] = triProjected.getVerts()[i][W];
 
 					// Normalize and scale into view
 					triProjected.getVerts()[i][X] += 1.0f;
@@ -97,11 +110,17 @@ void Engine::render(Model& obj, Matrix4f viewMatrix, float translateX, float tra
 		});*/
 
 	for (auto& triToRaster : trisToRaster) {
-		// Clip triangles against all screen edges
-		Triangle clipped[2];
 		std::list<Triangle> listTriangles;
 		listTriangles.push_back(triToRaster);
+
+		// Clip triangles against all screen edges
+		Triangle clipped[2];
 		int newTrianglesNum = 1;
+
+		Plane top(RowVector3f{ 0.0f, 0.0f, 0.0f }, RowVector3f{ 0.0f, 1.0f, 0.0f });
+		Plane bottom(RowVector3f{ 0.0f, (float)(SCREEN_HEIGHT - 1), 0.0f }, RowVector3f{ 0.0f, -1.0f, 0.0f });
+		Plane left(RowVector3f{ 0.0f, 0.0f, 0.0f }, RowVector3f{ 1.0f, 0.0f, 0.0f });
+		Plane right(RowVector3f{ (float)(SCREEN_WIDTH - 1), 0.0f, 0.0f }, RowVector3f{ -1.0f, 0.0f, 0.0f });
 
 		for (int i = 0; i < 4; i++) {
 			int numTrisToAdd = 0;
@@ -114,20 +133,20 @@ void Engine::render(Model& obj, Matrix4f viewMatrix, float translateX, float tra
 
 				switch (i) {
 				case 0:
-					edge << 0.0f, 0.0f, 0.0f;
-					edgeNorm << 0.0f, 1.0f, 0.0f;
+					edge = top.point();
+					edgeNorm << top.normal();
 					break;
 				case 1:
-					edge << 0.0f, (float)(SCREEN_HEIGHT - 1), 0.0f;
-					edgeNorm << 0.0f, -1.0f, 0.0f;
+					edge = bottom.point();
+					edgeNorm = bottom.normal();
 					break;
 				case 2:
-					edge << 0.0f, 0.0f, 0.0f;
-					edgeNorm << 1.0f, 0.0f, 0.0f;
+					edge = left.point();
+					edgeNorm = left.normal();
 					break;
 				case 3:
-					edge << (float)(SCREEN_WIDTH - 1), 0.0f, 0.0f;
-					edgeNorm << -1.0f, 0.0f, 0.0f;
+					edge = right.point();
+					edgeNorm << right.normal();
 					break;
 				}
 
@@ -148,7 +167,7 @@ void Engine::render(Model& obj, Matrix4f viewMatrix, float translateX, float tra
 			}
 
 			// Draw triangles
-			if (true) {
+			if (showTriEdges) {
 				SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
 				SDL_RenderDrawLine(renderer, (int)t.getVerts()[0][X], (int)t.getVerts()[0][Y], (int)t.getVerts()[1][X], (int)t.getVerts()[1][Y]);
 				SDL_RenderDrawLine(renderer, (int)t.getVerts()[1][X], (int)t.getVerts()[1][Y], (int)t.getVerts()[2][X], (int)t.getVerts()[2][Y]);

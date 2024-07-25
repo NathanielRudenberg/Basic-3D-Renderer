@@ -30,6 +30,7 @@
     <ClCompile Include="Engine_OnRender.cpp" />
     <ClCompile Include="mesh.cpp" />
     <ClCompile Include="Model.cpp" />
+    <ClCompile Include="Plane.cpp" />
     <ClCompile Include="Slope.cpp" />
     <ClCompile Include="TransformUtilities.cpp" />
     <ClCompile Include="Triangle.cpp" />
@@ -40,6 +41,7 @@
     <ClInclude Include="EngineEvent.h" />
     <ClInclude Include="mesh.h" />
     <ClInclude Include="Model.h" />
+    <ClInclude Include="Plane.h" />
     <ClInclude Include="Slope.h" />
     <ClInclude Include="TransformUtilities.h" />
     <ClInclude Include="Triangle.h" />

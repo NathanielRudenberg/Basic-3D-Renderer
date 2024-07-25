@@ -91,20 +91,21 @@ RowVector4f project(Eigen::RowVector4f& toProject, float fovRadians, float aspec
 
 RowVector4f vectorPlaneIntersect(RowVector3f& planePoint, RowVector3f& planeNormal, RowVector4f& lineStart, RowVector4f& lineEnd) {
 	//planeNormal.normalize();
-	RowVector3f start, end, pN;
-	RowVector4f toReturn;
-	start << lineStart[Engine::coordIndices::X], lineStart[Engine::coordIndices::Y], lineStart[Engine::coordIndices::Z];
-	end << lineEnd[Engine::coordIndices::X], lineEnd[Engine::coordIndices::Y], lineEnd[Engine::coordIndices::Z];
-	pN = planeNormal.normalized();
+	// RowVector3f pN;
+	RowVector4f start, end, clippedPoint, pPoint, pN;
+	start << lineStart[Engine::coordIndices::X], lineStart[Engine::coordIndices::Y], lineStart[Engine::coordIndices::Z], lineStart[Engine::coordIndices::W];
+	end << lineEnd[Engine::coordIndices::X], lineEnd[Engine::coordIndices::Y], lineEnd[Engine::coordIndices::Z], lineEnd[Engine::coordIndices::W];
+	pN << planeNormal.normalized(), 0.0f;
+	pPoint << planePoint, 0.0f;
 
-	float planeD = -1.0f * pN.dot(planePoint);
+	float planeD = -1.0f * pN.dot(pPoint);
 	float ad = start.dot(pN);
 	float bd = end.dot(pN);
 	float t = (-planeD - ad) / (bd - ad);
-	RowVector3f lineStartToEnd = end - start;
-	RowVector3f lineToIntersect = lineStartToEnd * t;
-	toReturn << start + lineToIntersect, 1.0f;
-	return toReturn;
+	RowVector4f lineStartToEnd = end - start;
+	RowVector4f lineToIntersect = lineStartToEnd * t;
+	clippedPoint << start + lineToIntersect;
+	return clippedPoint;
 }
 
 int clipTriangleAgainstPlane(RowVector3f& planePoint, RowVector3f& pN, Triangle& inTri, Triangle& outTri1, Triangle& outTri2) {

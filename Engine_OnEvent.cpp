@@ -21,8 +21,12 @@ void Engine::OnKeyDown(SDL_Keycode sym, Uint16 mod) {
         }
         break;
 
-    case SDLK_TAB:
-        slowMode = !slowMode;
+    case SDLK_LCTRL:
+        fastMode = !fastMode;
+        break;
+
+    case SDLK_t:
+        showTriEdges = !showTriEdges;
 
     default:
 
@@ -37,6 +41,10 @@ void Engine::OnMouseMove(int mX, int mY, int relX, int relY, bool Left, bool Rig
     else {
         cameraRotSpeed = 0.4f;
     }
+
+    xMousePos = mX;
+    yMousePos = mY;
+
     if (SDL_GetRelativeMouseMode() == SDL_TRUE) {
         float yaw = ((float)relX * cameraRotSpeed) * elapsedTime;
         float pitch = ((float)relY * cameraRotSpeed) * elapsedTime;
@@ -44,4 +52,12 @@ void Engine::OnMouseMove(int mX, int mY, int relX, int relY, bool Left, bool Rig
         camera.rotateY(yaw);
         camera.rotateX(pitch * -1.0f);
     }
+}
+
+void Engine::OnMButtonDown(int mX, int mY) {
+    slowMode = true;
+}
+
+void Engine::OnMButtonUp(int mX, int mY) {
+    slowMode = false;
 }

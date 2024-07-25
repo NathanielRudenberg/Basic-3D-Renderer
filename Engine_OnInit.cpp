@@ -6,7 +6,7 @@ bool Engine::OnInit() {
         return false;
     }
 
-    depthBuffer = new float[DEPTH_BUFFER_SIZE] {INFINITY};
+    depthBuffer = new double[DEPTH_BUFFER_SIZE] {INFINITY};
 
     window = SDL_CreateWindow("Basic 3D Engine", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
     if (window == NULL) { return false; }

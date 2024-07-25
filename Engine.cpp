@@ -32,7 +32,7 @@ void Engine::rasterizeTriangle(const V* v0, const V* v1, const V* v2,
 	// If the bend is on the right, this evaluates to true.
 	bool shortSide = (y1 - y0) * (x2 - x0) < (x1 - x0) * (y2 - y0);
 
-	// Create two slops: v0 to v1 (to the bend) and v0 to v2 (long side)
+	// Create two slopes: v0 to v1 (to the bend) and v0 to v2 (long side)
 	std::invoke_result_t<decltype(makeSlope), V*, V*, int> sides[2];
 	sides[!shortSide] = makeSlope(v0, v2, y2 - y0);
 
@@ -50,38 +50,42 @@ void Engine::rasterizeTriangle(const V* v0, const V* v1, const V* v2,
 
 void Engine::rasterize(TriangleNoEigen& triangle) {
 	// FillTriangle(triangle);
-	std::array<int, 3> v0{ triangle.v[0].x, triangle.v[0].y, triangle.v[0].z };
-	std::array<int, 3> v1{ triangle.v[1].x, triangle.v[1].y, triangle.v[1].z };
-	std::array<int, 3> v2{ triangle.v[2].x, triangle.v[2].y, triangle.v[2].z };
+	Point3d v0 = triangle.v[0];
+	Point3d v1 = triangle.v[1];
+	Point3d v2 = triangle.v[2];
+	/*std::array<int, 4> v0{ triangle.v[0].x, triangle.v[0].y, triangle.v[0].z, triangle.v[0].w };
+	std::array<int, 4> v1{ triangle.v[1].x, triangle.v[1].y, triangle.v[1].z, triangle.v[1].w };
+	std::array<int, 4> v2{ triangle.v[2].x, triangle.v[2].y, triangle.v[2].z, triangle.v[2].w };*/
 
-	using SlopeData = std::array<Slope,2>; // x and z-buffer
+	using SlopeData = std::array<Slope,2>; // x and depth-buffer
 
 	rasterizeTriangle(&v0, &v1, &v2,
 		// coord extractor
-		[&](const auto& v) { return std::tuple{ v[0], v[1] }; },
+		[&](const auto& v) { return std::tuple{ v.x, v.y }; },
 		// Slope generator
 		[&](const auto* from, const auto* to, int numSteps) {
 			SlopeData result;
 			// Get begin and end X coordinates
-			result[0] = Slope{ (float)(*from)[0], (float)(*to)[0], numSteps };
-			// Get begin and end W coordinates
-			result[1] = Slope{ (float)(*from)[2], (float)(*to)[2], numSteps };
+			result[0] = Slope{ (float)(*from).x, (float)(*to).x, numSteps };
+			// Get begin and end depth values
+			result[1] = Slope{ (*from).w, (*to).w, numSteps };
 			return result;
 		},
 		// Draw scanline
 		[&](int y, SlopeData& left, SlopeData& right) {
-			int startX = left[0].get(), endX = right[0].get();
+			int x = left[0].get(), endX = right[0].get();
 
 			// Horizontal interpolation for depth values
 			Slope pixelDepth;
-			int numSteps = endX - startX;
+			int numSteps = endX - x;
 			pixelDepth = Slope(left[1].get(), right[1].get(), numSteps);
 
-			for (; startX <= endX; startX++) {
-				// Update z-buffer if the pixel is closer than the current buffer value
-				if (left[1].get() < depthBuffer[(y * SCREEN_WIDTH) + startX]) {
-					depthBuffer[(y * SCREEN_WIDTH) + startX] = pixelDepth.get();
-					SDL_RenderDrawPoint(renderer, startX, y);
+			for (; x <= endX; x++) {
+				// Update depth-buffer if the pixel is closer than the current buffer value
+				int currentPixel = (y * SCREEN_WIDTH) + x;
+				if (pixelDepth.get() < depthBuffer[currentPixel]) {
+					depthBuffer[currentPixel] = pixelDepth.get();
+					SDL_RenderDrawPoint(renderer, x, y);
 				}
 				pixelDepth.advance();
 			}
@@ -97,7 +101,6 @@ int Engine::OnExecute() {
 	if (!OnInit()) {
 		return -1;
 	}
-
 
 	while (running) {
 		t2 = SDL_GetTicks();
