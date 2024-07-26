@@ -59,6 +59,7 @@ private:
 	bool slowMode = false;
 	bool fastMode = false;
 	bool showTriEdges = false;
+	bool drawTriangles = true;
 	int xMousePos, yMousePos;
 
 private:

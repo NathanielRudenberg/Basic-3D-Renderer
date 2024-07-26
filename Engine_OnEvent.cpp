@@ -27,6 +27,11 @@ void Engine::OnKeyDown(SDL_Keycode sym, Uint16 mod) {
 
     case SDLK_t:
         showTriEdges = !showTriEdges;
+        break;
+
+    case SDLK_r:
+        drawTriangles = !drawTriangles;
+        break;
 
     default:
 

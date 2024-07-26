@@ -144,7 +144,7 @@ void Engine::render(Model& obj, Matrix4f viewMatrix, float translateX, float tra
 		clipAgainstScreenEdges(clippable, trisToRaster);
 
 		for (Triangle& t : trisToRaster) {
-			if (true) {
+			if (drawTriangles) {
 				SDL_SetRenderDrawColor(renderer, t.getLuminance(), t.getLuminance(), t.getLuminance(), 255);
 				TriangleNoEigen toRaster = TriangleNoEigen(t);
 				rasterize(toRaster);
