@@ -1,15 +1,15 @@
 #include "Engine.h"
-#include <vector>
 
 bool Engine::OnInit() {
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         return false;
     }
 
-    window = Window("Basic 3D Engine", SCREEN_WIDTH, SCREEN_HEIGHT);
-    window.init();
-    if (window.get() == NULL) { return false; }
-    if (window.getRenderer() == NULL) { return false; }
+    _window = Window("Basic 3D Engine", SCREEN_WIDTH, SCREEN_HEIGHT);
+    _renderer = Renderer(_window, 0.2f, 2.0f);
+    _window.init();
+    if (_window.get() == NULL) { return false; }
+    if (_window.getRenderer() == NULL) { return false; }
 
     //matExternal.loadObj("pyramid.obj");
     /*Model pyramid;

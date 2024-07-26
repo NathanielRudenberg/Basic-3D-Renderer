@@ -1,6 +1,6 @@
 #include "Engine.h"
 
 void Engine::OnCleanup() {
-	window.cleanup();
+	_window.cleanup();
 	SDL_Quit();
 }

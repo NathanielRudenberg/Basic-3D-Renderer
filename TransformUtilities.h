@@ -1,6 +1,11 @@
 // Utility functions for transformations and stuff
 #pragma once
-#include "Engine.h"
+#include <Eigen/Core>
+#include "triangle.h"
+
+using Eigen::RowVector3f;
+using Eigen::RowVector4f;
+using Eigen::Matrix4f;
 
 // Get matrix used to move the camera around the world
 Matrix4f getPointAtMatrix(RowVector3f& pos, RowVector3f& target, RowVector3f& up);
@@ -32,3 +37,10 @@ RowVector4f vectorPlaneIntersect(RowVector3f& planeP, RowVector3f& planeN, RowVe
 
 // Clip triangle against plane
 int clipTriangleAgainstPlane(RowVector3f& planePoint, RowVector3f& pN, Triangle& inTri, Triangle& outTri1, Triangle& outTri2);
+
+enum coordIndices {
+	X,
+	Y,
+	Z,
+	W
+};

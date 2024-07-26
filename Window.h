@@ -6,22 +6,27 @@ using std::string;
 
 class Window {
 private:
-	SDL_Window* _window = NULL;
-	SDL_Renderer* _renderer = NULL;
+	SDL_Window* _sdlWindow = NULL;
+	SDL_Renderer* _sdlRenderer = NULL;
 	int _screenWidth;
 	int _screenHeight;
 	double* _depthBuffer;
 	int _depthBufferSize;
 	string _title;
+	int _xMousePos, _yMousePos;
 
 public:
 	Window();
 	Window(string windowTitle, int screenWidth, int screenHeight);
-	void setScreenWidth(int width);
-	void setScreenHeight(int height);
+	void setWidth(int width);
+	void setHeight(int height);
 	void setTitle(string windowTitle);
-	int getWidth();
-	int getHeight();
+	void setMX(int pos);
+	void setMY(int pos);
+	int width();
+	int height();
+	int mX();
+	int mY();
 	string getTitle();
 	double* getDepthBuffer();
 	SDL_Window* get();

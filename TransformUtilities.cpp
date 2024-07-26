@@ -1,5 +1,4 @@
 #include "TransformUtilities.h"
-#include "triangle.h"
 
 Matrix4f getPointAtMatrix(RowVector3f& pos, RowVector3f& target, RowVector3f& up) {
 	RowVector3f newForward = (target - pos).normalized();
@@ -79,11 +78,11 @@ Matrix4f getProjectionMatrix(float fovRadians, float aspectRatio, float nearPlan
 RowVector4f project(Eigen::RowVector4f& toProject, float fovRadians, float aspectRatio, float nearPlane, float farPlane) {
 	RowVector4f tmpProj = toProject * getProjectionMatrix(fovRadians, aspectRatio, nearPlane, farPlane);
 	RowVector4f projected;
-	if (tmpProj[Engine::coordIndices::W] != 0.0f) {
-		projected << tmpProj[Engine::coordIndices::X] / tmpProj[Engine::coordIndices::W], tmpProj[Engine::coordIndices::Y] / tmpProj[Engine::coordIndices::W], tmpProj[Engine::coordIndices::Z] / tmpProj[Engine::coordIndices::W], tmpProj[Engine::coordIndices::W];
+	if (tmpProj[coordIndices::W] != 0.0f) {
+		projected << tmpProj[coordIndices::X] / tmpProj[coordIndices::W], tmpProj[coordIndices::Y] / tmpProj[coordIndices::W], tmpProj[coordIndices::Z] / tmpProj[coordIndices::W], tmpProj[coordIndices::W];
 	}
 	else {
-		projected << tmpProj[Engine::coordIndices::X], tmpProj[Engine::coordIndices::Y], tmpProj[Engine::coordIndices::Z], tmpProj[Engine::coordIndices::W];
+		projected << tmpProj[coordIndices::X], tmpProj[coordIndices::Y], tmpProj[coordIndices::Z], tmpProj[coordIndices::W];
 	}
 
 	return projected;
@@ -93,8 +92,8 @@ RowVector4f vectorPlaneIntersect(RowVector3f& planePoint, RowVector3f& planeNorm
 	//planeNormal.normalize();
 	// RowVector3f pN;
 	RowVector4f start, end, clippedPoint, pPoint, pN;
-	start << lineStart[Engine::coordIndices::X], lineStart[Engine::coordIndices::Y], lineStart[Engine::coordIndices::Z], lineStart[Engine::coordIndices::W];
-	end << lineEnd[Engine::coordIndices::X], lineEnd[Engine::coordIndices::Y], lineEnd[Engine::coordIndices::Z], lineEnd[Engine::coordIndices::W];
+	start << lineStart[coordIndices::X], lineStart[coordIndices::Y], lineStart[coordIndices::Z], lineStart[coordIndices::W];
+	end << lineEnd[coordIndices::X], lineEnd[coordIndices::Y], lineEnd[coordIndices::Z], lineEnd[coordIndices::W];
 	pN << planeNormal.normalized(), 0.0f;
 	pPoint << planePoint, 0.0f;
 
@@ -114,11 +113,11 @@ int clipTriangleAgainstPlane(RowVector3f& planePoint, RowVector3f& pN, Triangle&
 	// Get shortest distance from point to plane
 	auto dist = [&](RowVector4f& n) {
 		RowVector3f p;
-		p << n[Engine::coordIndices::X], n[Engine::coordIndices::Y], n[Engine::coordIndices::Z];
+		p << n[coordIndices::X], n[coordIndices::Y], n[coordIndices::Z];
 
-		return (planeNormal[Engine::coordIndices::X] * p[Engine::coordIndices::X]
-			+ planeNormal[Engine::coordIndices::Y] * p[Engine::coordIndices::Y]
-			+ planeNormal[Engine::coordIndices::Z] * p[Engine::coordIndices::Z]
+		return (planeNormal[coordIndices::X] * p[coordIndices::X]
+			+ planeNormal[coordIndices::Y] * p[coordIndices::Y]
+			+ planeNormal[coordIndices::Z] * p[coordIndices::Z]
 			- planeNormal.dot(planePoint));
 	};
 

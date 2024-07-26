@@ -69,7 +69,7 @@ void Camera::rotateX(float angle) {
 void Camera::rotateY(float angle) {
 	// Change the rotation direction based on the sign of the
 	// up vector's Y component
-	int sign = _up[Y] / std::abs(_up[Y]);
+	int sign = (int)(_up[Y] / std::abs(_up[Y]));
 	rotate(angle * sign, _yAxis);
 }
 
