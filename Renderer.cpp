@@ -2,8 +2,7 @@
 
 Renderer::Renderer() {};
 
-Renderer::Renderer(Window& window, float cameraRotSpeed, float cameraMoveSpeed) : _window(window), _cameraRotSpeed(cameraRotSpeed), _cameraMoveSpeed(cameraMoveSpeed) {
-}
+Renderer::Renderer(Window* window, float cameraRotSpeed, float cameraMoveSpeed) : _window(window), _cameraRotSpeed(cameraRotSpeed), _cameraMoveSpeed(cameraMoveSpeed) {}
 
 void Renderer::setCameraRotSpeed(float speed) {
 	_cameraRotSpeed = speed;
@@ -18,7 +17,7 @@ Camera& Renderer::camera() {
 }
 
 float Renderer::getCameraRotSpeed() {
-	if (slowMode) {
+	if (slowRotateMode) {
 		return 0.04f;
 	}
 	return 0.4f;
@@ -27,6 +26,9 @@ float Renderer::getCameraRotSpeed() {
 float Renderer::getCameraMoveSpeed() {
 	if (fastMode) {
 		return 8.0f;
+	}
+	else if (slowMode) {
+		return 0.1f;
 	}
 	return 2.0f;
 }
@@ -39,20 +41,36 @@ bool Renderer::getSlowMode() const {
 	return slowMode;
 }
 
+bool Renderer::getSlowRotateMode() {
+	return slowRotateMode;
+}
+
+void Renderer::setFastMode(bool mode) {
+	fastMode = mode;
+}
+
+void Renderer::setSlowMode(bool mode) {
+	slowMode = mode;
+}
+
+void Renderer::toggleSlowRotateMode() {
+	slowRotateMode = !slowRotateMode;
+}
+
 void Renderer::toggleFastMode() {
-	fastMode != fastMode;
+	fastMode = !fastMode;
 }
 
 void Renderer::toggleSlowMode() {
-	slowMode != slowMode;
+	slowMode = !slowMode;
 }
 
 void Renderer::toggleTriEdges() {
-	showTriEdges != showTriEdges;
+	showTriEdges = !showTriEdges;
 }
 
 void Renderer::toggleDrawing() {
-	drawTriangles != drawTriangles;
+	drawTriangles = !drawTriangles;
 }
 
 RowVector3f Renderer::getTriangleNormal(Triangle& triTransformed) {
@@ -86,9 +104,9 @@ void Renderer::clipAgainstScreenEdges(Triangle& clippable, std::list<Triangle>& 
 	int newTrianglesNum = 1;
 
 	Plane top(RowVector3f{ 0.0f, 0.0f, 0.0f }, RowVector3f{ 0.0f, 1.0f, 0.0f });
-	Plane bottom(RowVector3f{ 0.0f, (float)(_window.height() - 1), 0.0f }, RowVector3f{ 0.0f, -1.0f, 0.0f });
+	Plane bottom(RowVector3f{ 0.0f, (float)(_window->height() - 1), 0.0f }, RowVector3f{ 0.0f, -1.0f, 0.0f });
 	Plane left(RowVector3f{ 0.0f, 0.0f, 0.0f }, RowVector3f{ 1.0f, 0.0f, 0.0f });
-	Plane right(RowVector3f{ (float)(_window.width() - 1), 0.0f, 0.0f }, RowVector3f{ -1.0f, 0.0f, 0.0f });
+	Plane right(RowVector3f{ (float)(_window->width() - 1), 0.0f, 0.0f }, RowVector3f{ -1.0f, 0.0f, 0.0f });
 
 	Plane screenEdges[]{ top, bottom, left, right };
 	for (Plane& edge : screenEdges) {
@@ -148,7 +166,7 @@ void Renderer::render(Model& obj, Matrix4f viewMatrix, float translateX, float t
 
 			float fov = 80.0f;
 			float fovRad = 1.0f / tanf(fov * 0.5f / 180.0f * PI);
-			float aspectRatio = (float)_window.height() / (float)_window.width();
+			float aspectRatio = (float)_window->height() / (float)_window->width();
 
 			for (int n = 0; n < clippedTriangleNum; n++) {
 
@@ -161,8 +179,8 @@ void Renderer::render(Model& obj, Matrix4f viewMatrix, float translateX, float t
 					triProjected.getVerts()[i][X] += 1.0f;
 					triProjected.getVerts()[i][Y] += 1.0f;
 
-					triProjected.getVerts()[i][X] *= 0.5f * (float)_window.width();
-					triProjected.getVerts()[i][Y] *= 0.5f * (float)_window.height();
+					triProjected.getVerts()[i][X] *= 0.5f * (float)_window->width();
+					triProjected.getVerts()[i][Y] *= 0.5f * (float)_window->height();
 				}
 
 				triProjected.setLuminance(clipped[n].getLuminance());
@@ -190,24 +208,24 @@ void Renderer::render(Model& obj, Matrix4f viewMatrix, float translateX, float t
 
 		for (Triangle& t : trisToRaster) {
 			if (drawTriangles) {
-				SDL_SetRenderDrawColor(_window.getRenderer(), t.getLuminance(), t.getLuminance(), t.getLuminance(), 255);
+				SDL_SetRenderDrawColor(_window->getRenderer(), t.getLuminance(), t.getLuminance(), t.getLuminance(), 255);
 				TriangleNoEigen toRaster = TriangleNoEigen(t);
 				rasterize(toRaster);
 			}
 
 			// Draw triangles
 			if (showTriEdges) {
-				SDL_SetRenderDrawColor(_window.getRenderer(), 255, 0, 0, 255);
-				SDL_RenderDrawLine(_window.getRenderer(), (int)t.getVerts()[0][X], (int)t.getVerts()[0][Y], (int)t.getVerts()[1][X], (int)t.getVerts()[1][Y]);
-				SDL_RenderDrawLine(_window.getRenderer(), (int)t.getVerts()[1][X], (int)t.getVerts()[1][Y], (int)t.getVerts()[2][X], (int)t.getVerts()[2][Y]);
-				SDL_RenderDrawLine(_window.getRenderer(), (int)t.getVerts()[2][X], (int)t.getVerts()[2][Y], (int)t.getVerts()[0][X], (int)t.getVerts()[0][Y]);
+				SDL_SetRenderDrawColor(_window->getRenderer(), 255, 0, 0, 255);
+				SDL_RenderDrawLine(_window->getRenderer(), (int)t.getVerts()[0][X], (int)t.getVerts()[0][Y], (int)t.getVerts()[1][X], (int)t.getVerts()[1][Y]);
+				SDL_RenderDrawLine(_window->getRenderer(), (int)t.getVerts()[1][X], (int)t.getVerts()[1][Y], (int)t.getVerts()[2][X], (int)t.getVerts()[2][Y]);
+				SDL_RenderDrawLine(_window->getRenderer(), (int)t.getVerts()[2][X], (int)t.getVerts()[2][Y], (int)t.getVerts()[0][X], (int)t.getVerts()[0][Y]);
 			}
 
 			if (false) {
-				SDL_SetRenderDrawColor(_window.getRenderer(), t.getLuminance(), t.getLuminance(), 0, 255);
-				SDL_RenderDrawPoint(_window.getRenderer(), (int)t.getVerts()[0][X], (int)t.getVerts()[0][Y]);
-				SDL_RenderDrawPoint(_window.getRenderer(), (int)t.getVerts()[1][X], (int)t.getVerts()[1][Y]);
-				SDL_RenderDrawPoint(_window.getRenderer(), (int)t.getVerts()[2][X], (int)t.getVerts()[2][Y]);
+				SDL_SetRenderDrawColor(_window->getRenderer(), t.getLuminance(), t.getLuminance(), 0, 255);
+				SDL_RenderDrawPoint(_window->getRenderer(), (int)t.getVerts()[0][X], (int)t.getVerts()[0][Y]);
+				SDL_RenderDrawPoint(_window->getRenderer(), (int)t.getVerts()[1][X], (int)t.getVerts()[1][Y]);
+				SDL_RenderDrawPoint(_window->getRenderer(), (int)t.getVerts()[2][X], (int)t.getVerts()[2][Y]);
 			}
 		}
 	}
@@ -285,10 +303,10 @@ void Renderer::rasterize(TriangleNoEigen& triangle) {
 
 			for (; x <= endX; x++) {
 				// Update depth-buffer if the pixel is closer than the current buffer value
-				int currentPixel = (y * _window.width()) + x;
-				if (pixelDepth.get() < _window.getDepthBuffer()[currentPixel]) {
-					_window.getDepthBuffer()[currentPixel] = pixelDepth.get();
-					SDL_RenderDrawPoint(_window.getRenderer(), x, y);
+				int currentPixel = (y * _window->width()) + x;
+				if (pixelDepth.get() < _window->getDepthBuffer()[currentPixel]) {
+					_window->getDepthBuffer()[currentPixel] = pixelDepth.get();
+					SDL_RenderDrawPoint(_window->getRenderer(), x, y);
 				}
 				pixelDepth.advance();
 			}

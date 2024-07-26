@@ -33,11 +33,12 @@ private:
 	};
 
 	Camera _camera;
-	Window _window;
+	Window* _window = NULL;
 	float _cameraRotSpeed;
 	float _cameraMoveSpeed;
 	bool slowMode = false;
 	bool fastMode = false;
+	bool slowRotateMode = false;
 	bool showTriEdges = false;
 	bool drawTriangles = true;
 	RowVector3f getTriangleNormal(Triangle& triTransformed);
@@ -50,7 +51,7 @@ private:
 
 public:
 	Renderer();
-	Renderer(Window& window, float cameraRotSpeed, float cameraMoveSpeed);
+	Renderer(Window* window, float cameraRotSpeed, float cameraMoveSpeed);
 	void setCameraRotSpeed(float speed);
 	void setCameraMoveSpeed(float speed);
 	Camera& camera();
@@ -58,6 +59,10 @@ public:
 	float getCameraMoveSpeed();
 	bool getFastMode() const;
 	bool getSlowMode() const;
+	bool getSlowRotateMode();
+	void setFastMode(bool mode);
+	void setSlowMode(bool mode);
+	void toggleSlowRotateMode();
 	void toggleFastMode();
 	void toggleSlowMode();
 	void toggleTriEdges();

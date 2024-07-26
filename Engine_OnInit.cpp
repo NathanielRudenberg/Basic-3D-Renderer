@@ -6,7 +6,7 @@ bool Engine::OnInit() {
     }
 
     _window = Window("Basic 3D Engine", SCREEN_WIDTH, SCREEN_HEIGHT);
-    _renderer = Renderer(_window, 0.2f, 2.0f);
+    _renderer = Renderer(&_window, 0.2f, 2.0f);
     _window.init();
     if (_window.get() == NULL) { return false; }
     if (_window.getRenderer() == NULL) { return false; }

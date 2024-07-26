@@ -1,13 +1,14 @@
 #include "Engine.h"
 
 void Engine::CheckKeystate() {
-	_renderer.setCameraMoveSpeed(2.0f);
+	_renderer.setFastMode(false);
+	_renderer.setSlowMode(false);
 	const Uint8* keystate = SDL_GetKeyboardState(NULL);
 	if (keystate[SDL_SCANCODE_LCTRL]) {
-		_renderer.setCameraMoveSpeed(8.0f);
+		_renderer.setFastMode(true);
 	}
 	if (keystate[SDL_SCANCODE_E]) {
-		_renderer.setCameraMoveSpeed(0.1f);
+		_renderer.setSlowMode(true);
 	}
 	if (keystate[SDL_SCANCODE_SPACE]) {
 		_renderer.camera().translate(_renderer.camera()._yAxis, (_renderer.getCameraMoveSpeed() * elapsedTime), Camera::PLUS);

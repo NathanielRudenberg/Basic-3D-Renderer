@@ -40,8 +40,6 @@ void Engine::OnKeyDown(SDL_Keycode sym, Uint16 mod) {
 }
 
 void Engine::OnMouseMove(int mX, int mY, int relX, int relY, bool Left, bool Right, bool Middle) {
-    bool slowMode = _renderer.getSlowMode();
-    bool fastMode = _renderer.getFastMode();
     float cameraRotSpeed = _renderer.getCameraRotSpeed();
 
     _window.setMX(mX);
@@ -57,9 +55,9 @@ void Engine::OnMouseMove(int mX, int mY, int relX, int relY, bool Left, bool Rig
 }
 
 void Engine::OnMButtonDown(int mX, int mY) {
-    _renderer.toggleSlowMode();
+    _renderer.toggleSlowRotateMode();
 }
 
 void Engine::OnMButtonUp(int mX, int mY) {
-    _renderer.toggleSlowMode();
+    _renderer.toggleSlowRotateMode();
 }

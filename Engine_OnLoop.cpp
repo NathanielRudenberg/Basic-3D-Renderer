@@ -22,11 +22,11 @@ void Engine::OnLoop() {
 
 	int numberOnEachSideOfZero = 1;
 	int distanceBetweenCubes = 3;
-	/*for (int i = -numberOnEachSideOfZero; i <= numberOnEachSideOfZero; i++) {
+	for (int i = -numberOnEachSideOfZero; i <= numberOnEachSideOfZero; i++) {
 		for (int j = -numberOnEachSideOfZero; j <= numberOnEachSideOfZero; j++) {
-			render(objects[0], viewMatrix, (float)(i* distanceBetweenCubes), 0.0f, (float)(j * distanceBetweenCubes));
+			_renderer.render(objects[0], viewMatrix, (float)(i* distanceBetweenCubes), 0.0f, (float)(j * distanceBetweenCubes));
 		}
-	}*/
+	}
 
 	_renderer.render(objects[0], viewMatrix, 0.0f, 0.0f, 4.0f);
 	//render(objects[1], viewMatrix, 0.0f, 0.0f, 4.0f);
