@@ -209,8 +209,7 @@ void Renderer::render(Model& obj, Matrix4f viewMatrix, float translateX, float t
 		for (Triangle& t : trisToRaster) {
 			if (drawTriangles) {
 				SDL_SetRenderDrawColor(_window->getRenderer(), t.getLuminance(), t.getLuminance(), t.getLuminance(), 255);
-				TriangleNoEigen toRaster = TriangleNoEigen(t);
-				rasterize(toRaster);
+				rasterize(t);
 			}
 
 			// Draw triangles
@@ -269,11 +268,11 @@ void Renderer::rasterizeTriangle(const V* v0, const V* v1, const V* v2,
 	}
 }
 
-void Renderer::rasterize(TriangleNoEigen& triangle) {
+void Renderer::rasterize(Triangle& triangle) {
 	// FillTriangle(triangle);
-	Point3d v0 = triangle.v[0];
-	Point3d v1 = triangle.v[1];
-	Point3d v2 = triangle.v[2];
+	RowVector4f v0 = triangle.getVerts()[0];
+	RowVector4f v1 = triangle.getVerts()[1];
+	RowVector4f v2 = triangle.getVerts()[2];
 	/*std::array<int, 4> v0{ triangle.v[0].x, triangle.v[0].y, triangle.v[0].z, triangle.v[0].w };
 	std::array<int, 4> v1{ triangle.v[1].x, triangle.v[1].y, triangle.v[1].z, triangle.v[1].w };
 	std::array<int, 4> v2{ triangle.v[2].x, triangle.v[2].y, triangle.v[2].z, triangle.v[2].w };*/
@@ -282,14 +281,14 @@ void Renderer::rasterize(TriangleNoEigen& triangle) {
 
 	rasterizeTriangle(&v0, &v1, &v2,
 		// coord extractor
-		[&](const auto& v) { return std::tuple{ v.x, v.y }; },
+		[&](const auto& v) { return std::tuple{ v[X], v[Y]}; },
 		// Slope generator
 		[&](const auto* from, const auto* to, int numSteps) {
 			SlopeData result;
 			// Get begin and end X coordinates
-			result[0] = Slope{ (float)(*from).x, (float)(*to).x, numSteps };
+			result[0] = Slope{ (float)(*from)[X], (float)(*to)[X], numSteps};
 			// Get begin and end depth values
-			result[1] = Slope{ (*from).w, (*to).w, numSteps };
+			result[1] = Slope{ (*from)[W], (*to)[W], numSteps};
 			return result;
 		},
 		// Draw scanline

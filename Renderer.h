@@ -18,20 +18,6 @@ private:
 		W
 	};
 
-	struct Point3d {
-		float x, y, z, w;
-	};
-
-	struct TriangleNoEigen {
-		Point3d v[3];
-
-		TriangleNoEigen(Triangle& tri) {
-			v[0] = { tri.getVerts()[0][X], tri.getVerts()[0][Y], tri.getVerts()[0][Z], tri.getVerts()[0][W], };
-			v[1] = { tri.getVerts()[1][X], tri.getVerts()[1][Y], tri.getVerts()[0][Z], tri.getVerts()[1][W], };
-			v[2] = { tri.getVerts()[2][X], tri.getVerts()[2][Y], tri.getVerts()[0][Z], tri.getVerts()[2][W], };
-		}
-	};
-
 	Camera _camera;
 	Window* _window = NULL;
 	float _cameraRotSpeed;
@@ -47,7 +33,7 @@ private:
 	void clipAgainstScreenEdges(Triangle& clippable, std::list<Triangle>& trisToRaster);
 	template<typename V>
 	void rasterizeTriangle(const V* v0, const V* v1, const V* v2, auto&& getXY, auto&& makeSlope, auto&& drawScanline);
-	void rasterize(TriangleNoEigen& triangle);
+	void rasterize(Triangle& triangle);
 
 public:
 	Renderer();
