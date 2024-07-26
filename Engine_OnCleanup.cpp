@@ -1,7 +1,6 @@
 #include "Engine.h"
 
 void Engine::OnCleanup() {
-	SDL_DestroyWindow(window);
-	SDL_DestroyRenderer(renderer);
+	_window.cleanup();
 	SDL_Quit();
 }

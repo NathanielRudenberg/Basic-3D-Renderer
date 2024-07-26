@@ -1,36 +1,37 @@
 #include "Engine.h"
 
 void Engine::CheckKeystate() {
-	cameraMoveSpeed = 2.0f;
+	_renderer.setFastMode(false);
+	_renderer.setSlowMode(false);
 	const Uint8* keystate = SDL_GetKeyboardState(NULL);
 	if (keystate[SDL_SCANCODE_LCTRL]) {
-		cameraMoveSpeed = 8.0f;
+		_renderer.setFastMode(true);
 	}
 	if (keystate[SDL_SCANCODE_E]) {
-		cameraMoveSpeed = 0.1f;
+		_renderer.setSlowMode(true);
 	}
 	if (keystate[SDL_SCANCODE_SPACE]) {
-		camera.translate(camera._yAxis, (cameraMoveSpeed * elapsedTime), Camera::PLUS);
+		_renderer.camera().translate(_renderer.camera()._yAxis, (_renderer.getCameraMoveSpeed() * elapsedTime), Camera::PLUS);
 	}
 	if (keystate[SDL_SCANCODE_LSHIFT]) {
-		camera.translate(camera._yAxis, (cameraMoveSpeed * elapsedTime), Camera::MINUS);
+		_renderer.camera().translate(_renderer.camera()._yAxis, (_renderer.getCameraMoveSpeed() * elapsedTime), Camera::MINUS);
 	}
 	if (keystate[SDL_SCANCODE_A]) {
-		camera.translate(camera.getLeft(), (cameraMoveSpeed * elapsedTime), Camera::PLUS);
+		_renderer.camera().translate(_renderer.camera().getLeft(), (_renderer.getCameraMoveSpeed() * elapsedTime), Camera::PLUS);
 	}
 	if (keystate[SDL_SCANCODE_D]) {
-		camera.translate(camera.getRight(), (cameraMoveSpeed * elapsedTime), Camera::PLUS);
+		_renderer.camera().translate(_renderer.camera().getRight(), (_renderer.getCameraMoveSpeed() * elapsedTime), Camera::PLUS);
 	}
 	if (keystate[SDL_SCANCODE_W]) {
-		camera.translate(camera.getFront(), (cameraMoveSpeed * elapsedTime), Camera::PLUS);
+		_renderer.camera().translate(_renderer.camera().getFront(), (_renderer.getCameraMoveSpeed() * elapsedTime), Camera::PLUS);
 	}
 	if (keystate[SDL_SCANCODE_S]) {
-		camera.translate(camera.getBack(), (cameraMoveSpeed * elapsedTime), Camera::PLUS);
+		_renderer.camera().translate(_renderer.camera().getBack(), (_renderer.getCameraMoveSpeed() * elapsedTime), Camera::PLUS);
 	}
 	if (keystate[SDL_SCANCODE_UP]) {
-		camera.translate(camera.getForward(), (cameraMoveSpeed * elapsedTime), Camera::PLUS);
+		_renderer.camera().translate(_renderer.camera().getForward(), (_renderer.getCameraMoveSpeed() * elapsedTime), Camera::PLUS);
 	}
 	if (keystate[SDL_SCANCODE_DOWN]) {
-		camera.translate(camera.getForward(), (cameraMoveSpeed * elapsedTime), Camera::MINUS);
+		_renderer.camera().translate(_renderer.camera().getForward(), (_renderer.getCameraMoveSpeed() * elapsedTime), Camera::MINUS);
 	}
 }
