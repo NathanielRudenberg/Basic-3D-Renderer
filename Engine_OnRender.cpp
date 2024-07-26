@@ -7,7 +7,7 @@
 #include "TransformUtilities.h"
 
 void Engine::OnRender() {
-	SDL_RenderPresent(renderer);
+	SDL_RenderPresent(window.getRenderer());
 }
 
 RowVector3f Engine::getTriangleNormal(Triangle& triTransformed) {
@@ -145,24 +145,24 @@ void Engine::render(Model& obj, Matrix4f viewMatrix, float translateX, float tra
 
 		for (Triangle& t : trisToRaster) {
 			if (drawTriangles) {
-				SDL_SetRenderDrawColor(renderer, t.getLuminance(), t.getLuminance(), t.getLuminance(), 255);
+				SDL_SetRenderDrawColor(window.getRenderer(), t.getLuminance(), t.getLuminance(), t.getLuminance(), 255);
 				TriangleNoEigen toRaster = TriangleNoEigen(t);
 				rasterize(toRaster);
 			}
 
 			// Draw triangles
 			if (showTriEdges) {
-				SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-				SDL_RenderDrawLine(renderer, (int)t.getVerts()[0][X], (int)t.getVerts()[0][Y], (int)t.getVerts()[1][X], (int)t.getVerts()[1][Y]);
-				SDL_RenderDrawLine(renderer, (int)t.getVerts()[1][X], (int)t.getVerts()[1][Y], (int)t.getVerts()[2][X], (int)t.getVerts()[2][Y]);
-				SDL_RenderDrawLine(renderer, (int)t.getVerts()[2][X], (int)t.getVerts()[2][Y], (int)t.getVerts()[0][X], (int)t.getVerts()[0][Y]);
+				SDL_SetRenderDrawColor(window.getRenderer(), 255, 0, 0, 255);
+				SDL_RenderDrawLine(window.getRenderer(), (int)t.getVerts()[0][X], (int)t.getVerts()[0][Y], (int)t.getVerts()[1][X], (int)t.getVerts()[1][Y]);
+				SDL_RenderDrawLine(window.getRenderer(), (int)t.getVerts()[1][X], (int)t.getVerts()[1][Y], (int)t.getVerts()[2][X], (int)t.getVerts()[2][Y]);
+				SDL_RenderDrawLine(window.getRenderer(), (int)t.getVerts()[2][X], (int)t.getVerts()[2][Y], (int)t.getVerts()[0][X], (int)t.getVerts()[0][Y]);
 			}
 
 			if (false) {
-				SDL_SetRenderDrawColor(renderer, t.getLuminance(), t.getLuminance(), 0, 255);
-				SDL_RenderDrawPoint(renderer, (int)t.getVerts()[0][X], (int)t.getVerts()[0][Y]);
-				SDL_RenderDrawPoint(renderer, (int)t.getVerts()[1][X], (int)t.getVerts()[1][Y]);
-				SDL_RenderDrawPoint(renderer, (int)t.getVerts()[2][X], (int)t.getVerts()[2][Y]);
+				SDL_SetRenderDrawColor(window.getRenderer(), t.getLuminance(), t.getLuminance(), 0, 255);
+				SDL_RenderDrawPoint(window.getRenderer(), (int)t.getVerts()[0][X], (int)t.getVerts()[0][Y]);
+				SDL_RenderDrawPoint(window.getRenderer(), (int)t.getVerts()[1][X], (int)t.getVerts()[1][Y]);
+				SDL_RenderDrawPoint(window.getRenderer(), (int)t.getVerts()[2][X], (int)t.getVerts()[2][Y]);
 			}
 		}
 	}

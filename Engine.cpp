@@ -83,9 +83,9 @@ void Engine::rasterize(TriangleNoEigen& triangle) {
 			for (; x <= endX; x++) {
 				// Update depth-buffer if the pixel is closer than the current buffer value
 				int currentPixel = (y * SCREEN_WIDTH) + x;
-				if (pixelDepth.get() < depthBuffer[currentPixel]) {
-					depthBuffer[currentPixel] = pixelDepth.get();
-					SDL_RenderDrawPoint(renderer, x, y);
+				if (pixelDepth.get() < window.getDepthBuffer()[currentPixel]) {
+					window.getDepthBuffer()[currentPixel] = pixelDepth.get();
+					SDL_RenderDrawPoint(window.getRenderer(), x, y);
 				}
 				pixelDepth.advance();
 			}

@@ -14,6 +14,7 @@
 #include "camera.h"
 #include "Slope.h"
 #include "Plane.h"
+#include "Window.h"
 
 using Eigen::Matrix3f;
 using Eigen::Matrix4f;
@@ -50,8 +51,7 @@ private:
 		float matrix[4][4] = { 0.0f };
 	};
 	bool running;
-	SDL_Renderer* renderer = NULL;
-	SDL_Window* window = NULL;
+	Window window;
 	const int SCREEN_WIDTH = 1200;
 	const int SCREEN_HEIGHT = 700;
 	float cameraRotSpeed;
@@ -69,11 +69,8 @@ private:
 private:
 	const float pi = 3.14159f;
 	float elapsedTime = 0;
-	double* depthBuffer = nullptr;
-	const int DEPTH_BUFFER_SIZE = SCREEN_WIDTH * SCREEN_HEIGHT;
 	RowVector3f getTriangleNormal(Triangle& triTransformed);
 	RowVector3f getCameraRay(RowVector3f& v);
-	std::string windowTitle;
 	int getLuminance(RowVector3f& normal);
 	void clipAgainstScreenEdges(Triangle& clippable, std::list<Triangle>& trisToRaster);
 

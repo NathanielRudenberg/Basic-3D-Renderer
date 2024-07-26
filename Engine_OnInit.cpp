@@ -6,13 +6,10 @@ bool Engine::OnInit() {
         return false;
     }
 
-    depthBuffer = new double[DEPTH_BUFFER_SIZE] {INFINITY};
-
-    window = SDL_CreateWindow("Basic 3D Engine", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
-    if (window == NULL) { return false; }
-
-    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-    if (renderer == NULL) { return false; }
+    window = Window("Basic 3D Engine", SCREEN_WIDTH, SCREEN_HEIGHT);
+    window.init();
+    if (window.get() == NULL) { return false; }
+    if (window.getRenderer() == NULL) { return false; }
 
     //matExternal.loadObj("pyramid.obj");
     /*Model pyramid;

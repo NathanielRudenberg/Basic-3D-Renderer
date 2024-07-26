@@ -31,9 +31,11 @@
     <ClCompile Include="mesh.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="Plane.cpp" />
+    <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="Slope.cpp" />
     <ClCompile Include="TransformUtilities.cpp" />
     <ClCompile Include="Triangle.cpp" />
+    <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.h" />
@@ -42,9 +44,11 @@
     <ClInclude Include="mesh.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="Plane.h" />
+    <ClInclude Include="Renderer.h" />
     <ClInclude Include="Slope.h" />
     <ClInclude Include="TransformUtilities.h" />
     <ClInclude Include="Triangle.h" />
+    <ClInclude Include="Window.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
