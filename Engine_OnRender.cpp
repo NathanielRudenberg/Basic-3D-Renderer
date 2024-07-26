@@ -36,13 +36,40 @@ int Engine::getLuminance(RowVector3f& normal) {
 	return luminance;
 }
 
+void Engine::clipAgainstScreenEdges(Triangle& clippable, std::list<Triangle>& trisToRaster) {
+	Triangle clipped[2];
+	int newTrianglesNum = 1;
+
+	Plane top(RowVector3f{ 0.0f, 0.0f, 0.0f }, RowVector3f{ 0.0f, 1.0f, 0.0f });
+	Plane bottom(RowVector3f{ 0.0f, (float)(SCREEN_HEIGHT - 1), 0.0f }, RowVector3f{ 0.0f, -1.0f, 0.0f });
+	Plane left(RowVector3f{ 0.0f, 0.0f, 0.0f }, RowVector3f{ 1.0f, 0.0f, 0.0f });
+	Plane right(RowVector3f{ (float)(SCREEN_WIDTH - 1), 0.0f, 0.0f }, RowVector3f{ -1.0f, 0.0f, 0.0f });
+
+	Plane screenEdges[]{ top, bottom, left, right };
+	for (Plane& edge : screenEdges) {
+		int numTrisToAdd = 0;
+		while (newTrianglesNum > 0) {
+			Triangle test = trisToRaster.front();
+			trisToRaster.pop_front();
+			newTrianglesNum--;
+
+			numTrisToAdd = clipTriangleAgainstPlane(edge.point(), edge.normal(), test, clipped[0], clipped[1]);
+
+			for (int w = 0; w < numTrisToAdd; w++) {
+				trisToRaster.push_back(clipped[w]);
+			}
+		}
+		newTrianglesNum = trisToRaster.size();
+	}
+}
+
 void Engine::render(Model& obj, Matrix4f viewMatrix, float translateX, float translateY, float translateZ) {
 	Matrix4f translation = getTranslationMatrix(translateX, translateY, translateZ);
 	Matrix4f worldMatrix = Matrix4f::Zero();
 
 	worldMatrix = translation;
 
-	std::vector<Triangle> trisToRaster;
+	std::vector<Triangle> trisToClip;
 
 	for (Triangle& tri : obj.getMesh().getTris()) {
 		Triangle triTransformed, triViewed, triProjected;
@@ -95,8 +122,8 @@ void Engine::render(Model& obj, Matrix4f viewMatrix, float translateX, float tra
 
 				triProjected.setLuminance(clipped[n].getLuminance());
 
-				// Store triangles for sorting
-				trisToRaster.push_back(triProjected);
+				// Store triangles for clipping against screen edges
+				trisToClip.push_back(triProjected);
 			}
 		}
 	}
@@ -109,37 +136,14 @@ void Engine::render(Model& obj, Matrix4f viewMatrix, float translateX, float tra
 		return w1 > w2;
 		});*/
 
-	for (auto& triToRaster : trisToRaster) {
-		std::list<Triangle> listTriangles;
-		listTriangles.push_back(triToRaster);
+	for (auto& clippable : trisToClip) {
+		std::list<Triangle> trisToRaster;
+		trisToRaster.push_back(clippable);
 
 		// Clip triangles against all screen edges
-		Triangle clipped[2];
-		int newTrianglesNum = 1;
+		clipAgainstScreenEdges(clippable, trisToRaster);
 
-		Plane top(RowVector3f{ 0.0f, 0.0f, 0.0f }, RowVector3f{ 0.0f, 1.0f, 0.0f });
-		Plane bottom(RowVector3f{ 0.0f, (float)(SCREEN_HEIGHT - 1), 0.0f }, RowVector3f{ 0.0f, -1.0f, 0.0f });
-		Plane left(RowVector3f{ 0.0f, 0.0f, 0.0f }, RowVector3f{ 1.0f, 0.0f, 0.0f });
-		Plane right(RowVector3f{ (float)(SCREEN_WIDTH - 1), 0.0f, 0.0f }, RowVector3f{ -1.0f, 0.0f, 0.0f });
-
-		Plane screenEdges[] { top, bottom, left, right };
-		for (Plane& edge: screenEdges) {
-			int numTrisToAdd = 0;
-			while (newTrianglesNum > 0) {
-				Triangle test = listTriangles.front();
-				listTriangles.pop_front();
-				newTrianglesNum--;
-
-				numTrisToAdd = clipTriangleAgainstPlane(edge.point(), edge.normal(), test, clipped[0], clipped[1]);
-
-				for (int w = 0; w < numTrisToAdd; w++) {
-					listTriangles.push_back(clipped[w]);
-				}
-			}
-			newTrianglesNum = listTriangles.size();
-		}
-
-		for (Triangle& t : listTriangles) {
+		for (Triangle& t : trisToRaster) {
 			if (true) {
 				SDL_SetRenderDrawColor(renderer, t.getLuminance(), t.getLuminance(), t.getLuminance(), 255);
 				TriangleNoEigen toRaster = TriangleNoEigen(t);

@@ -59,6 +59,7 @@ private:
 	bool slowMode = false;
 	bool fastMode = false;
 	bool showTriEdges = false;
+	int xMousePos, yMousePos;
 
 private:
 	Camera camera;
@@ -73,7 +74,7 @@ private:
 	RowVector3f getCameraRay(RowVector3f& v);
 	std::string windowTitle;
 	int getLuminance(RowVector3f& normal);
-	int xMousePos, yMousePos;
+	void clipAgainstScreenEdges(Triangle& clippable, std::list<Triangle>& trisToRaster);
 
 public:
 	template<typename V>
