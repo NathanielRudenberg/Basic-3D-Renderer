@@ -122,35 +122,15 @@ void Engine::render(Model& obj, Matrix4f viewMatrix, float translateX, float tra
 		Plane left(RowVector3f{ 0.0f, 0.0f, 0.0f }, RowVector3f{ 1.0f, 0.0f, 0.0f });
 		Plane right(RowVector3f{ (float)(SCREEN_WIDTH - 1), 0.0f, 0.0f }, RowVector3f{ -1.0f, 0.0f, 0.0f });
 
-		for (int i = 0; i < 4; i++) {
+		Plane screenEdges[] { top, bottom, left, right };
+		for (Plane& edge: screenEdges) {
 			int numTrisToAdd = 0;
 			while (newTrianglesNum > 0) {
 				Triangle test = listTriangles.front();
 				listTriangles.pop_front();
 				newTrianglesNum--;
 
-				RowVector3f edge, edgeNorm;
-
-				switch (i) {
-				case 0:
-					edge = top.point();
-					edgeNorm << top.normal();
-					break;
-				case 1:
-					edge = bottom.point();
-					edgeNorm = bottom.normal();
-					break;
-				case 2:
-					edge = left.point();
-					edgeNorm = left.normal();
-					break;
-				case 3:
-					edge = right.point();
-					edgeNorm << right.normal();
-					break;
-				}
-
-				numTrisToAdd = clipTriangleAgainstPlane(edge, edgeNorm, test, clipped[0], clipped[1]);
+				numTrisToAdd = clipTriangleAgainstPlane(edge.point(), edge.normal(), test, clipped[0], clipped[1]);
 
 				for (int w = 0; w < numTrisToAdd; w++) {
 					listTriangles.push_back(clipped[w]);
