@@ -29,7 +29,7 @@ void Engine::OnLoop() {
 	Matrix4f cameraMatrix = getPointAtMatrix(camera.getPos(), targetVec, camera.getUp());
 	Matrix4f viewMatrix = cameraMatrix.inverse();
 
-	int numberOnEachSideOfZero = 1;
+	int numberOnEachSideOfZero = 5;
 	int distanceBetweenCubes = 3;
 	for (int i = -numberOnEachSideOfZero; i <= numberOnEachSideOfZero; i++) {
 		for (int j = -numberOnEachSideOfZero; j <= numberOnEachSideOfZero; j++) {
@@ -38,4 +38,8 @@ void Engine::OnLoop() {
 	}
 
 	// render(objects[0], viewMatrix, 0.0f, 0.0f, 4.0f);
+	//render(objects[1], viewMatrix, 0.0f, 0.0f, 4.0f);
+	//render(objects[2], viewMatrix, 35.0f, 0.0f, 4.0f);
+	//render(objects[3], viewMatrix, 0.0f, 0.0f, 1.0f);
+	//render(objects[4], viewMatrix, 0.0f, 0.0f, 1.0f);
 }

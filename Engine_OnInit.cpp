@@ -23,9 +23,21 @@ bool Engine::OnInit() {
     cube.load("cube.obj");
     objects.push_back(cube);
 
-    /*Model axis;
+    Model axis;
     axis.load("axis.obj");
-    objects.push_back(axis);*/
+    objects.push_back(axis);
+
+    Model ship;
+    ship.load("VideoShip.obj");
+    objects.push_back(ship);
+
+    Model teapot;
+    teapot.load("teapot.obj");
+    objects.push_back(teapot);
+
+    Model mountains;
+    mountains.load("mountains.obj");
+    objects.push_back(mountains);
 
     return true;
 }
