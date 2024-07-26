@@ -14,10 +14,11 @@ void Engine::OnLoop() {
 	string mX = "X: " + to_string(xMousePos);
 	string mY = "Y: " + to_string(yMousePos);
 	string depth = "Depth: " + to_string( depthBuffer[(yMousePos * SCREEN_WIDTH) + xMousePos]);
-	windowTitle = string("Basic 3D Engine ") + mX + ", " + mY + ", " + fpsString;
+	windowTitle = string("Basic 3D Engine ") + mX + ", " + mY;
 	if (SDL_GetRelativeMouseMode() == SDL_FALSE) {
 		windowTitle += ", " + depth;
 	}
+	windowTitle += ", " + fpsString;
 
 	SDL_SetWindowTitle(window, windowTitle.c_str());
 
@@ -37,7 +38,7 @@ void Engine::OnLoop() {
 		}
 	}
 
-	// render(objects[0], viewMatrix, 0.0f, 0.0f, 4.0f);
+	//render(objects[0], viewMatrix, 0.0f, 0.0f, 4.0f);
 	//render(objects[1], viewMatrix, 0.0f, 0.0f, 4.0f);
 	//render(objects[2], viewMatrix, 35.0f, 0.0f, 4.0f);
 	//render(objects[3], viewMatrix, 0.0f, 0.0f, 1.0f);
