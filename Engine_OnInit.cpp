@@ -16,15 +16,22 @@ bool Engine::OnInit() {
     pyramid.load("pyramid.obj");
     objects.push_back(pyramid);*/
 
-    Model cube;
-    cube.load("cube.obj");
+    /*Model cube = Model("cube.obj", 0.0f, 0.0f, 4.0f);
     objects.push_back(cube);
+    objectBuffer.push_back(&cube);*/
 
-    Model axis;
-    axis.load("axis.obj");
+    int numberOnEachSideOfZero = 1;
+    int distanceBetweenCubes = 3;
+    for (int i = -numberOnEachSideOfZero; i <= numberOnEachSideOfZero; i++) {
+        for (int j = -numberOnEachSideOfZero; j <= numberOnEachSideOfZero; j++) {
+            objects.push_back(Model("cube.obj", (float)(i * distanceBetweenCubes), 0.0f, (float)(j * distanceBetweenCubes)));
+        }
+    }
+
+    Model axis = Model("axis.obj");
     objects.push_back(axis);
 
-    Model ship;
+    /*Model ship;
     ship.load("VideoShip.obj");
     objects.push_back(ship);
 
@@ -34,7 +41,7 @@ bool Engine::OnInit() {
 
     Model mountains;
     mountains.load("mountains.obj");
-    objects.push_back(mountains);
+    objects.push_back(mountains);*/
 
     return true;
 }
