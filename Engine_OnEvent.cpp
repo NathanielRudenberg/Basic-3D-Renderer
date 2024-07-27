@@ -25,6 +25,10 @@ void Engine::OnKeyDown(SDL_Keycode sym, Uint16 mod) {
         _renderer.toggleFastMode();
         break;
 
+    case SDLK_e:
+        _renderer.toggleSlowMode();
+        break;
+
     case SDLK_t:
         _renderer.toggleTriEdges();
         break;

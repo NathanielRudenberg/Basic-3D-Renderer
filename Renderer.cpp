@@ -126,6 +126,10 @@ void Renderer::clipAgainstScreenEdges(Triangle& clippable, std::list<Triangle>& 
 	}
 }
 
+void Renderer::render(Model& obj, Matrix4f viewMatrix) {
+	render(obj, viewMatrix, obj.getPosition()[X], obj.getPosition()[Y], obj.getPosition()[Z]);
+}
+
 void Renderer::render(Model& obj, Matrix4f viewMatrix, float translateX, float translateY, float translateZ) {
 	Matrix4f translation = getTranslationMatrix(translateX, translateY, translateZ);
 	Matrix4f worldMatrix = Matrix4f::Zero();

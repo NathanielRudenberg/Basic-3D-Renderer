@@ -53,6 +53,7 @@ public:
 	void toggleSlowMode();
 	void toggleTriEdges();
 	void toggleDrawing();
-	void render(Model& obj, Eigen::Matrix4f viewMatrix, float translateX = 0.0f, float translateY = 0.0f, float translateZ = 0.0f);
+	void render(Model& obj, Matrix4f viewMatrix);
+	void render(Model& obj, Matrix4f viewMatrix, float translateX, float translateY, float translateZ);
 };
 

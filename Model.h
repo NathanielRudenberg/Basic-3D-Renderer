@@ -2,13 +2,18 @@
 #include <fstream>
 #include <iostream>
 #include "mesh.h"
+#include "Eigen/Core"
+using Eigen::RowVector3f;
 
 class Model {
 private:
 	Mesh objectMesh;
+	RowVector3f _position;
 
 public:
 	Model();
+	Model(std::string filename);
+	Model(std::string filename, float x, float y, float z);
 
 	// Load model from an obj file.
 	//
@@ -22,4 +27,6 @@ public:
 
 	// Move the model to a new position within the world space.
 	void moveTo(float x, float y, float z);
+
+	RowVector3f& getPosition();
 };
