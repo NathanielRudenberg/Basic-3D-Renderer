@@ -30,6 +30,10 @@ void Window::setMY(int pos) {
 	_yMousePos = pos;
 }
 
+void Window::setPixelDepth(int pixel, float depth) {
+	_depthBuffer[pixel] = depth;
+}
+
 int Window::width() {
 	return _screenWidth;
 }
@@ -50,8 +54,12 @@ string Window::getTitle() {
 	return _title;
 }
 
-double* Window::getDepthBuffer() {
+float* Window::getDepthBuffer() {
 	return _depthBuffer;
+}
+
+float Window::getPixelDepth(int pixel){
+	return _depthBuffer[pixel];
 }
 
 SDL_Window* Window::get() {
@@ -62,10 +70,14 @@ SDL_Renderer* Window::getRenderer() {
 	return _sdlRenderer;
 }
 
+void Window::drawPoint(int x, int y) {
+	SDL_RenderDrawPoint(_sdlRenderer, x, y);
+}
+
 void Window::init() {
 	_sdlWindow = SDL_CreateWindow(_title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width(), height(), SDL_WINDOW_SHOWN);
 	_sdlRenderer = SDL_CreateRenderer(get(), -1, SDL_RENDERER_ACCELERATED);
-	_depthBuffer = new double[_depthBufferSize] {INFINITY};
+	_depthBuffer = new float[_depthBufferSize] {INFINITY};
 }
 
 void Window::clear() {

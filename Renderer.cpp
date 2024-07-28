@@ -176,7 +176,7 @@ void Renderer::render(Model& obj, Matrix4f viewMatrix, float translateX, float t
 
 				for (int i = 0; i < 3; i++) {
 					// Project onto screen
-					triProjected.getVerts()[i] = project(clipped[n].getVerts()[i], fovRad, aspectRatio, near.point()[Z], far.point()[Z]);
+					triProjected.getVerts()[i] = project(clipped[n].getVerts()[i], fovRad, aspectRatio, near.point()[Z] /*near dist*/, far.point()[Z]) /*far dist*/;
 					//triProjected.getVerts()[i][Z] = triProjected.getVerts()[i][W];
 
 					// Normalize and scale into view
@@ -292,7 +292,7 @@ void Renderer::rasterize(Triangle& triangle) {
 			// Get begin and end X coordinates
 			result[0] = Slope{ (float)(*from)[X], (float)(*to)[X], numSteps};
 			// Get begin and end depth values
-			result[1] = Slope{ (*from)[W], (*to)[W], numSteps};
+			result[1] = Slope{ (float)(*from)[W], (float)(*to)[W], numSteps};
 			return result;
 		},
 		// Draw scanline
@@ -307,9 +307,9 @@ void Renderer::rasterize(Triangle& triangle) {
 			for (; x <= endX; x++) {
 				// Update depth-buffer if the pixel is closer than the current buffer value
 				int currentPixel = (y * _window->width()) + x;
-				if (pixelDepth.get() < _window->getDepthBuffer()[currentPixel]) {
-					_window->getDepthBuffer()[currentPixel] = pixelDepth.get();
-					SDL_RenderDrawPoint(_window->getRenderer(), x, y);
+				if (pixelDepth.get() < _window->getPixelDepth(currentPixel)) {
+					_window->setPixelDepth(currentPixel, pixelDepth.get());
+					_window->drawPoint(x, y);
 				}
 				pixelDepth.advance();
 			}
