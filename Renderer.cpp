@@ -2,7 +2,16 @@
 
 Renderer::Renderer() {};
 
-Renderer::Renderer(Window* window, float cameraRotSpeed, float cameraMoveSpeed) : _window(window), _cameraRotSpeed(cameraRotSpeed), _cameraMoveSpeed(cameraMoveSpeed) {}
+Renderer::Renderer(Window* window, float cameraRotSpeed, float cameraMoveSpeed) :
+	_window(window),
+	_cameraRotSpeed(cameraRotSpeed),
+	_cameraMoveSpeed(cameraMoveSpeed),
+	_near(Plane(RowVector3f{ 0.0f, 0.0f, 0.1f }, RowVector3f{ 0.0f, 0.0f, 1.0f })),
+	_far(Plane(RowVector3f{ 0.0f, 0.0f, 1000.0f }, RowVector3f{ 0.0f, 0.0f, -1.0f })),
+	_top(Plane(RowVector3f{ 0.0f, 0.0f, 0.0f }, RowVector3f{ 0.0f, 1.0f, 0.0f })),
+	_bottom(Plane(RowVector3f{ 0.0f, (float)(_window->height() - 1), 0.0f }, RowVector3f{ 0.0f, -1.0f, 0.0f })),
+	_left(Plane(RowVector3f{ 0.0f, 0.0f, 0.0f }, RowVector3f{ 1.0f, 0.0f, 0.0f })),
+	_right(Plane(RowVector3f{ (float)(_window->width() - 1), 0.0f, 0.0f }, RowVector3f{ -1.0f, 0.0f, 0.0f })) {}
 
 void Renderer::setCameraRotSpeed(float speed) {
 	_cameraRotSpeed = speed;
@@ -103,26 +112,27 @@ void Renderer::clipAgainstScreenEdges(Triangle& clippable, std::list<Triangle>& 
 	Triangle clipped[2];
 	int newTrianglesNum = 1;
 
-	Plane top(RowVector3f{ 0.0f, 0.0f, 0.0f }, RowVector3f{ 0.0f, 1.0f, 0.0f });
-	Plane bottom(RowVector3f{ 0.0f, (float)(_window->height() - 1), 0.0f }, RowVector3f{ 0.0f, -1.0f, 0.0f });
-	Plane left(RowVector3f{ 0.0f, 0.0f, 0.0f }, RowVector3f{ 1.0f, 0.0f, 0.0f });
-	Plane right(RowVector3f{ (float)(_window->width() - 1), 0.0f, 0.0f }, RowVector3f{ -1.0f, 0.0f, 0.0f });
-
-	Plane screenEdges[]{ top, bottom, left, right };
-	for (Plane& edge : screenEdges) {
+	Plane* screenEdges[]{ &_top, &_bottom, &_left, &_right };
+	for (Plane* edge : screenEdges) {
 		int numTrisToAdd = 0;
 		while (newTrianglesNum > 0) {
 			Triangle test = trisToRaster.front();
 			trisToRaster.pop_front();
 			newTrianglesNum--;
 
-			numTrisToAdd = clipTriangleAgainstPlane(edge.point(), edge.normal(), test, clipped[0], clipped[1]);
+			numTrisToAdd = clipTriangleAgainstPlane(edge->point(), edge->normal(), test, clipped[0], clipped[1]);
 
 			for (int w = 0; w < numTrisToAdd; w++) {
 				trisToRaster.push_back(clipped[w]);
 			}
 		}
 		newTrianglesNum = trisToRaster.size();
+	}
+}
+
+void Renderer::transformTriangle(Triangle & tri, Matrix4f& worldMatrix) {
+	for (int i = 0; i < 3; i++) {
+		tri.getVerts()[i] = tri.getVerts()[i] * worldMatrix;
 	}
 }
 
@@ -134,42 +144,34 @@ void Renderer::render(Model& obj, float translateX, float translateY, float tran
 	RowVector3f targetVec = _camera.getPos() + _camera.getForward();
 	Matrix4f cameraMatrix = getPointAtMatrix(_camera.getPos(), targetVec, _camera.getUp());
 	Matrix4f viewMatrix = cameraMatrix.inverse();
-	Matrix4f translation = getTranslationMatrix(translateX, translateY, translateZ);
-	Matrix4f worldMatrix = Matrix4f::Zero();
-
-	worldMatrix = translation;
+	Matrix4f worldMatrix = getTranslationMatrix(translateX, translateY, translateZ);
 
 	std::vector<Triangle> trisToClip;
 
-	for (Triangle& tri : obj.getMesh().getTris()) {
-		Triangle triTransformed, triViewed, triProjected;
+	for (Triangle tri : obj.getMesh().getTris()) {
+		Triangle& triTransformed = tri;
+		Triangle triProjected;
 
-		for (int i = 0; i < 3; i++) {
-			// Transform
-			triTransformed.getVerts()[i] = tri.getVerts()[i] * worldMatrix;
-		}
+		// Translate the triangle into its position in world
+		transformTriangle(triTransformed, worldMatrix);
 
 		// Get triangle normals
-		RowVector3f v;
-		v << triTransformed.getVerts()[0][X], triTransformed.getVerts()[0][Y], triTransformed.getVerts()[0][Z];
+		RowVector3f v = RowVector3f(triTransformed.getVerts()[0][X], triTransformed.getVerts()[0][Y], triTransformed.getVerts()[0][Z]);
 		RowVector3f normal = getTriangleNormal(triTransformed);
 
 		// Only render triangles that are facing the camera
 		if (normal.dot(getCameraRay(v)) < 0.0f) {
 
 			// Illuminate the triangle
-			triViewed.setLuminance(getLuminance(normal));
+			triTransformed.setLuminance(getLuminance(normal));
 
 			// Convert from world space to view space
-			for (int i = 0; i < 3; i++) {
-				triViewed.getVerts()[i] = triTransformed.getVerts()[i] * viewMatrix;
-			}
+			// i.e. translate the triangle into view
+			transformTriangle(triTransformed, viewMatrix);
 
 			int clippedTriangleNum = 0;
 			Triangle clipped[2];
-			Plane near = Plane(RowVector3f{ 0.0f, 0.0f, 0.1f }, RowVector3f{ 0.0f, 0.0f, 1.0f });
-			Plane far = Plane(RowVector3f{ 0.0f, 0.0f, 1000.0f }, RowVector3f{ 0.0f, 0.0f, -1.0f });
-			clippedTriangleNum = clipTriangleAgainstPlane(near.point(), near.normal(), triViewed, clipped[0], clipped[1]);
+			clippedTriangleNum = clipTriangleAgainstPlane(_near.point(), _near.normal(), triTransformed, clipped[0], clipped[1]);
 
 			float fov = 80.0f;
 			float fovRad = 1.0f / tanf(fov * 0.5f / 180.0f * PI);
@@ -179,8 +181,7 @@ void Renderer::render(Model& obj, float translateX, float translateY, float tran
 
 				for (int i = 0; i < 3; i++) {
 					// Project onto screen
-					triProjected.getVerts()[i] = project(clipped[n].getVerts()[i], fovRad, aspectRatio, near.point()[Z] /*near dist*/, far.point()[Z]) /*far dist*/;
-					//triProjected.getVerts()[i][Z] = triProjected.getVerts()[i][W];
+					triProjected.getVerts()[i] = project(clipped[n].getVerts()[i], fovRad, aspectRatio, _near.point()[Z] /*near dist*/, _far.point()[Z]) /*far dist*/;
 
 					// Normalize and scale into view
 					triProjected.getVerts()[i][X] += 1.0f;

@@ -27,6 +27,12 @@ private:
 	bool slowRotateMode = false;
 	bool showTriEdges = false;
 	bool drawTriangles = true;
+	Plane _near;
+	Plane _far;
+	Plane _top;
+	Plane _bottom;
+	Plane _left;
+	Plane _right;
 	RowVector3f getTriangleNormal(Triangle& triTransformed);
 	RowVector3f getCameraRay(RowVector3f& v);
 	int getLuminance(RowVector3f& normal);
@@ -59,6 +65,7 @@ public:
 	void toggleSlowMode();
 	void toggleTriEdges();
 	void toggleDrawing();
+	void transformTriangle(Triangle & tri, Matrix4f& worldMatrix);
 	void render(Model& obj);
 	void render(Model& obj, float translateX, float translateY, float translateZ);
 };
