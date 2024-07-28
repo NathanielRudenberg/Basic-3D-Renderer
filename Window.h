@@ -24,6 +24,7 @@ public:
 	void setMX(int pos);
 	void setMY(int pos);
 	void setPixelDepth(int pixel, float depth);
+	void setDrawColor(Uint8 r, Uint8 g, Uint8 b, Uint8 a);
 	int width();
 	int height();
 	int mX();
@@ -34,6 +35,7 @@ public:
 	SDL_Window* get();
 	SDL_Renderer* getRenderer();
 	void drawPoint(int x, int y);
+	void drawLine(int x1, int y1, int x2, int y2);
 	void init();
 	void clear();
 	void cleanup();

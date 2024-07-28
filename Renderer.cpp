@@ -212,23 +212,23 @@ void Renderer::render(Model& obj, Matrix4f viewMatrix, float translateX, float t
 
 		for (Triangle& t : trisToRaster) {
 			if (drawTriangles) {
-				SDL_SetRenderDrawColor(_window->getRenderer(), t.getLuminance(), t.getLuminance(), t.getLuminance(), 255);
+				_window->setDrawColor(t.getLuminance(), t.getLuminance(), t.getLuminance(), 255);
 				rasterize(t);
 			}
 
 			// Draw triangles
 			if (showTriEdges) {
-				SDL_SetRenderDrawColor(_window->getRenderer(), 255, 0, 0, 255);
-				SDL_RenderDrawLine(_window->getRenderer(), (int)t.getVerts()[0][X], (int)t.getVerts()[0][Y], (int)t.getVerts()[1][X], (int)t.getVerts()[1][Y]);
-				SDL_RenderDrawLine(_window->getRenderer(), (int)t.getVerts()[1][X], (int)t.getVerts()[1][Y], (int)t.getVerts()[2][X], (int)t.getVerts()[2][Y]);
-				SDL_RenderDrawLine(_window->getRenderer(), (int)t.getVerts()[2][X], (int)t.getVerts()[2][Y], (int)t.getVerts()[0][X], (int)t.getVerts()[0][Y]);
+				_window->setDrawColor(255, 0, 0, 255);
+				_window->drawLine((int)t.getVerts()[0][X], (int)t.getVerts()[0][Y], (int)t.getVerts()[1][X], (int)t.getVerts()[1][Y]);
+				_window->drawLine((int)t.getVerts()[1][X], (int)t.getVerts()[1][Y], (int)t.getVerts()[2][X], (int)t.getVerts()[2][Y]);
+				_window->drawLine((int)t.getVerts()[2][X], (int)t.getVerts()[2][Y], (int)t.getVerts()[0][X], (int)t.getVerts()[0][Y]);
 			}
 
 			if (false) {
-				SDL_SetRenderDrawColor(_window->getRenderer(), t.getLuminance(), t.getLuminance(), 0, 255);
-				SDL_RenderDrawPoint(_window->getRenderer(), (int)t.getVerts()[0][X], (int)t.getVerts()[0][Y]);
-				SDL_RenderDrawPoint(_window->getRenderer(), (int)t.getVerts()[1][X], (int)t.getVerts()[1][Y]);
-				SDL_RenderDrawPoint(_window->getRenderer(), (int)t.getVerts()[2][X], (int)t.getVerts()[2][Y]);
+				_window->setDrawColor(255, 255, 0, 255);
+				_window->drawPoint((int)t.getVerts()[0][X], (int)t.getVerts()[0][Y]);
+				_window->drawPoint((int)t.getVerts()[1][X], (int)t.getVerts()[1][Y]);
+				_window->drawPoint((int)t.getVerts()[2][X], (int)t.getVerts()[2][Y]);
 			}
 		}
 	}
@@ -292,7 +292,7 @@ void Renderer::rasterize(Triangle& triangle) {
 			// Get begin and end X coordinates
 			result[0] = Slope{ (float)(*from)[X], (float)(*to)[X], numSteps};
 			// Get begin and end depth values
-			result[1] = Slope{ (float)(*from)[W], (float)(*to)[W], numSteps};
+			result[1] = Slope{ (float)(*from)[Z], (float)(*to)[Z], numSteps};
 			return result;
 		},
 		// Draw scanline

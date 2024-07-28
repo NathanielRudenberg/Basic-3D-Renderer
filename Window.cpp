@@ -34,6 +34,10 @@ void Window::setPixelDepth(int pixel, float depth) {
 	_depthBuffer[pixel] = depth;
 }
 
+void Window::setDrawColor(Uint8 r, Uint8 g, Uint8 b, Uint8 a) {
+	SDL_SetRenderDrawColor(_sdlRenderer, r, g, b, a);
+}
+
 int Window::width() {
 	return _screenWidth;
 }
@@ -72,6 +76,10 @@ SDL_Renderer* Window::getRenderer() {
 
 void Window::drawPoint(int x, int y) {
 	SDL_RenderDrawPoint(_sdlRenderer, x, y);
+}
+
+void Window::drawLine(int x1, int y1, int x2, int y2) {
+	SDL_RenderDrawLine(_sdlRenderer, x1, y1, x2, y2);
 }
 
 void Window::init() {
