@@ -1,6 +1,6 @@
 #pragma once
 #define PI 3.14159f
-#include <Eigen/Core>
+#include <Eigen/Eigen>
 #include "Triangle.h"
 #include "model.h"
 #include "camera.h"
@@ -59,7 +59,7 @@ public:
 	void toggleSlowMode();
 	void toggleTriEdges();
 	void toggleDrawing();
-	void render(Model& obj, Matrix4f viewMatrix);
-	void render(Model& obj, Matrix4f viewMatrix, float translateX, float translateY, float translateZ);
+	void render(Model& obj);
+	void render(Model& obj, float translateX, float translateY, float translateZ);
 };
 

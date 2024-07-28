@@ -126,11 +126,14 @@ void Renderer::clipAgainstScreenEdges(Triangle& clippable, std::list<Triangle>& 
 	}
 }
 
-void Renderer::render(Model& obj, Matrix4f viewMatrix) {
-	render(obj, viewMatrix, obj.getPosition()[X], obj.getPosition()[Y], obj.getPosition()[Z]);
+void Renderer::render(Model& obj) {
+	render(obj, obj.getPosition()[X], obj.getPosition()[Y], obj.getPosition()[Z]);
 }
 
-void Renderer::render(Model& obj, Matrix4f viewMatrix, float translateX, float translateY, float translateZ) {
+void Renderer::render(Model& obj, float translateX, float translateY, float translateZ) {
+	RowVector3f targetVec = _camera.getPos() + _camera.getForward();
+	Matrix4f cameraMatrix = getPointAtMatrix(_camera.getPos(), targetVec, _camera.getUp());
+	Matrix4f viewMatrix = cameraMatrix.inverse();
 	Matrix4f translation = getTranslationMatrix(translateX, translateY, translateZ);
 	Matrix4f worldMatrix = Matrix4f::Zero();
 
@@ -264,7 +267,7 @@ void Renderer::rasterizeTriangle(const V* v0, const V* v1, const V* v2,
 	bool shortSide = (y1 - y0) * (x2 - x0) < (x1 - x0) * (y2 - y0);
 
 	// Create two slopes: v0 to v1 (to the bend) and v0 to v2 (long side)
-	std::invoke_result_t<decltype(makeSlope), V*, V*, int> sides[2];
+	std::invoke_result_t<decltype(makeSlope), V*, V*, int> sides[2] = {};
 	sides[!shortSide] = makeSlope(v0, v2, y2 - y0);
 
 	// Main rasterizing loop
