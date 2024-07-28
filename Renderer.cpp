@@ -176,7 +176,7 @@ void Renderer::render(Model& obj, Matrix4f viewMatrix, float translateX, float t
 
 				for (int i = 0; i < 3; i++) {
 					// Project onto screen
-					triProjected.getVerts()[i] = project(clipped[n].getVerts()[i], fovRad, aspectRatio, near.point()[Z], far.point()[Z]);
+					triProjected.getVerts()[i] = project(clipped[n].getVerts()[i], fovRad, aspectRatio, near.point()[Z] /*near dist*/, far.point()[Z]) /*far dist*/;
 					//triProjected.getVerts()[i][Z] = triProjected.getVerts()[i][W];
 
 					// Normalize and scale into view
@@ -212,23 +212,23 @@ void Renderer::render(Model& obj, Matrix4f viewMatrix, float translateX, float t
 
 		for (Triangle& t : trisToRaster) {
 			if (drawTriangles) {
-				SDL_SetRenderDrawColor(_window->getRenderer(), t.getLuminance(), t.getLuminance(), t.getLuminance(), 255);
+				_window->setDrawColor(t.getLuminance(), t.getLuminance(), t.getLuminance(), 255);
 				rasterize(t);
 			}
 
 			// Draw triangles
 			if (showTriEdges) {
-				SDL_SetRenderDrawColor(_window->getRenderer(), 255, 0, 0, 255);
-				SDL_RenderDrawLine(_window->getRenderer(), (int)t.getVerts()[0][X], (int)t.getVerts()[0][Y], (int)t.getVerts()[1][X], (int)t.getVerts()[1][Y]);
-				SDL_RenderDrawLine(_window->getRenderer(), (int)t.getVerts()[1][X], (int)t.getVerts()[1][Y], (int)t.getVerts()[2][X], (int)t.getVerts()[2][Y]);
-				SDL_RenderDrawLine(_window->getRenderer(), (int)t.getVerts()[2][X], (int)t.getVerts()[2][Y], (int)t.getVerts()[0][X], (int)t.getVerts()[0][Y]);
+				_window->setDrawColor(255, 0, 0, 255);
+				_window->drawLine((int)t.getVerts()[0][X], (int)t.getVerts()[0][Y], (int)t.getVerts()[1][X], (int)t.getVerts()[1][Y]);
+				_window->drawLine((int)t.getVerts()[1][X], (int)t.getVerts()[1][Y], (int)t.getVerts()[2][X], (int)t.getVerts()[2][Y]);
+				_window->drawLine((int)t.getVerts()[2][X], (int)t.getVerts()[2][Y], (int)t.getVerts()[0][X], (int)t.getVerts()[0][Y]);
 			}
 
 			if (false) {
-				SDL_SetRenderDrawColor(_window->getRenderer(), t.getLuminance(), t.getLuminance(), 0, 255);
-				SDL_RenderDrawPoint(_window->getRenderer(), (int)t.getVerts()[0][X], (int)t.getVerts()[0][Y]);
-				SDL_RenderDrawPoint(_window->getRenderer(), (int)t.getVerts()[1][X], (int)t.getVerts()[1][Y]);
-				SDL_RenderDrawPoint(_window->getRenderer(), (int)t.getVerts()[2][X], (int)t.getVerts()[2][Y]);
+				_window->setDrawColor(255, 255, 0, 255);
+				_window->drawPoint((int)t.getVerts()[0][X], (int)t.getVerts()[0][Y]);
+				_window->drawPoint((int)t.getVerts()[1][X], (int)t.getVerts()[1][Y]);
+				_window->drawPoint((int)t.getVerts()[2][X], (int)t.getVerts()[2][Y]);
 			}
 		}
 	}
@@ -238,7 +238,14 @@ template<typename V>
 void Renderer::rasterizeTriangle(const V* v0, const V* v1, const V* v2,
 	auto&& getXY,
 	auto&& makeSlope,
-	auto&& drawScanline) {
+	auto&& drawScanline)
+	requires std::invocable<decltype(getXY), const V&>
+		 and std::invocable<decltype(makeSlope), const V*, const V*, int>
+		 and (std::tuple_size_v<std::remove_cvref_t<decltype(getXY(*v0))>> == 2)
+			 and requires { { +std::get<0>(getXY(*v0)) } -> std::integral; }
+			 and requires { { +std::get<1>(getXY(*v0)) } -> std::integral; }
+			 and requires(std::remove_cvref_t<decltype(makeSlope(v0, v1, 1))> a) { drawScanline(1, a, a); }
+		 {
 
 	// Rasterize from top to bottom
 	auto [x0, y0, x1, y1, x2, y2] = std::tuple_cat(getXY(*v0), getXY(*v1), getXY(*v2));
@@ -261,11 +268,11 @@ void Renderer::rasterizeTriangle(const V* v0, const V* v1, const V* v2,
 	sides[!shortSide] = makeSlope(v0, v2, y2 - y0);
 
 	// Main rasterizing loop
-	for (auto y = y0, endY = y0; ; y++) {
+	for (auto y = y0, endY = y0; ; ++y) {
 		if (y >= endY) {
 			if (y >= y2) break;
 			sides[shortSide] = std::apply(makeSlope, (y < y1) ? std::tuple(v0, v1, (endY = y1) - y0)
-				: std::tuple(v1, v2, (endY = y2) - y1));
+															  : std::tuple(v1, v2, (endY = y2) - y1));
 		}
 		// Draw line of pixels
 		drawScanline(y, sides[0], sides[1]);
@@ -273,26 +280,22 @@ void Renderer::rasterizeTriangle(const V* v0, const V* v1, const V* v2,
 }
 
 void Renderer::rasterize(Triangle& triangle) {
-	// FillTriangle(triangle);
 	RowVector4f v0 = triangle.getVerts()[0];
 	RowVector4f v1 = triangle.getVerts()[1];
 	RowVector4f v2 = triangle.getVerts()[2];
-	/*std::array<int, 4> v0{ triangle.v[0].x, triangle.v[0].y, triangle.v[0].z, triangle.v[0].w };
-	std::array<int, 4> v1{ triangle.v[1].x, triangle.v[1].y, triangle.v[1].z, triangle.v[1].w };
-	std::array<int, 4> v2{ triangle.v[2].x, triangle.v[2].y, triangle.v[2].z, triangle.v[2].w };*/
 
 	using SlopeData = std::array<Slope, 2>; // x and depth-buffer
 
 	rasterizeTriangle(&v0, &v1, &v2,
 		// coord extractor
-		[&](const auto& v) { return std::tuple{ v[X], v[Y]}; },
+		[&](const auto& v) { return std::tuple{ (int)v[X], (int)v[Y]}; },
 		// Slope generator
 		[&](const auto* from, const auto* to, int numSteps) {
 			SlopeData result;
 			// Get begin and end X coordinates
 			result[0] = Slope{ (float)(*from)[X], (float)(*to)[X], numSteps};
 			// Get begin and end depth values
-			result[1] = Slope{ (*from)[W], (*to)[W], numSteps};
+			result[1] = Slope{ (float)(*from)[Z], (float)(*to)[Z], numSteps};
 			return result;
 		},
 		// Draw scanline
@@ -304,12 +307,12 @@ void Renderer::rasterize(Triangle& triangle) {
 			int numSteps = endX - x;
 			pixelDepth = Slope(left[1].get(), right[1].get(), numSteps);
 
-			for (; x <= endX; x++) {
+			for (; x < endX; ++x) {
 				// Update depth-buffer if the pixel is closer than the current buffer value
 				int currentPixel = (y * _window->width()) + x;
-				if (pixelDepth.get() < _window->getDepthBuffer()[currentPixel]) {
-					_window->getDepthBuffer()[currentPixel] = pixelDepth.get();
-					SDL_RenderDrawPoint(_window->getRenderer(), x, y);
+				if (pixelDepth.get() < _window->getPixelDepth(currentPixel)) {
+					_window->setPixelDepth(currentPixel, pixelDepth.get());
+					_window->drawPoint(x, y);
 				}
 				pixelDepth.advance();
 			}
