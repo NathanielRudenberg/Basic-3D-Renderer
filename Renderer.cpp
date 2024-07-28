@@ -238,7 +238,14 @@ template<typename V>
 void Renderer::rasterizeTriangle(const V* v0, const V* v1, const V* v2,
 	auto&& getXY,
 	auto&& makeSlope,
-	auto&& drawScanline) {
+	auto&& drawScanline)
+	requires std::invocable<decltype(getXY), const V&>
+		 and std::invocable<decltype(makeSlope), const V*, const V*, int>
+		 and (std::tuple_size_v<std::remove_cvref_t<decltype(getXY(*v0))>> == 2)
+			 and requires { { +std::get<0>(getXY(*v0)) } -> std::integral; }
+			 and requires { { +std::get<1>(getXY(*v0)) } -> std::integral; }
+			 and requires(std::remove_cvref_t<decltype(makeSlope(v0, v1, 1))> a) { drawScanline(1, a, a); }
+		 {
 
 	// Rasterize from top to bottom
 	auto [x0, y0, x1, y1, x2, y2] = std::tuple_cat(getXY(*v0), getXY(*v1), getXY(*v2));
@@ -261,11 +268,11 @@ void Renderer::rasterizeTriangle(const V* v0, const V* v1, const V* v2,
 	sides[!shortSide] = makeSlope(v0, v2, y2 - y0);
 
 	// Main rasterizing loop
-	for (auto y = y0, endY = y0; ; y++) {
+	for (auto y = y0, endY = y0; ; ++y) {
 		if (y >= endY) {
 			if (y >= y2) break;
 			sides[shortSide] = std::apply(makeSlope, (y < y1) ? std::tuple(v0, v1, (endY = y1) - y0)
-				: std::tuple(v1, v2, (endY = y2) - y1));
+															  : std::tuple(v1, v2, (endY = y2) - y1));
 		}
 		// Draw line of pixels
 		drawScanline(y, sides[0], sides[1]);
@@ -273,19 +280,15 @@ void Renderer::rasterizeTriangle(const V* v0, const V* v1, const V* v2,
 }
 
 void Renderer::rasterize(Triangle& triangle) {
-	// FillTriangle(triangle);
 	RowVector4f v0 = triangle.getVerts()[0];
 	RowVector4f v1 = triangle.getVerts()[1];
 	RowVector4f v2 = triangle.getVerts()[2];
-	/*std::array<int, 4> v0{ triangle.v[0].x, triangle.v[0].y, triangle.v[0].z, triangle.v[0].w };
-	std::array<int, 4> v1{ triangle.v[1].x, triangle.v[1].y, triangle.v[1].z, triangle.v[1].w };
-	std::array<int, 4> v2{ triangle.v[2].x, triangle.v[2].y, triangle.v[2].z, triangle.v[2].w };*/
 
 	using SlopeData = std::array<Slope, 2>; // x and depth-buffer
 
 	rasterizeTriangle(&v0, &v1, &v2,
 		// coord extractor
-		[&](const auto& v) { return std::tuple{ v[X], v[Y]}; },
+		[&](const auto& v) { return std::tuple{ (int)v[X], (int)v[Y]}; },
 		// Slope generator
 		[&](const auto* from, const auto* to, int numSteps) {
 			SlopeData result;
@@ -304,7 +307,7 @@ void Renderer::rasterize(Triangle& triangle) {
 			int numSteps = endX - x;
 			pixelDepth = Slope(left[1].get(), right[1].get(), numSteps);
 
-			for (; x <= endX; x++) {
+			for (; x < endX; ++x) {
 				// Update depth-buffer if the pixel is closer than the current buffer value
 				int currentPixel = (y * _window->width()) + x;
 				if (pixelDepth.get() < _window->getPixelDepth(currentPixel)) {

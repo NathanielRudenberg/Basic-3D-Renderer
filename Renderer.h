@@ -32,7 +32,13 @@ private:
 	int getLuminance(RowVector3f& normal);
 	void clipAgainstScreenEdges(Triangle& clippable, std::list<Triangle>& trisToRaster);
 	template<typename V>
-	void rasterizeTriangle(const V* v0, const V* v1, const V* v2, auto&& getXY, auto&& makeSlope, auto&& drawScanline);
+	void rasterizeTriangle(const V* v0, const V* v1, const V* v2, auto&& getXY, auto&& makeSlope, auto&& drawScanline)
+		requires std::invocable<decltype(getXY), const V&>
+			 and std::invocable<decltype(makeSlope), const V*, const V*, int>
+			 and (std::tuple_size_v<std::remove_cvref_t<decltype(getXY(*v0))>> == 2)
+			 and requires { { +std::get<0>(getXY(*v0)) } -> std::integral; }
+			 and requires { { +std::get<1>(getXY(*v0)) } -> std::integral; }
+			 and requires(std::remove_cvref_t<decltype(makeSlope(v0, v1, 1))> a) { drawScanline(1, a, a); };
 	void rasterize(Triangle& triangle);
 
 public:

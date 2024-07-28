@@ -17,8 +17,8 @@ bool Engine::OnInit() {
     objects.push_back(pyramid);*/
 
     /*Model cube = Model("cube.obj", 0.0f, 0.0f, 4.0f);
-    objects.push_back(cube);
-    objectBuffer.push_back(&cube);*/
+    objects.push_back(cube);*/
+    //objectBuffer.push_back(&cube);
 
     int numberOnEachSideOfZero = 1;
     int distanceBetweenCubes = 3;
@@ -37,10 +37,9 @@ bool Engine::OnInit() {
 
     Model teapot;
     teapot.load("teapot.obj");
-    objects.push_back(teapot);
+    objects.push_back(teapot);*/
 
-    Model mountains;
-    mountains.load("mountains.obj");
+    /*Model mountains = Model("mountains.obj", 0.0f, -12.0f, 0.0f);
     objects.push_back(mountains);*/
 
     return true;
