@@ -195,3 +195,27 @@ int clipTriangleAgainstPlane(const RowVector3f& planePoint, const RowVector3f& p
 		return 2;
 	}
 }
+
+void transformTriangle(Triangle& tri, const Matrix4f& transformationMatrix) {
+	for (int i = 0; i < 3; i++) {
+		tri.getVerts()[i] = tri.getVerts()[i] * transformationMatrix;
+	}
+}
+
+void projectTriangle(Triangle& tri, int width, int height, Plane& nearPlane, Plane& farPlane) {
+	float fov = 80.0f;
+	float fovRad = 1.0f / tanf(fov * 0.5f / 180.0f * PI);
+	float aspectRatio = (float)height / (float)width;
+
+	for (int i = 0; i < 3; i++) {
+		// Project onto the screen
+		tri.getVerts()[i] = project(tri.getVerts()[i], fovRad, aspectRatio, nearPlane.point()[Z] /*near dist*/, farPlane.point()[Z]) /*far dist*/;
+
+		// Normalize and scale into view
+		tri.getVerts()[i][X] += 1.0f;
+		tri.getVerts()[i][Y] += 1.0f;
+
+		tri.getVerts()[i][X] *= 0.5f * (float)width;
+		tri.getVerts()[i][Y] *= 0.5f * (float)height;
+	}
+}

@@ -1,5 +1,4 @@
 #pragma once
-#define PI 3.14159f
 #include <Eigen/Eigen>
 #include "Triangle.h"
 #include "model.h"
@@ -37,8 +36,6 @@ private:
 	RowVector3f getCameraRay(const RowVector3f& v);
 	int getLuminance(const RowVector3f& normal);
 	void clipAgainstScreenEdges(Triangle& clippable, std::list<Triangle>& trisToRaster);
-	void transformTriangle(Triangle& tri, const Matrix4f& worldMatrix);
-	void projectTriangle(Triangle& tri);
 	template<typename V>
 	void rasterizeTriangle(const V* v0, const V* v1, const V* v2, auto&& getXY, auto&& makeSlope, auto&& drawScanline)
 		requires std::invocable<decltype(getXY), const V&>

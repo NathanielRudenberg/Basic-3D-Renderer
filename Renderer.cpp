@@ -130,30 +130,6 @@ void Renderer::clipAgainstScreenEdges(Triangle& clippable, std::list<Triangle>& 
 	}
 }
 
-void Renderer::transformTriangle(Triangle& tri, const Matrix4f& worldMatrix) {
-	for (int i = 0; i < 3; i++) {
-		tri.getVerts()[i] = tri.getVerts()[i] * worldMatrix;
-	}
-}
-
-void Renderer::projectTriangle(Triangle& tri) {
-	float fov = 80.0f;
-	float fovRad = 1.0f / tanf(fov * 0.5f / 180.0f * PI);
-	float aspectRatio = (float)_window->height() / (float)_window->width();
-
-	for (int i = 0; i < 3; i++) {
-		// Project onto the screen
-		tri.getVerts()[i] = project(tri.getVerts()[i], fovRad, aspectRatio, _near.point()[Z] /*near dist*/, _far.point()[Z]) /*far dist*/;
-
-		// Normalize and scale into view
-		tri.getVerts()[i][X] += 1.0f;
-		tri.getVerts()[i][Y] += 1.0f;
-
-		tri.getVerts()[i][X] *= 0.5f * (float)_window->width();
-		tri.getVerts()[i][Y] *= 0.5f * (float)_window->height();
-	}
-}
-
 void Renderer::render(Model& obj) {
 	render(obj, obj.getPosition()[X], obj.getPosition()[Y], obj.getPosition()[Z]);
 }
@@ -191,7 +167,7 @@ void Renderer::render(Model& obj, float translateX, float translateY, float tran
 			clippedTriangleNum = clipTriangleAgainstPlane(_near.point(), _near.normal(), triTransformed, clipped[0], clipped[1]);
 
 			for (int n = 0; n < clippedTriangleNum; n++) {
-				projectTriangle(clipped[n]);
+				projectTriangle(clipped[n], _window->width(), _window->height(), _near, _far);
 
 				// Store triangles for clipping against screen edges
 				trisToClip.push_back(clipped[n]);

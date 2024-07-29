@@ -1,7 +1,9 @@
 // Utility functions for transformations and stuff
 #pragma once
+#define PI 3.14159f
 #include <Eigen/Core>
 #include "triangle.h"
+#include "Plane.h"
 
 using Eigen::RowVector3f;
 using Eigen::RowVector4f;
@@ -37,6 +39,12 @@ RowVector4f vectorPlaneIntersect(const RowVector3f& planePoint, const RowVector3
 
 // Clip triangle against plane
 int clipTriangleAgainstPlane(const RowVector3f& planePoint, const RowVector3f& pN, Triangle& inTri, Triangle& outTri1, Triangle& outTri2);
+
+// Transform a triangle through 3D space using a transformation matrix
+void transformTriangle(Triangle& tri, const Matrix4f& transformationMatrix);
+
+// Project a triangle onto a 2D plane
+void projectTriangle(Triangle& tri, int width, int height, Plane& nearPlane, Plane& farPlane);
 
 enum coordIndices {
 	X,
