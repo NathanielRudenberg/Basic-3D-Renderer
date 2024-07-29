@@ -1,6 +1,6 @@
 #include "TransformUtilities.h"
 
-Matrix4f getPointAtMatrix(RowVector3f& pos, RowVector3f& target, RowVector3f& up) {
+Matrix4f getPointAtMatrix(const RowVector3f& pos, const RowVector3f& target, const RowVector3f& up) {
 	RowVector3f newForward = (target - pos).normalized();
 	RowVector3f a = newForward * up.dot(newForward);
 	RowVector3f newUp = (up - a).normalized();
@@ -75,7 +75,7 @@ Matrix4f getProjectionMatrix(float fovRadians, float aspectRatio, float nearPlan
 	return projMat;
 }
 
-RowVector4f project(Eigen::RowVector4f& toProject, float fovRadians, float aspectRatio, float nearPlane, float farPlane) {
+RowVector4f project(const RowVector4f& toProject, float fovRadians, float aspectRatio, float nearPlane, float farPlane) {
 	RowVector4f tmpProj = toProject * getProjectionMatrix(fovRadians, aspectRatio, nearPlane, farPlane);
 	RowVector4f projected;
 	if (tmpProj[coordIndices::W] != 0.0f) {
@@ -88,7 +88,7 @@ RowVector4f project(Eigen::RowVector4f& toProject, float fovRadians, float aspec
 	return projected;
 }
 
-RowVector4f vectorPlaneIntersect(RowVector3f& planePoint, RowVector3f& planeNormal, RowVector4f& lineStart, RowVector4f& lineEnd) {
+RowVector4f vectorPlaneIntersect(const RowVector3f& planePoint, const RowVector3f& planeNormal, const RowVector4f& lineStart, const RowVector4f& lineEnd) {
 	//planeNormal.normalize();
 	// RowVector3f pN;
 	RowVector4f start, end, clippedPoint, pPoint, pN;
@@ -107,7 +107,7 @@ RowVector4f vectorPlaneIntersect(RowVector3f& planePoint, RowVector3f& planeNorm
 	return clippedPoint;
 }
 
-int clipTriangleAgainstPlane(RowVector3f& planePoint, RowVector3f& pN, Triangle& inTri, Triangle& outTri1, Triangle& outTri2) {
+int clipTriangleAgainstPlane(const RowVector3f& planePoint, const RowVector3f& pN, Triangle& inTri, Triangle& outTri1, Triangle& outTri2) {
 	RowVector3f planeNormal = pN.normalized();
 
 	// Get shortest distance from point to plane

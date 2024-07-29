@@ -94,11 +94,11 @@ RowVector3f Renderer::getTriangleNormal(Triangle& triTransformed) {
 	return line1.cross(line2).normalized();
 }
 
-RowVector3f Renderer::getCameraRay(RowVector3f& v) {
+RowVector3f Renderer::getCameraRay(const RowVector3f& v) {
 	return v - _camera.getPos();
 }
 
-int Renderer::getLuminance(RowVector3f& normal) {
+int Renderer::getLuminance(const RowVector3f& normal) {
 	RowVector3f lightDirection{ 0.5f, 1.0f, 0.0f };
 	lightDirection = lightDirection.normalized();
 
@@ -130,9 +130,27 @@ void Renderer::clipAgainstScreenEdges(Triangle& clippable, std::list<Triangle>& 
 	}
 }
 
-void Renderer::transformTriangle(Triangle & tri, Matrix4f& worldMatrix) {
+void Renderer::transformTriangle(Triangle& tri, const Matrix4f& worldMatrix) {
 	for (int i = 0; i < 3; i++) {
 		tri.getVerts()[i] = tri.getVerts()[i] * worldMatrix;
+	}
+}
+
+void Renderer::projectTriangle(Triangle& tri) {
+	float fov = 80.0f;
+	float fovRad = 1.0f / tanf(fov * 0.5f / 180.0f * PI);
+	float aspectRatio = (float)_window->height() / (float)_window->width();
+
+	for (int i = 0; i < 3; i++) {
+		// Project onto the screen
+		tri.getVerts()[i] = project(tri.getVerts()[i], fovRad, aspectRatio, _near.point()[Z] /*near dist*/, _far.point()[Z]) /*far dist*/;
+
+		// Normalize and scale into view
+		tri.getVerts()[i][X] += 1.0f;
+		tri.getVerts()[i][Y] += 1.0f;
+
+		tri.getVerts()[i][X] *= 0.5f * (float)_window->width();
+		tri.getVerts()[i][Y] *= 0.5f * (float)_window->height();
 	}
 }
 
@@ -150,7 +168,6 @@ void Renderer::render(Model& obj, float translateX, float translateY, float tran
 
 	for (Triangle tri : obj.getMesh().getTris()) {
 		Triangle& triTransformed = tri;
-		Triangle triProjected;
 
 		// Translate the triangle into its position in world
 		transformTriangle(triTransformed, worldMatrix);
@@ -173,28 +190,11 @@ void Renderer::render(Model& obj, float translateX, float translateY, float tran
 			Triangle clipped[2];
 			clippedTriangleNum = clipTriangleAgainstPlane(_near.point(), _near.normal(), triTransformed, clipped[0], clipped[1]);
 
-			float fov = 80.0f;
-			float fovRad = 1.0f / tanf(fov * 0.5f / 180.0f * PI);
-			float aspectRatio = (float)_window->height() / (float)_window->width();
-
 			for (int n = 0; n < clippedTriangleNum; n++) {
-
-				for (int i = 0; i < 3; i++) {
-					// Project onto screen
-					triProjected.getVerts()[i] = project(clipped[n].getVerts()[i], fovRad, aspectRatio, _near.point()[Z] /*near dist*/, _far.point()[Z]) /*far dist*/;
-
-					// Normalize and scale into view
-					triProjected.getVerts()[i][X] += 1.0f;
-					triProjected.getVerts()[i][Y] += 1.0f;
-
-					triProjected.getVerts()[i][X] *= 0.5f * (float)_window->width();
-					triProjected.getVerts()[i][Y] *= 0.5f * (float)_window->height();
-				}
-
-				triProjected.setLuminance(clipped[n].getLuminance());
+				projectTriangle(clipped[n]);
 
 				// Store triangles for clipping against screen edges
-				trisToClip.push_back(triProjected);
+				trisToClip.push_back(clipped[n]);
 			}
 		}
 	}

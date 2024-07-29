@@ -13,7 +13,7 @@ private:
 	RowVector3f _left;
 	RowVector3f _front;
 	RowVector3f _back;
-	void rotate(float angle, RowVector3f& axis);
+	void rotate(float angle, const RowVector3f& axis);
 	RowVector3f getHoriz();
 
 public:
@@ -34,15 +34,15 @@ public:
 	RowVector3f& getUp();
 	RowVector3f& getFront();
 	RowVector3f& getBack();
-	void translate(RowVector3f& translateBy, float amount, int dir);
+	void translate(const RowVector3f& translateBy, float amount, int dir);
 	void rotateX(float angle);
 	void rotateY(float angle);
-	void setPos(RowVector3f& pos);
-	void setForward(RowVector3f& forward);
-	void setUp(RowVector3f& up);
+	void setPos(const RowVector3f& pos);
+	void setForward(const RowVector3f& forward);
+	void setUp(const RowVector3f& up);
 
 // Constructor
 public:
 	Camera();
-	Camera(RowVector3f& pos, RowVector3f& forward, RowVector3f& up);
+	Camera(const RowVector3f& pos, const RowVector3f& forward, const RowVector3f& up);
 };

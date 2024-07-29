@@ -34,9 +34,11 @@ private:
 	Plane _left;
 	Plane _right;
 	RowVector3f getTriangleNormal(Triangle& triTransformed);
-	RowVector3f getCameraRay(RowVector3f& v);
-	int getLuminance(RowVector3f& normal);
+	RowVector3f getCameraRay(const RowVector3f& v);
+	int getLuminance(const RowVector3f& normal);
 	void clipAgainstScreenEdges(Triangle& clippable, std::list<Triangle>& trisToRaster);
+	void transformTriangle(Triangle& tri, const Matrix4f& worldMatrix);
+	void projectTriangle(Triangle& tri);
 	template<typename V>
 	void rasterizeTriangle(const V* v0, const V* v1, const V* v2, auto&& getXY, auto&& makeSlope, auto&& drawScanline)
 		requires std::invocable<decltype(getXY), const V&>
@@ -65,7 +67,6 @@ public:
 	void toggleSlowMode();
 	void toggleTriEdges();
 	void toggleDrawing();
-	void transformTriangle(Triangle & tri, Matrix4f& worldMatrix);
 	void render(Model& obj);
 	void render(Model& obj, float translateX, float translateY, float translateZ);
 };

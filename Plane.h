@@ -11,8 +11,7 @@ private:
 
 public:
 	Plane();
-	Plane(RowVector3f& point, RowVector3f& normal);
-	Plane(RowVector3f point, RowVector3f normal);
+	Plane(const RowVector3f& point, const RowVector3f& normal);
 	RowVector3f& point();
 	RowVector3f& normal();
 };

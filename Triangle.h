@@ -18,5 +18,5 @@ public:
 public:
 	// Constructors
 	Triangle();
-	Triangle(RowVector4f& v1, RowVector4f& v2, RowVector4f& v3);
+	Triangle(const RowVector4f& v1, const RowVector4f& v2, const RowVector4f& v3);
 };

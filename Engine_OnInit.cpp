@@ -32,10 +32,10 @@ bool Engine::OnInit() {
     /*Model axis = Model("axis.obj");
     objects.push_back(axis);*/
 
-    /*Model ship = Model("VideoShip.obj");
-    objects.push_back(ship);
+    /*Model ship = Model("VideoShip.obj", -20.0f, 5.3f, 10.0f);
+    objects.push_back(ship);*/
 
-    Model teapot = Model("teapot.obj");
+    /*Model teapot = Model("teapot.obj");
     objects.push_back(teapot);*/
 
     /*Model mountains = Model("mountains.obj", 0.0f, -12.0f, 0.0f);
