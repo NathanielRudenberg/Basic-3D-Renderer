@@ -2,13 +2,13 @@
 #include <fstream>
 #include <iostream>
 #include "mesh.h"
-#include "Eigen/Core"
-using Eigen::RowVector3f;
+#include <glm.hpp>
+using glm::vec3;
 
 class Model {
 private:
 	Mesh objectMesh;
-	RowVector3f _position;
+	vec3 _position;
 
 public:
 	Model();
@@ -28,5 +28,5 @@ public:
 	// Move the model to a new position within the world space.
 	void moveTo(float x, float y, float z);
 
-	RowVector3f& getPosition();
+	vec3& getPosition();
 };
