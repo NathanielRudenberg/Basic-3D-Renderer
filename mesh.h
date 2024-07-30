@@ -3,6 +3,7 @@
 #include <sstream>
 #include "triangle.h"
 #include <iostream>
+#include <vector>
 
 class Mesh {
 private:

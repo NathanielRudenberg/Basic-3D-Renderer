@@ -1,6 +1,5 @@
 #pragma once
 #include <vector>
-#include <Eigen/Eigen>
 #include "Renderer.h"
 #include "EngineEvent.h"
 #include "Window.h"

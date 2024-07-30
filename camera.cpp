@@ -1,46 +1,43 @@
 #include "camera.h"
-#include <Eigen/Geometry>
 #include <cmath>
 
-using Eigen::Quaternionf;
+Camera::Camera() : _pos({ 0.0f, 0.0f, 0.0f }), _forward({ 0.0f, 0.0f, 1.0f }), _up({ 0.0f, 1.0f, 0.0f }) {}
 
-Camera::Camera() : _pos(RowVector3f{ 0.0f, 0.0f, 0.0f }), _forward(RowVector3f{ 0.0f, 0.0f, 1.0f }), _up(RowVector3f{ 0.0f, 1.0f, 0.0f }) {}
+Camera::Camera(const vec3& pos, const vec3& forward, const vec3& up) : _pos(pos), _forward(normalize(forward)), _up(normalize(up)) {}
 
-Camera::Camera(const RowVector3f& pos, const RowVector3f& forward, const RowVector3f& up) : _pos(pos), _forward(forward.normalized()), _up(up.normalized()) {}
-
-RowVector3f& Camera:: getPos() {
+vec3& Camera:: getPos() {
 	return _pos;
 }
 
-RowVector3f& Camera::getForward() {
+vec3& Camera::getForward() {
 	return _forward;
 }
 
-RowVector3f& Camera::getLeft() {
-	_left = _up.cross(_forward).normalized();
+vec3& Camera::getLeft() {
+	_left = normalize(cross(_up, _forward));
 	return _left;
 }
 
-RowVector3f& Camera::getRight() {
-	_right = _forward.cross(_up).normalized();
+vec3& Camera::getRight() {
+	_right = normalize(cross(_forward, _up));
 	return _right;
 }
 
-RowVector3f& Camera::getUp() {
+vec3& Camera::getUp() {
 	return _up;
 }
 
-RowVector3f& Camera::getFront() {
-	_front = _yAxis.cross(getRight());
+vec3& Camera::getFront() {
+	_front = cross(_yAxis, getRight());
 	return _front;
 }
 
-RowVector3f& Camera::getBack() {
-	_back = getRight().cross(_yAxis);
+vec3& Camera::getBack() {
+	_back = cross(getRight(), _yAxis);
 	return _back;
 }
 
-void Camera::translate(const RowVector3f& translateBy, float amount, int dir) {
+void Camera::translate(const vec3& translateBy, float amount, int dir) {
 	if (dir == PLUS) {
 		_pos = _pos + (translateBy * amount);
 	}
@@ -49,20 +46,18 @@ void Camera::translate(const RowVector3f& translateBy, float amount, int dir) {
 	}
 }
 
-void Camera::rotate(float angle, const RowVector3f& axis) {
-	Quaternionf rotation{ {angle, axis} };
-	Eigen::Matrix3f rotMat = rotation.toRotationMatrix();
-
-	_forward = _forward * rotMat;
-	_up = _up * rotMat;
+void Camera::rotate(float angle, const vec3& axis) {
+	quat rotation = quat(angleAxis(angle, axis));
+	_forward = _forward * rotation;
+	_up = _up * rotation;
 }
 
-RowVector3f Camera::getHoriz() {
-	return _up.cross(_forward).normalized();
+vec3 Camera::getHoriz() {
+	return normalize(cross(_up, _forward));
 }
 
 void Camera::rotateX(float angle) {
-	RowVector3f horiz = getHoriz();
+	vec3 horiz = getHoriz();
 	rotate(angle, horiz);
 }
 
@@ -73,14 +68,14 @@ void Camera::rotateY(float angle) {
 	rotate(angle * sign, _yAxis);
 }
 
-void Camera::setPos(const RowVector3f& pos) {
+void Camera::setPos(const vec3& pos) {
 	_pos = pos;
 }
 
-void Camera::setForward(const RowVector3f& forward) {
+void Camera::setForward(const vec3& forward) {
 	_forward = forward;
 }
 
-void Camera::setUp(const RowVector3f& up) {
+void Camera::setUp(const vec3& up) {
 	_up = up;
 }

@@ -1,5 +1,7 @@
 #pragma once
-#include <Eigen/Eigen>
+#include <glm.hpp>
+#include <list>
+#include <array>
 #include "Triangle.h"
 #include "model.h"
 #include "camera.h"
@@ -7,6 +9,8 @@
 #include "Slope.h"
 #include "TransformUtilities.h"
 #include "Window.h"
+
+using glm::vec4;
 
 class Renderer {
 private:
@@ -32,9 +36,9 @@ private:
 	Plane _bottom;
 	Plane _left;
 	Plane _right;
-	RowVector3f getTriangleNormal(Triangle& triTransformed);
-	RowVector3f getCameraRay(const RowVector3f& v);
-	int getLuminance(const RowVector3f& normal);
+	vec3 getTriangleNormal(Triangle& triTransformed);
+	vec3 getCameraRay(const vec3& v);
+	int getLuminance(const vec3& normal);
 	void clipAgainstScreenEdges(Triangle& clippable, std::list<Triangle>& trisToRaster);
 	template<typename V>
 	void rasterizeTriangle(const V* v0, const V* v1, const V* v2, auto&& getXY, auto&& makeSlope, auto&& drawScanline)

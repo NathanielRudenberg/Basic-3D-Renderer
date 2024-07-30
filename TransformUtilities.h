@@ -1,47 +1,48 @@
 // Utility functions for transformations and stuff
 #pragma once
 #define PI 3.14159f
-#include <Eigen/Core>
+#include <glm.hpp>
+#include <gtc/matrix_transform.hpp>
 #include "triangle.h"
 #include "Plane.h"
 
-using Eigen::RowVector3f;
-using Eigen::RowVector4f;
-using Eigen::Matrix4f;
+using glm::vec3;
+using glm::vec4;
+using glm::mat4;
 
 // Get matrix used to move the camera around the world
-Matrix4f getPointAtMatrix(const RowVector3f& pos, const RowVector3f& target, const RowVector3f& up);
+mat4 getPointAtMatrix(const vec3& pos, const vec3& target, const vec3& up);
 
 // Get translation matrix
-Matrix4f getTranslationMatrix(float x, float y, float z);
+mat4 getTranslationMatrix(float x, float y, float z);
 
 // Get X rotation matrix
-Matrix4f getXRot(float theta);
+mat4 getXRot(float theta);
 
 // Get Y rotation matrix
-Matrix4f getYRot(float theta);
+mat4 getYRot(float theta);
 
 // Get Z rotation matrix
-Matrix4f getZRot(float theta);
+mat4 getZRot(float theta);
 
 // Get a rotation matrix with combined angle rotations.
 // Rotation order: X -> Y -> Z
-Matrix4f getRotationMatrix(float thetaX, float thetaY, float thetaZ);
+mat4 getRotationMatrix(float thetaX, float thetaY, float thetaZ);
 
 // Get projection matrix
-Matrix4f getProjectionMatrix(float fovRadians, float aspectRatio, float nearPlane, float farPlane);
+mat4 getProjectionMatrix(float fovRadians, float aspectRatio, float nearPlane, float farPlane);
 
 // Project a 3D vector onto a 2D plane
-RowVector4f project(const RowVector4f& toProject, float fovRadians, float aspectRatio, float nearPlane, float farPlane);
+vec4 project(const vec4& toProject, float fovRadians, float aspectRatio, float nearPlane, float farPlane);
 
 // Get the intersection of a vector and a plane
-RowVector4f vectorPlaneIntersect(const RowVector3f& planePoint, const RowVector3f& planeNormal, const RowVector4f& lineStart, const RowVector4f& lineEnd);
+vec4 vectorPlaneIntersect(const vec3& planePoint, const vec3& planeNormal, const vec4& lineStart, const vec4& lineEnd);
 
 // Clip triangle against plane
-int clipTriangleAgainstPlane(const RowVector3f& planePoint, const RowVector3f& pN, Triangle& inTri, Triangle& outTri1, Triangle& outTri2);
+int clipTriangleAgainstPlane(const vec3& planePoint, const vec3& pN, Triangle& inTri, Triangle& outTri1, Triangle& outTri2);
 
 // Transform a triangle through 3D space using a transformation matrix
-void transformTriangle(Triangle& tri, const Matrix4f& transformationMatrix);
+void transformTriangle(Triangle& tri, const mat4& transformationMatrix);
 
 // Project a triangle onto a 2D plane
 void projectTriangle(Triangle& tri, int width, int height, Plane& nearPlane, Plane& farPlane);

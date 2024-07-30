@@ -1,130 +1,128 @@
 #include "TransformUtilities.h"
 
-Matrix4f getPointAtMatrix(const RowVector3f& pos, const RowVector3f& target, const RowVector3f& up) {
-	RowVector3f newForward = (target - pos).normalized();
-	RowVector3f a = newForward * up.dot(newForward);
-	RowVector3f newUp = (up - a).normalized();
-	RowVector3f newRight = newUp.cross(newForward).normalized();
+mat4 getPointAtMatrix(const vec3& pos, const vec3& target, const vec3& up) {
+	vec3 newForward = normalize(target - pos);
+	vec3 a = newForward * dot(up, newForward);
+	vec3 newUp = normalize(up - a);
+	vec3 newRight = normalize(cross(newUp, newForward));
 
-	Matrix4f pointAt;
-	pointAt <<	newRight, 0,
-				newUp, 0,
-				newForward, 0,
-				pos, 1;
+	mat4 pointAt = mat4({ newRight[X], newUp[X], newForward[X], pos[X] },
+						{ newRight[Y], newUp[Y], newForward[Y], pos[Y] },
+						{ newRight[Z], newUp[Z], newForward[Z], pos[Z] },
+						{ 0,		   0,		 0,				1 });
 
 	return pointAt;
 }
 
-Matrix4f getTranslationMatrix(float x, float y, float z) {
-	Matrix4f translation = Matrix4f::Identity();
-	translation(3, 0) = x;
-	translation(3, 1) = y;
-	translation(3, 2) = z;
+mat4 getTranslationMatrix(float x, float y, float z) {
+	mat4 translation = mat4(1.0f);
+	translation[0][3] = x;
+	translation[1][3] = y;
+	translation[2][3] = z;
 
 	return translation;
 }
 
-Matrix4f getXRot(float theta) {
-	Matrix4f m = Matrix4f::Zero();
-	m(0, 0) = 1.0f;
-	m(1, 1) = cosf(theta);
-	m(1, 2) = sinf(theta);
-	m(2, 1) = -sinf(theta);
-	m(2, 2) = cosf(theta);
-	m(3, 3) = 1.0f;
+mat4 getXRot(float theta) {
+	mat4 m = mat4(0.0f);
+	m[0][0] = 1.0f;
+	m[1][1] = cosf(theta);
+	m[2][1] = sinf(theta);
+	m[1][2] = -sinf(theta);
+	m[2][2] = cosf(theta);
+	m[3][3] = 1.0f;
 
 	return m;
 }
 
-Matrix4f getYRot(float theta) {
-	Matrix4f m = Matrix4f::Zero();
-	m(0, 0) = cosf(theta);
-	m(0, 2) = -sinf(theta);
-	m(1, 1) = 1.0f;
-	m(2, 0) = sinf(theta);
-	m(2, 2) = cosf(theta);
-	m(3, 3) = 1.0f;
+mat4 getYRot(float theta) {
+	mat4 m = mat4(0.0f);
+	m[0][0] = cosf(theta);
+	m[2][0] = -sinf(theta);
+	m[1][1] = 1.0f;
+	m[0][2] = sinf(theta);
+	m[2][2] = cosf(theta);
+	m[3][3] = 1.0f;
 
 	return m;
 }
 
-Matrix4f getZRot(float theta) {
-	Matrix4f m = Matrix4f::Zero();
-	m(0, 0) = cosf(theta);
-	m(0, 1) = sinf(theta);
-	m(1, 0) = -sinf(theta);
-	m(1, 1) = cosf(theta);
-	m(2, 2) = 1.0f;
-	m(3, 3) = 1.0f;
+mat4 getZRot(float theta) {
+	mat4 m = mat4(0.0f);
+	m[0][0] = cosf(theta);
+	m[1][0] = sinf(theta);
+	m[0][1] = -sinf(theta);
+	m[1][1] = cosf(theta);
+	m[2][2] = 1.0f;
+	m[3][3] = 1.0f;
 
 	return m;
 }
 
-Matrix4f getRotationMatrix(float thetaX, float thetaY, float thetaZ) {
+mat4 getRotationMatrix(float thetaX, float thetaY, float thetaZ) {
 	return getZRot(thetaZ) * getYRot(thetaY) * getXRot(thetaX);
 }
 
-Matrix4f getProjectionMatrix(float fovRadians, float aspectRatio, float nearPlane, float farPlane) {
-	Matrix4f projMat = Matrix4f::Zero();
-	projMat(0, 0) = -(aspectRatio * fovRadians);
-	projMat(1, 1) = -fovRadians;
-	projMat(2, 2) = farPlane / (farPlane - nearPlane);
-	projMat(3, 2) = (-farPlane * nearPlane) / (farPlane - nearPlane);
-	projMat(2, 3) = 1.0f;
+mat4 getProjectionMatrix(float fovRadians, float aspectRatio, float nearPlane, float farPlane) {
+	mat4 projMat = mat4(0.0f);
+	projMat[0][0] = -(aspectRatio * fovRadians);
+	projMat[1][1] = -fovRadians;
+	projMat[2][2] = farPlane / (farPlane - nearPlane);
+	projMat[2][3] = (-farPlane * nearPlane) / (farPlane - nearPlane);
+	projMat[3][2] = 1.0f;
 
 	return projMat;
 }
 
-RowVector4f project(const RowVector4f& toProject, float fovRadians, float aspectRatio, float nearPlane, float farPlane) {
-	RowVector4f tmpProj = toProject * getProjectionMatrix(fovRadians, aspectRatio, nearPlane, farPlane);
-	RowVector4f projected;
-	if (tmpProj[coordIndices::W] != 0.0f) {
-		projected << tmpProj[coordIndices::X] / tmpProj[coordIndices::W], tmpProj[coordIndices::Y] / tmpProj[coordIndices::W], tmpProj[coordIndices::Z] / tmpProj[coordIndices::W], tmpProj[coordIndices::W];
+vec4 project(const vec4& toProject, float fovRadians, float aspectRatio, float nearPlane, float farPlane) {
+	vec4 tmpProj = toProject * getProjectionMatrix(fovRadians, aspectRatio, nearPlane, farPlane);
+	vec4 projected;
+	if (tmpProj[W] != 0.0f) {
+		projected = vec4(tmpProj[X] / tmpProj[W], tmpProj[Y] / tmpProj[W], tmpProj[Z] / tmpProj[W], tmpProj[W]);
 	}
 	else {
-		projected << tmpProj[coordIndices::X], tmpProj[coordIndices::Y], tmpProj[coordIndices::Z], tmpProj[coordIndices::W];
+		projected = vec4(tmpProj[X], tmpProj[Y], tmpProj[Z], tmpProj[W]);
 	}
 
 	return projected;
 }
 
-RowVector4f vectorPlaneIntersect(const RowVector3f& planePoint, const RowVector3f& planeNormal, const RowVector4f& lineStart, const RowVector4f& lineEnd) {
+vec4 vectorPlaneIntersect(const vec3& planePoint, const vec3& planeNormal, const vec4& lineStart, const vec4& lineEnd) {
+	// planeNormal should already be normal
 	//planeNormal.normalize();
-	// RowVector3f pN;
-	RowVector4f start, end, clippedPoint, pPoint, pN;
-	start << lineStart[coordIndices::X], lineStart[coordIndices::Y], lineStart[coordIndices::Z], lineStart[coordIndices::W];
-	end << lineEnd[coordIndices::X], lineEnd[coordIndices::Y], lineEnd[coordIndices::Z], lineEnd[coordIndices::W];
-	pN << planeNormal.normalized(), 0.0f;
-	pPoint << planePoint, 0.0f;
+	// vec3 pN;
+	vec4 start = vec4(lineStart[X], lineStart[Y], lineStart[Z], lineStart[W]);
+	vec4 end = vec4(lineEnd[X], lineEnd[Y], lineEnd[Z], lineEnd[W]);
+	vec4 pN = vec4(planeNormal[X], planeNormal[Y], planeNormal[Z], 0.0f);
+	vec4 pPoint = vec4(planePoint[X], planePoint[Y], planePoint[Z], 0.0f);
 
-	float planeD = -1.0f * pN.dot(pPoint);
-	float ad = start.dot(pN);
-	float bd = end.dot(pN);
+	float planeD = -1.0f * dot(pN, pPoint);
+	float ad = dot(start, pN);
+	float bd = dot(end, pN);
 	float t = (-planeD - ad) / (bd - ad);
-	RowVector4f lineStartToEnd = end - start;
-	RowVector4f lineToIntersect = lineStartToEnd * t;
-	clippedPoint << start + lineToIntersect;
+	vec4 lineStartToEnd = end - start;
+	vec4 lineToIntersect = lineStartToEnd * t;
+	vec4 clippedPoint = vec4(start + lineToIntersect);
 	return clippedPoint;
 }
 
-int clipTriangleAgainstPlane(const RowVector3f& planePoint, const RowVector3f& pN, Triangle& inTri, Triangle& outTri1, Triangle& outTri2) {
-	RowVector3f planeNormal = pN.normalized();
+int clipTriangleAgainstPlane(const vec3& planePoint, const vec3& planeNormal, Triangle& inTri, Triangle& outTri1, Triangle& outTri2) {
+	// planeNormal should already be normal
 
 	// Get shortest distance from point to plane
-	auto dist = [&](RowVector4f& n) {
-		RowVector3f p;
-		p << n[coordIndices::X], n[coordIndices::Y], n[coordIndices::Z];
+	auto dist = [&](vec4& n) {
+		vec3 p = vec3(n[X], n[Y], n[Z]);
 
-		return (planeNormal[coordIndices::X] * p[coordIndices::X]
-			+ planeNormal[coordIndices::Y] * p[coordIndices::Y]
-			+ planeNormal[coordIndices::Z] * p[coordIndices::Z]
-			- planeNormal.dot(planePoint));
+		return (planeNormal[X] * p[X]
+			+ planeNormal[Y] * p[Y]
+			+ planeNormal[Z] * p[Z]
+			- dot(planeNormal, planePoint));
 	};
 
 	// Classify vertices on either side of the plane
 	// Vertices on the inside have a positive sign
-	RowVector4f* pointsInside[3]; int insidePointCount = 0;
-	RowVector4f* pointsOutside[3]; int outsidePointCount = 0;
+	vec4* pointsInside[3]; int insidePointCount = 0;
+	vec4* pointsOutside[3]; int outsidePointCount = 0;
 
 	// Get distance of each triangle vertex to plane
 	float d0 = dist(inTri.getVerts()[0]);
@@ -196,7 +194,7 @@ int clipTriangleAgainstPlane(const RowVector3f& planePoint, const RowVector3f& p
 	}
 }
 
-void transformTriangle(Triangle& tri, const Matrix4f& transformationMatrix) {
+void transformTriangle(Triangle& tri, const mat4& transformationMatrix) {
 	for (int i = 0; i < 3; i++) {
 		tri.getVerts()[i] = tri.getVerts()[i] * transformationMatrix;
 	}

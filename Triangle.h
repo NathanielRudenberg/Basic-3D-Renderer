@@ -1,22 +1,21 @@
 #pragma once
 #include <utility>
-#include <Eigen/StdVector>
-#include <Eigen/Core>
+#include <glm.hpp>
 
-using Eigen::RowVector4f;
+using glm::vec4;
 
 class Triangle {
 private:
-	RowVector4f v[3];
+	vec4 v[3];
 	int luminance;
 
 public:
-	RowVector4f * getVerts();
+	vec4* getVerts();
 	int getLuminance();
 	void setLuminance(int lum);
 
 public:
 	// Constructors
 	Triangle();
-	Triangle(const RowVector4f& v1, const RowVector4f& v2, const RowVector4f& v3);
+	Triangle(const vec4& v1, const vec4& v2, const vec4& v3);
 };

@@ -5,7 +5,7 @@ bool Mesh::loadObj(std::string filename) {
 	if (!objFile.is_open()) { return false; }
 
 	// Build vertex cache
-	std::vector<RowVector4f> verts;
+	std::vector<vec4> verts;
 	while (!objFile.eof()) {
 		char line[128];
 		objFile.getline(line, 128);
@@ -15,7 +15,7 @@ bool Mesh::loadObj(std::string filename) {
 
 		char tmp;
 		if (line[0] == 'v') {
-			RowVector4f v;
+			vec4 v;
 			s >> tmp >> v[X] >> v[Y] >> v[Z];
 			v[W] = 1.0f;
 			verts.push_back(v);

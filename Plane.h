@@ -1,18 +1,18 @@
 #pragma once
-#include <Eigen/Core>
+#include <glm.hpp>
 
-using Eigen::RowVector3f;
+using glm::vec3;
 
 
 class Plane {
 private:
-	RowVector3f _point;
-	RowVector3f _normal;
+	vec3 _point;
+	vec3 _normal;
 
 public:
 	Plane();
-	Plane(const RowVector3f& point, const RowVector3f& normal);
-	RowVector3f& point();
-	RowVector3f& normal();
+	Plane(const vec3& point, const vec3& normal);
+	vec3& point();
+	vec3& normal();
 };
 

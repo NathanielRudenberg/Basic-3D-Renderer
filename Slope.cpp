@@ -1,5 +1,7 @@
 #include "Slope.h"
 
+Slope::Slope() : cur(0.0f), step(0.0f) {}
+
 Slope::Slope(float begin, float end, int numSteps) {
 	float invStep = 1.0f / numSteps;
 	cur = begin;

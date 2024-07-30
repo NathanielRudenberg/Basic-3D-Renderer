@@ -1,11 +1,11 @@
 #include "Plane.h"
 
-Plane::Plane() : _point(RowVector3f{ 0.0f, 0.0f, 0.0f }), _normal(RowVector3f{ 0.0f, 0.0f, 0.0f }) {};
-Plane::Plane(const RowVector3f& point, const RowVector3f& normal) : _point(point), _normal(normal) {}
+Plane::Plane() : _point({ 0.0f, 0.0f, 0.0f }), _normal({ 0.0f, 0.0f, 0.0f }) {};
+Plane::Plane(const vec3& point, const vec3& normal) : _point(point), _normal(normal) {}
 
-RowVector3f& Plane::point() {
+vec3& Plane::point() {
 	return _point;
 }
-RowVector3f& Plane::normal() {
+vec3& Plane::normal() {
 	return _normal;
 }

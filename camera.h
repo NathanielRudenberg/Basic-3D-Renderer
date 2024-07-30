@@ -1,20 +1,25 @@
 #pragma once
-#include<Eigen/Core>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm.hpp>
+#include <gtx/quaternion.hpp>
 
-using Eigen::RowVector4f;
-using Eigen::RowVector3f;
+using glm::vec3;
+using glm::mat3;
+using glm::quat;
+using glm::toMat4;
+using glm::angleAxis;
 
 class Camera {
 private:
-	RowVector3f _pos;
-	RowVector3f _forward;
-	RowVector3f _up;
-	RowVector3f _right;
-	RowVector3f _left;
-	RowVector3f _front;
-	RowVector3f _back;
-	void rotate(float angle, const RowVector3f& axis);
-	RowVector3f getHoriz();
+	vec3 _pos;
+	vec3 _forward;
+	vec3 _up;
+	vec3 _right;
+	vec3 _left;
+	vec3 _front;
+	vec3 _back;
+	void rotate(float angle, const vec3& axis);
+	vec3 getHoriz();
 
 public:
 	enum direction {
@@ -26,23 +31,23 @@ public:
 		Y,
 		Z
 	};
-	RowVector3f _yAxis{0.0f, 1.0f, 0.0f};
-	RowVector3f& getPos();
-	RowVector3f& getForward();
-	RowVector3f& getLeft();
-	RowVector3f& getRight();
-	RowVector3f& getUp();
-	RowVector3f& getFront();
-	RowVector3f& getBack();
-	void translate(const RowVector3f& translateBy, float amount, int dir);
+	vec3 _yAxis{0.0f, 1.0f, 0.0f};
+	vec3& getPos();
+	vec3& getForward();
+	vec3& getLeft();
+	vec3& getRight();
+	vec3& getUp();
+	vec3& getFront();
+	vec3& getBack();
+	void translate(const vec3& translateBy, float amount, int dir);
 	void rotateX(float angle);
 	void rotateY(float angle);
-	void setPos(const RowVector3f& pos);
-	void setForward(const RowVector3f& forward);
-	void setUp(const RowVector3f& up);
+	void setPos(const vec3& pos);
+	void setForward(const vec3& forward);
+	void setUp(const vec3& up);
 
 // Constructor
 public:
 	Camera();
-	Camera(const RowVector3f& pos, const RowVector3f& forward, const RowVector3f& up);
+	Camera(const vec3& pos, const vec3& forward, const vec3& up);
 };

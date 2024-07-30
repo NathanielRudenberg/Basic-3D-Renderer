@@ -6,12 +6,12 @@ Renderer::Renderer(Window* window, float cameraRotSpeed, float cameraMoveSpeed) 
 	_window(window),
 	_cameraRotSpeed(cameraRotSpeed),
 	_cameraMoveSpeed(cameraMoveSpeed),
-	_near(Plane(RowVector3f{ 0.0f, 0.0f, 0.1f }, RowVector3f{ 0.0f, 0.0f, 1.0f })),
-	_far(Plane(RowVector3f{ 0.0f, 0.0f, 1000.0f }, RowVector3f{ 0.0f, 0.0f, -1.0f })),
-	_top(Plane(RowVector3f{ 0.0f, 0.0f, 0.0f }, RowVector3f{ 0.0f, 1.0f, 0.0f })),
-	_bottom(Plane(RowVector3f{ 0.0f, (float)(_window->height() - 1), 0.0f }, RowVector3f{ 0.0f, -1.0f, 0.0f })),
-	_left(Plane(RowVector3f{ 0.0f, 0.0f, 0.0f }, RowVector3f{ 1.0f, 0.0f, 0.0f })),
-	_right(Plane(RowVector3f{ (float)(_window->width() - 1), 0.0f, 0.0f }, RowVector3f{ -1.0f, 0.0f, 0.0f })) {}
+	_near(Plane({ 0.0f, 0.0f, 0.1f }, { 0.0f, 0.0f, 1.0f })),
+	_far(Plane({ 0.0f, 0.0f, 1000.0f }, { 0.0f, 0.0f, -1.0f })),
+	_top(Plane({ 0.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, 0.0f })),
+	_bottom(Plane({ 0.0f, (float)(_window->height() - 1), 0.0f }, { 0.0f, -1.0f, 0.0f })),
+	_left(Plane({ 0.0f, 0.0f, 0.0f }, { 1.0f, 0.0f, 0.0f })),
+	_right(Plane({ (float)(_window->width() - 1), 0.0f, 0.0f }, { -1.0f, 0.0f, 0.0f })) {}
 
 void Renderer::setCameraRotSpeed(float speed) {
 	_cameraRotSpeed = speed;
@@ -82,27 +82,27 @@ void Renderer::toggleDrawing() {
 	drawTriangles = !drawTriangles;
 }
 
-RowVector3f Renderer::getTriangleNormal(Triangle& triTransformed) {
-	RowVector3f normal, line1, line2, v1, v2, v3, cameraRay;
-	v1 << triTransformed.getVerts()[0][X], triTransformed.getVerts()[0][Y], triTransformed.getVerts()[0][Z];
-	v2 << triTransformed.getVerts()[1][X], triTransformed.getVerts()[1][Y], triTransformed.getVerts()[1][Z];
-	v3 << triTransformed.getVerts()[2][X], triTransformed.getVerts()[2][Y], triTransformed.getVerts()[2][Z];
+vec3 Renderer::getTriangleNormal(Triangle& triTransformed) {
+	vec3 normal, line1, line2, v1, v2, v3, cameraRay;
+	v1 = vec3(triTransformed.getVerts()[0][X], triTransformed.getVerts()[0][Y], triTransformed.getVerts()[0][Z]);
+	v2 = vec3(triTransformed.getVerts()[1][X], triTransformed.getVerts()[1][Y], triTransformed.getVerts()[1][Z]);
+	v3 = vec3(triTransformed.getVerts()[2][X], triTransformed.getVerts()[2][Y], triTransformed.getVerts()[2][Z]);
 
 	cameraRay = getCameraRay(v1);
 	line1 = v2 - v1;
 	line2 = v3 - v1;
-	return line1.cross(line2).normalized();
+	return normalize(cross(line1, line2));
 }
 
-RowVector3f Renderer::getCameraRay(const RowVector3f& v) {
+vec3 Renderer::getCameraRay(const vec3& v) {
 	return v - _camera.getPos();
 }
 
-int Renderer::getLuminance(const RowVector3f& normal) {
-	RowVector3f lightDirection{ 0.5f, 1.0f, 0.0f };
-	lightDirection = lightDirection.normalized();
+int Renderer::getLuminance(const vec3& normal) {
+	vec3 lightDirection{ 0.5f, 1.0f, 0.0f };
+	lightDirection = normalize(lightDirection);
 
-	float dotProd = normal.dot(lightDirection);
+	float dotProd = dot(normal, lightDirection);
 	int luminance = (int)(127.5f * (1.0 + dotProd));
 
 	return luminance;
@@ -135,10 +135,10 @@ void Renderer::render(Model& obj) {
 }
 
 void Renderer::render(Model& obj, float translateX, float translateY, float translateZ) {
-	RowVector3f targetVec = _camera.getPos() + _camera.getForward();
-	Matrix4f cameraMatrix = getPointAtMatrix(_camera.getPos(), targetVec, _camera.getUp());
-	Matrix4f viewMatrix = cameraMatrix.inverse();
-	Matrix4f worldMatrix = getTranslationMatrix(translateX, translateY, translateZ);
+	vec3 targetVec = _camera.getPos() + _camera.getForward();
+	mat4 cameraMatrix = getPointAtMatrix(_camera.getPos(), targetVec, _camera.getUp());
+	mat4 viewMatrix = inverse(cameraMatrix);
+	mat4 worldMatrix = getTranslationMatrix(translateX, translateY, translateZ);
 
 	std::vector<Triangle> trisToClip;
 
@@ -149,11 +149,11 @@ void Renderer::render(Model& obj, float translateX, float translateY, float tran
 		transformTriangle(triTransformed, worldMatrix);
 
 		// Get triangle normals
-		RowVector3f v = RowVector3f(triTransformed.getVerts()[0][X], triTransformed.getVerts()[0][Y], triTransformed.getVerts()[0][Z]);
-		RowVector3f normal = getTriangleNormal(triTransformed);
+		vec3 v = vec3(triTransformed.getVerts()[0][X], triTransformed.getVerts()[0][Y], triTransformed.getVerts()[0][Z]);
+		vec3 normal = getTriangleNormal(triTransformed);
 
 		// Only render triangles that are facing the camera
-		if (normal.dot(getCameraRay(v)) < 0.0f) {
+		if (dot(normal, getCameraRay(v)) < 0.0f) {
 
 			// Illuminate the triangle
 			triTransformed.setLuminance(getLuminance(normal));
@@ -260,9 +260,9 @@ void Renderer::rasterizeTriangle(const V* v0, const V* v1, const V* v2,
 }
 
 void Renderer::rasterize(Triangle& triangle) {
-	RowVector4f v0 = triangle.getVerts()[0];
-	RowVector4f v1 = triangle.getVerts()[1];
-	RowVector4f v2 = triangle.getVerts()[2];
+	vec4 v0 = triangle.getVerts()[0];
+	vec4 v1 = triangle.getVerts()[1];
+	vec4 v2 = triangle.getVerts()[2];
 
 	using SlopeData = std::array<Slope, 2>; // x and depth-buffer
 
