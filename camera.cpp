@@ -6,7 +6,7 @@ using Eigen::Quaternionf;
 
 Camera::Camera() : _pos(RowVector3f{ 0.0f, 0.0f, 0.0f }), _forward(RowVector3f{ 0.0f, 0.0f, 1.0f }), _up(RowVector3f{ 0.0f, 1.0f, 0.0f }) {}
 
-Camera::Camera(RowVector3f& pos, RowVector3f& forward, RowVector3f& up) : _pos(pos), _forward(forward.normalized()), _up(up.normalized()) {}
+Camera::Camera(const RowVector3f& pos, const RowVector3f& forward, const RowVector3f& up) : _pos(pos), _forward(forward.normalized()), _up(up.normalized()) {}
 
 RowVector3f& Camera:: getPos() {
 	return _pos;
@@ -40,7 +40,7 @@ RowVector3f& Camera::getBack() {
 	return _back;
 }
 
-void Camera::translate(RowVector3f& translateBy, float amount, int dir) {
+void Camera::translate(const RowVector3f& translateBy, float amount, int dir) {
 	if (dir == PLUS) {
 		_pos = _pos + (translateBy * amount);
 	}
@@ -49,7 +49,7 @@ void Camera::translate(RowVector3f& translateBy, float amount, int dir) {
 	}
 }
 
-void Camera::rotate(float angle, RowVector3f& axis) {
+void Camera::rotate(float angle, const RowVector3f& axis) {
 	Quaternionf rotation{ {angle, axis} };
 	Eigen::Matrix3f rotMat = rotation.toRotationMatrix();
 
@@ -73,14 +73,14 @@ void Camera::rotateY(float angle) {
 	rotate(angle * sign, _yAxis);
 }
 
-void Camera::setPos(RowVector3f& pos) {
+void Camera::setPos(const RowVector3f& pos) {
 	_pos = pos;
 }
 
-void Camera::setForward(RowVector3f& forward) {
+void Camera::setForward(const RowVector3f& forward) {
 	_forward = forward;
 }
 
-void Camera::setUp(RowVector3f& up) {
+void Camera::setUp(const RowVector3f& up) {
 	_up = up;
 }

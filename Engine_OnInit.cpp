@@ -12,8 +12,7 @@ bool Engine::OnInit() {
     if (_window.getRenderer() == NULL) { return false; }
 
     //matExternal.loadObj("pyramid.obj");
-    /*Model pyramid;
-    pyramid.load("pyramid.obj");
+    /*Model pyramid = Model("pyramid.obj");
     objects.push_back(pyramid);*/
 
     /*Model cube = Model("cube.obj", 0.0f, 0.0f, 4.0f);
@@ -21,22 +20,22 @@ bool Engine::OnInit() {
     //objectBuffer.push_back(&cube);
 
     int numberOnEachSideOfZero = 1;
-    int distanceBetweenCubes = 3;
+    float distanceBetweenCubes = 2.5;
     for (int i = -numberOnEachSideOfZero; i <= numberOnEachSideOfZero; i++) {
         for (int j = -numberOnEachSideOfZero; j <= numberOnEachSideOfZero; j++) {
-            objects.push_back(Model("cube.obj", (float)(i * distanceBetweenCubes), 0.0f, (float)(j * distanceBetweenCubes)));
+            for (int k = -numberOnEachSideOfZero; k <= numberOnEachSideOfZero; k++) {
+                objects.push_back(Model("cube.obj", (float)(i * distanceBetweenCubes), (float)(k * distanceBetweenCubes), (float)(j * distanceBetweenCubes)));
+            }
         }
     }
 
-    Model axis = Model("axis.obj");
-    objects.push_back(axis);
+    /*Model axis = Model("axis.obj");
+    objects.push_back(axis);*/
 
-    /*Model ship;
-    ship.load("VideoShip.obj");
-    objects.push_back(ship);
+    /*Model ship = Model("VideoShip.obj", -20.0f, 5.3f, 10.0f);
+    objects.push_back(ship);*/
 
-    Model teapot;
-    teapot.load("teapot.obj");
+    /*Model teapot = Model("teapot.obj");
     objects.push_back(teapot);*/
 
     /*Model mountains = Model("mountains.obj", 0.0f, -12.0f, 0.0f);

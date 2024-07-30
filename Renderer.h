@@ -1,6 +1,5 @@
 #pragma once
-#define PI 3.14159f
-#include <Eigen/Core>
+#include <Eigen/Eigen>
 #include "Triangle.h"
 #include "model.h"
 #include "camera.h"
@@ -27,9 +26,15 @@ private:
 	bool slowRotateMode = false;
 	bool showTriEdges = false;
 	bool drawTriangles = true;
+	Plane _near;
+	Plane _far;
+	Plane _top;
+	Plane _bottom;
+	Plane _left;
+	Plane _right;
 	RowVector3f getTriangleNormal(Triangle& triTransformed);
-	RowVector3f getCameraRay(RowVector3f& v);
-	int getLuminance(RowVector3f& normal);
+	RowVector3f getCameraRay(const RowVector3f& v);
+	int getLuminance(const RowVector3f& normal);
 	void clipAgainstScreenEdges(Triangle& clippable, std::list<Triangle>& trisToRaster);
 	template<typename V>
 	void rasterizeTriangle(const V* v0, const V* v1, const V* v2, auto&& getXY, auto&& makeSlope, auto&& drawScanline)
@@ -59,7 +64,7 @@ public:
 	void toggleSlowMode();
 	void toggleTriEdges();
 	void toggleDrawing();
-	void render(Model& obj, Matrix4f viewMatrix);
-	void render(Model& obj, Matrix4f viewMatrix, float translateX, float translateY, float translateZ);
+	void render(Model& obj);
+	void render(Model& obj, float translateX, float translateY, float translateZ);
 };
 
