@@ -120,7 +120,7 @@ void Renderer::clipAgainstScreenEdges(Triangle& clippable, std::list<Triangle>& 
 			trisToRaster.pop_front();
 			newTrianglesNum--;
 
-			numTrisToAdd = clipTriangleAgainstPlane(edge->point(), edge->normal(), test, clipped[0], clipped[1]);
+			numTrisToAdd = clipTriangleAgainstPlane(*edge, test, clipped[0], clipped[1]);
 
 			for (int w = 0; w < numTrisToAdd; w++) {
 				trisToRaster.push_back(clipped[w]);
@@ -164,7 +164,7 @@ void Renderer::render(Model& obj, float translateX, float translateY, float tran
 
 			int clippedTriangleNum = 0;
 			Triangle clipped[2];
-			clippedTriangleNum = clipTriangleAgainstPlane(_near.point(), _near.normal(), triTransformed, clipped[0], clipped[1]);
+			clippedTriangleNum = clipTriangleAgainstPlane(_near, triTransformed, clipped[0], clipped[1]);
 
 			for (int n = 0; n < clippedTriangleNum; n++) {
 				projectTriangle(clipped[n], _window->width(), _window->height(), _near, _far);

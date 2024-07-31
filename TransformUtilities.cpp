@@ -87,14 +87,12 @@ vec4 project(const vec4& toProject, float fovRadians, float aspectRatio, float n
 	return projected;
 }
 
-vec4 vectorPlaneIntersect(const vec3& planePoint, const vec3& planeNormal, const vec4& lineStart, const vec4& lineEnd) {
-	// planeNormal should already be normal
-	//planeNormal.normalize();
-	// vec3 pN;
+vec4 vectorPlaneIntersect(Plane& plane, const vec4& lineStart, const vec4& lineEnd) {
+	// plane.normal() should already be normalized
 	vec4 start = vec4(lineStart[X], lineStart[Y], lineStart[Z], lineStart[W]);
 	vec4 end = vec4(lineEnd[X], lineEnd[Y], lineEnd[Z], lineEnd[W]);
-	vec4 pN = vec4(planeNormal[X], planeNormal[Y], planeNormal[Z], 0.0f);
-	vec4 pPoint = vec4(planePoint[X], planePoint[Y], planePoint[Z], 0.0f);
+	vec4 pN = vec4(plane.normal()[X], plane.normal()[Y], plane.normal()[Z], 0.0f);
+	vec4 pPoint = vec4(plane.point()[X], plane.point()[Y], plane.point()[Z], 0.0f);
 
 	float planeD = -1.0f * dot(pN, pPoint);
 	float ad = dot(start, pN);
@@ -106,17 +104,17 @@ vec4 vectorPlaneIntersect(const vec3& planePoint, const vec3& planeNormal, const
 	return clippedPoint;
 }
 
-int clipTriangleAgainstPlane(const vec3& planePoint, const vec3& planeNormal, Triangle& inTri, Triangle& outTri1, Triangle& outTri2) {
-	// planeNormal should already be normal
+int clipTriangleAgainstPlane(Plane& plane, Triangle& inTri, Triangle& outTri1, Triangle& outTri2) {
+	// plane.normal() should already be normalized
 
 	// Get shortest distance from point to plane
 	auto dist = [&](vec4& n) {
 		vec3 p = vec3(n[X], n[Y], n[Z]);
 
-		return (planeNormal[X] * p[X]
-			+ planeNormal[Y] * p[Y]
-			+ planeNormal[Z] * p[Z]
-			- dot(planeNormal, planePoint));
+		return (plane.normal()[X] * p[X]
+			+ plane.normal()[Y] * p[Y]
+			+ plane.normal()[Z] * p[Z]
+			- dot(plane.normal(), plane.point()));
 	};
 
 	// Classify vertices on either side of the plane
@@ -170,8 +168,8 @@ int clipTriangleAgainstPlane(const vec3& planePoint, const vec3& planeNormal, Tr
 		outTri1.getVerts()[0] = (*pointsInside[0]);
 
 		// Clip the other two vertices
-		outTri1.getVerts()[1] = (vectorPlaneIntersect(planePoint, planeNormal, *pointsInside[0], *pointsOutside[0]));
-		outTri1.getVerts()[2] = (vectorPlaneIntersect(planePoint, planeNormal, *pointsInside[0], *pointsOutside[1]));
+		outTri1.getVerts()[1] = (vectorPlaneIntersect(plane, *pointsInside[0], *pointsOutside[0]));
+		outTri1.getVerts()[2] = (vectorPlaneIntersect(plane, *pointsInside[0], *pointsOutside[1]));
 
 		return 1;
 	}
@@ -183,11 +181,11 @@ int clipTriangleAgainstPlane(const vec3& planePoint, const vec3& planeNormal, Tr
 		// The first new triangle keeps the two inside vertices
 		outTri1.getVerts()[0] = (*pointsInside[0]);
 		outTri1.getVerts()[1] = (*pointsInside[1]);
-		outTri1.getVerts()[2] = (vectorPlaneIntersect(planePoint, planeNormal, *pointsInside[0], *pointsOutside[0]));
+		outTri1.getVerts()[2] = (vectorPlaneIntersect(plane, *pointsInside[0], *pointsOutside[0]));
 
 		// The second new triangle keeps one inside vertex
 		outTri2.getVerts()[0] = (*pointsInside[1]);
-		outTri2.getVerts()[1] = (vectorPlaneIntersect(planePoint, planeNormal, *pointsInside[1], *pointsOutside[0]));
+		outTri2.getVerts()[1] = (vectorPlaneIntersect(plane, *pointsInside[1], *pointsOutside[0]));
 		outTri2.getVerts()[2] = (outTri1.getVerts()[2]);
 
 		return 2;

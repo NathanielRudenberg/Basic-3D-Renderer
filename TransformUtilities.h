@@ -36,10 +36,10 @@ mat4 getProjectionMatrix(float fovRadians, float aspectRatio, float nearPlane, f
 vec4 project(const vec4& toProject, float fovRadians, float aspectRatio, float nearPlane, float farPlane);
 
 // Get the intersection of a vector and a plane
-vec4 vectorPlaneIntersect(const vec3& planePoint, const vec3& planeNormal, const vec4& lineStart, const vec4& lineEnd);
+vec4 vectorPlaneIntersect(Plane& plane, const vec4& lineStart, const vec4& lineEnd);
 
 // Clip triangle against plane
-int clipTriangleAgainstPlane(const vec3& planePoint, const vec3& pN, Triangle& inTri, Triangle& outTri1, Triangle& outTri2);
+int clipTriangleAgainstPlane(Plane& plane, Triangle& inTri, Triangle& outTri1, Triangle& outTri2);
 
 // Transform a triangle through 3D space using a transformation matrix
 void transformTriangle(Triangle& tri, const mat4& transformationMatrix);
