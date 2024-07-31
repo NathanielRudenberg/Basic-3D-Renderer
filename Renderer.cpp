@@ -140,6 +140,9 @@ void Renderer::render(Model& obj, float translateX, float translateY, float tran
 	mat4 viewMatrix = inverse(cameraMatrix);
 	mat4 worldMatrix = getTranslationMatrix(translateX, translateY, translateZ);
 
+	float fov = 80.0f;
+	Frustum frustum{_camera, (float)_window->height() / _window->width(), fov, _near.point()[Z], _far.point()[Z]};
+
 	std::vector<Triangle> trisToClip;
 
 	for (Triangle tri : obj.getMesh().getTris()) {
@@ -154,20 +157,18 @@ void Renderer::render(Model& obj, float translateX, float translateY, float tran
 
 		// Only render triangles that are facing the camera
 		if (dot(normal, getCameraRay(v)) < 0.0f) {
-
-			// Illuminate the triangle
-			triTransformed.setLuminance(getLuminance(normal));
-
-			// Convert from world space to view space
-			// i.e. translate the triangle into view
-			transformTriangle(triTransformed, viewMatrix);
-
 			int clippedTriangleNum = 0;
 			Triangle clipped[2];
-			clippedTriangleNum = clipTriangleAgainstPlane(_near, triTransformed, clipped[0], clipped[1]);
+			clippedTriangleNum = clipTriangleAgainstPlane(frustum.near(), triTransformed, clipped[0], clipped[1]);
 
 			for (int n = 0; n < clippedTriangleNum; n++) {
-				projectTriangle(clipped[n], _window->width(), _window->height(), _near, _far);
+				// Illuminate the triangle
+				clipped[n].setLuminance(getLuminance(normal));
+
+				// Convert from world space to view space
+				// i.e. translate the triangle into view
+				transformTriangle(clipped[n], viewMatrix);
+				projectTriangle(clipped[n], _window->width(), _window->height(), fov, _near, _far);
 
 				// Store triangles for clipping against screen edges
 				trisToClip.push_back(clipped[n]);

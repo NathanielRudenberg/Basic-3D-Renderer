@@ -45,7 +45,7 @@ int clipTriangleAgainstPlane(Plane& plane, Triangle& inTri, Triangle& outTri1, T
 void transformTriangle(Triangle& tri, const mat4& transformationMatrix);
 
 // Project a triangle onto a 2D plane
-void projectTriangle(Triangle& tri, int width, int height, Plane& nearPlane, Plane& farPlane);
+void projectTriangle(Triangle& tri, int width, int height, float fov, Plane& nearPlane, Plane& farPlane);
 
 enum coordIndices {
 	X,

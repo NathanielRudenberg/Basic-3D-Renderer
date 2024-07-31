@@ -198,8 +198,7 @@ void transformTriangle(Triangle& tri, const mat4& transformationMatrix) {
 	}
 }
 
-void projectTriangle(Triangle& tri, int width, int height, Plane& nearPlane, Plane& farPlane) {
-	float fov = 80.0f;
+void projectTriangle(Triangle& tri, int width, int height, float fov, Plane& nearPlane, Plane& farPlane) {
 	float fovRad = 1.0f / tanf(fov * 0.5f / 180.0f * PI);
 	float aspectRatio = (float)height / (float)width;
 

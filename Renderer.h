@@ -5,6 +5,7 @@
 #include "Triangle.h"
 #include "model.h"
 #include "camera.h"
+#include "Frustum.h"
 #include "Plane.h"
 #include "Slope.h"
 #include "TransformUtilities.h"
