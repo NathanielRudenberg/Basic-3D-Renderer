@@ -6,7 +6,7 @@ bool Engine::OnInit() {
     }
 
     _window = Window("Basic 3D Engine", SCREEN_WIDTH, SCREEN_HEIGHT);
-    _renderer = Renderer(&_window, 0.2f, 2.0f);
+    _renderer = Renderer(&_window);
     _window.init();
     if (_window.get() == NULL) { return false; }
     if (_window.getRenderer() == NULL) { return false; }
@@ -29,8 +29,8 @@ bool Engine::OnInit() {
         }
     }
 
-    /*Model axis = Model("axis.obj");
-    objects.push_back(axis);*/
+    Model axis = Model("axis.obj");
+    objects.push_back(axis);
 
     /*Model ship = Model("VideoShip.obj", -20.0f, 5.3f, 10.0f);
     objects.push_back(ship);*/
