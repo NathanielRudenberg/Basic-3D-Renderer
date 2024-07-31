@@ -16,7 +16,7 @@ mat4 getPointAtMatrix(const vec3& pos, const vec3& target, const vec3& up) {
 
 mat4 getTranslationMatrix(vec3 pos) {
 	mat4 translation = mat4(1.0f);
-	translation[0][3] = pos[X];
+	translation[0][3] = -pos[X];
 	translation[1][3] = pos[Y];
 	translation[2][3] = pos[Z];
 

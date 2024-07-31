@@ -17,9 +17,9 @@ Camera& Renderer::camera() {
 
 float Renderer::getCameraRotSpeed() {
 	if (slowRotateMode) {
-		return 0.04f;
+		return 0.0005f;
 	}
-	return 0.4f;
+	return 0.002f;
 }
 
 float Renderer::getCameraMoveSpeed() {
