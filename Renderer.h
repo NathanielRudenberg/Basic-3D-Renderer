@@ -25,8 +25,6 @@ private:
 
 	Camera _camera;
 	Window* _window = NULL;
-	float _cameraRotSpeed;
-	float _cameraMoveSpeed;
 	bool slowMode = false;
 	bool fastMode = false;
 	bool slowRotateMode = false;
@@ -56,9 +54,7 @@ private:
 
 public:
 	Renderer();
-	Renderer(Window* window, float cameraRotSpeed, float cameraMoveSpeed);
-	void setCameraRotSpeed(float speed);
-	void setCameraMoveSpeed(float speed);
+	Renderer(Window* window);
 	Camera& camera();
 	float getCameraRotSpeed();
 	float getCameraMoveSpeed();
@@ -73,6 +69,5 @@ public:
 	void toggleTriEdges();
 	void toggleDrawing();
 	void render(Model& obj);
-	void render(Model& obj, float translateX, float translateY, float translateZ);
 };
 

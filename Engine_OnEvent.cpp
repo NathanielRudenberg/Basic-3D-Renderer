@@ -50,8 +50,8 @@ void Engine::OnMouseMove(int mX, int mY, int relX, int relY, bool Left, bool Rig
     _window.setMY(mY);
 
     if (SDL_GetRelativeMouseMode() == SDL_TRUE) {
-        float yaw = ((float)relX * cameraRotSpeed) * elapsedTime;
-        float pitch = ((float)relY * cameraRotSpeed) * elapsedTime;
+        float yaw = ((float)relX * cameraRotSpeed);
+        float pitch = ((float)relY * cameraRotSpeed);
 
         _renderer.camera().rotateY(yaw);
         _renderer.camera().rotateX(pitch * -1.0f);

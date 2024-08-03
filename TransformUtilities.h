@@ -14,7 +14,7 @@ using glm::mat4;
 mat4 getPointAtMatrix(const vec3& pos, const vec3& target, const vec3& up);
 
 // Get translation matrix
-mat4 getTranslationMatrix(float x, float y, float z);
+mat4 getTranslationMatrix(vec3 pos);
 
 // Get X rotation matrix
 mat4 getXRot(float theta);
