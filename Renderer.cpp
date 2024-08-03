@@ -2,10 +2,8 @@
 
 Renderer::Renderer() {};
 
-Renderer::Renderer(Window* window, float cameraRotSpeed, float cameraMoveSpeed) :
+Renderer::Renderer(Window* window) :
 	_window(window),
-	_cameraRotSpeed(cameraRotSpeed),
-	_cameraMoveSpeed(cameraMoveSpeed),
 	_near(Plane({ 0.0f, 0.0f, 0.1f }, { 0.0f, 0.0f, 1.0f })),
 	_far(Plane({ 0.0f, 0.0f, 1000.0f }, { 0.0f, 0.0f, -1.0f })),
 	_top(Plane({ 0.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, 0.0f })),
@@ -13,23 +11,15 @@ Renderer::Renderer(Window* window, float cameraRotSpeed, float cameraMoveSpeed) 
 	_left(Plane({ 0.0f, 0.0f, 0.0f }, { 1.0f, 0.0f, 0.0f })),
 	_right(Plane({ (float)(_window->width() - 1), 0.0f, 0.0f }, { -1.0f, 0.0f, 0.0f })) {}
 
-void Renderer::setCameraRotSpeed(float speed) {
-	_cameraRotSpeed = speed;
-}
-
-void Renderer::setCameraMoveSpeed(float speed) {
-	_cameraMoveSpeed = speed;
-}
-
 Camera& Renderer::camera() {
 	return _camera;
 }
 
 float Renderer::getCameraRotSpeed() {
 	if (slowRotateMode) {
-		return 0.04f;
+		return 0.0005f;
 	}
-	return 0.4f;
+	return 0.002f;
 }
 
 float Renderer::getCameraMoveSpeed() {
@@ -131,14 +121,10 @@ void Renderer::clipAgainstScreenEdges(Triangle& clippable, std::list<Triangle>& 
 }
 
 void Renderer::render(Model& obj) {
-	render(obj, obj.getPosition()[X], obj.getPosition()[Y], obj.getPosition()[Z]);
-}
-
-void Renderer::render(Model& obj, float translateX, float translateY, float translateZ) {
 	vec3 targetVec = _camera.getPos() + _camera.getForward();
 	mat4 cameraMatrix = getPointAtMatrix(_camera.getPos(), targetVec, _camera.getUp());
 	mat4 viewMatrix = inverse(cameraMatrix);
-	mat4 worldMatrix = getTranslationMatrix(translateX, translateY, translateZ);
+	mat4 worldMatrix = getTranslationMatrix(obj.getPosition());
 
 	std::vector<Triangle> trisToClip;
 
