@@ -42,11 +42,11 @@ float Camera::fov() {
 }
 
 float Camera::fovRad() {
-	return tanf(_fov * 0.5f / 180.0f * PI);
+	return (_fov / 180.0f) * PI;
 }
 
 float Camera::inverseFovRad() {
-	return 1.0f / fovRad();
+	return 1.0f / tanf(fovRad() * 0.5);
 }
 
 void Camera::translate(const vec3& translateBy, float amount, int dir) {

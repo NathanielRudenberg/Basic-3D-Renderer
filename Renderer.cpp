@@ -136,7 +136,7 @@ void Renderer::clipAgainstFrustum(Triangle& clippable, Frustum& frustum, std::li
 	Triangle clipped[2];
 	int newTrianglesNum = 1;
 
-	Plane& (Frustum:: * frustumPlanes[])() { &Frustum::near, & Frustum::top, & Frustum::bottom, & Frustum::left, &Frustum::right };
+	Plane& (Frustum:: * frustumPlanes[])() { &Frustum::near, &Frustum::far, & Frustum::top, & Frustum::bottom, & Frustum::left, &Frustum::right };
 	for (Plane& (Frustum::*plane)() : frustumPlanes) {
 		int numTrisToAdd = 0;
 		while (newTrianglesNum > 0) {
@@ -164,7 +164,7 @@ void Renderer::render(Model& obj, float translateX, float translateY, float tran
 	mat4 viewMatrix = inverse(cameraMatrix);
 	mat4 worldMatrix = getTranslationMatrix(translateX, translateY, translateZ);
 	mat4 viewProjectionMatrix = viewMatrix * getProjectionMatrix(_camera.inverseFovRad(), _window->getAspectRatio(), _near.point()[Z], _far.point()[Z]);
-	_frustum = Frustum(_camera, _window->getAspectRatio(), _near.point()[Z], _far.point()[Z]);
+	_frustum = Frustum(_camera, _window->getAspectRatio(), _near.point()[Z], _far.point()[Z], viewProjectionMatrix);
 
 	std::vector<Triangle> trisToClip;
 

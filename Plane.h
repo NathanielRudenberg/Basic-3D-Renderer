@@ -12,6 +12,7 @@ private:
 public:
 	Plane();
 	Plane(const vec3& point, const vec3& normal);
+	Plane(const vec3& point, const float a, const float b, const float c, const float d);
 	vec3& point();
 	vec3& normal();
 };

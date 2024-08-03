@@ -3,6 +3,8 @@
 #include "Plane.h"
 #include "camera.h"
 
+using glm::mat4;
+
 class Frustum
 {
 	Plane _near;
@@ -15,6 +17,7 @@ class Frustum
 public:
 	Frustum();
 	Frustum(Camera& camera, float aspectRatio, float nearDistance, float farDistance);
+	Frustum(Camera& camera, float aspectRatio, float nearDistance, float farDistance, const mat4& viewProjectionMatrix);
 	Plane& near();
 	Plane& far();
 	Plane& top();
