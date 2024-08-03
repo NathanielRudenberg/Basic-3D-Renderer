@@ -214,3 +214,21 @@ void projectTriangle(Triangle& tri, int width, int height, float fov, Plane& nea
 		tri.getVerts()[i][Y] *= 0.5f * (float)height;
 	}
 }
+
+void projectTriangle(Triangle& tri, const mat4& viewProjectionMatrix) {
+	for (int i = 0; i < 3; i++) {
+		tri.getVerts()[i] = tri.getVerts()[i] * viewProjectionMatrix;
+		if (tri.getVerts()[i][W] != 0.0f) {
+			tri.getVerts()[i] = vec4(tri.getVerts()[i][X] / tri.getVerts()[i][W], tri.getVerts()[i][Y] / tri.getVerts()[i][W], tri.getVerts()[i][Z] / tri.getVerts()[i][W], tri.getVerts()[i][W]);
+		}
+		else {
+			tri.getVerts()[i] = vec4(tri.getVerts()[i][X], tri.getVerts()[i][Y], tri.getVerts()[i][Z], tri.getVerts()[i][W]);
+		}
+
+		tri.getVerts()[i][X] += 1.0f;
+		tri.getVerts()[i][Y] += 1.0f;
+
+		tri.getVerts()[i][X] *= 0.5f * (float)1200;
+		tri.getVerts()[i][Y] *= 0.5f * (float)720;
+	}
+}

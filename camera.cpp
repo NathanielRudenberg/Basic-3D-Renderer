@@ -1,7 +1,7 @@
 #include "camera.h"
 #include <cmath>
 
-Camera::Camera() : _pos({ 0.0f, 0.0f, 0.0f }), _forward({ 0.0f, 0.0f, 1.0f }), _up({ 0.0f, 1.0f, 0.0f }) {}
+Camera::Camera() : _pos({ 0.0f, 0.0f, 0.0f }), _forward({ 0.0f, 0.0f, 1.0f }), _up({ 0.0f, 1.0f, 0.0f }), _fov(80.0f) {}
 
 Camera::Camera(const vec3& pos, const vec3& forward, const vec3& up) : _pos(pos), _forward(normalize(forward)), _up(normalize(up)) {}
 
@@ -37,6 +37,18 @@ vec3& Camera::getBack() {
 	return _back;
 }
 
+float Camera::fov() {
+	return _fov;
+}
+
+float Camera::fovRad() {
+	return tanf(_fov * 0.5f / 180.0f * PI);
+}
+
+float Camera::inverseFovRad() {
+	return 1.0f / fovRad();
+}
+
 void Camera::translate(const vec3& translateBy, float amount, int dir) {
 	if (dir == PLUS) {
 		_pos = _pos + (translateBy * amount);
@@ -48,8 +60,8 @@ void Camera::translate(const vec3& translateBy, float amount, int dir) {
 
 void Camera::rotate(float angle, const vec3& axis) {
 	quat rotation = quat(angleAxis(angle, axis));
-	_forward = _forward * rotation;
-	_up = _up * rotation;
+	_forward = normalize(_forward * rotation);
+	_up = normalize(_up * rotation);
 }
 
 vec3 Camera::getHoriz() {
@@ -78,4 +90,8 @@ void Camera::setForward(const vec3& forward) {
 
 void Camera::setUp(const vec3& up) {
 	_up = up;
+}
+
+void Camera::setFov(float fov) {
+	_fov = fov;
 }

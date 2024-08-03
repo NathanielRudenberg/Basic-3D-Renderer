@@ -32,6 +32,7 @@ public:
 	string getTitle();
 	float* getDepthBuffer();
 	float getPixelDepth(int pixel);
+	float getAspectRatio();
 	SDL_Window* get();
 	SDL_Renderer* getRenderer();
 	void drawPoint(int x, int y);

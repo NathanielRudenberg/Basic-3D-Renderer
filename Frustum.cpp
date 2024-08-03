@@ -1,16 +1,22 @@
 #include "Frustum.h"
 
-Frustum::Frustum(Camera& camera, float aspectRatio, float fov, float nearDistance, float farDistance) {
+Frustum::Frustum() {}
+
+Frustum::Frustum(Camera& camera, float aspectRatio, float nearDistance, float farDistance) {
 	vec3 nearPoint = camera.getForward() * nearDistance;
 	vec3 farPoint = camera.getForward() * farDistance;
-	const float halfFarQuadWidth = farDistance * tanf(fov * 0.5f);
-	const float halfFarQuadHeight = halfFarQuadWidth * aspectRatio;
+	const float halfFarQuadHeight = tanf(camera.fov()* 0.5f) * farDistance;
+	const float halfFarQuadWidth = halfFarQuadHeight / aspectRatio;
 	_near = Plane(camera.getPos() + nearPoint, camera.getForward());
 	_far = Plane(camera.getPos() + farPoint, -camera.getForward());
-	_top = Plane(camera.getPos(), cross(camera.getRight(), farPoint - (camera.getUp() * halfFarQuadHeight)));
-	_bottom = Plane(camera.getPos(), cross(farPoint + (camera.getUp() * halfFarQuadHeight), camera.getRight()));
-	_left = Plane(camera.getPos(), cross(camera.getUp(), farPoint + (camera.getRight() * halfFarQuadWidth)));
-	_right = Plane(camera.getPos(), cross(farPoint - (camera.getRight() * halfFarQuadWidth), camera.getUp()));
+	_top = Plane(camera.getPos(), normalize(cross(farPoint - (camera.getUp() * halfFarQuadHeight), camera.getRight())));
+	_bottom = Plane(camera.getPos(), normalize(cross(camera.getRight(), farPoint + (camera.getUp() * halfFarQuadHeight))));
+	_left = Plane(camera.getPos(), normalize(cross(farPoint + (camera.getRight() * halfFarQuadWidth), camera.getUp())));
+	_right = Plane(camera.getPos(), normalize(cross(camera.getUp(), farPoint - (camera.getRight() * halfFarQuadWidth))));
+	//_top = Plane({ 0.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, 0.0f });
+	//_bottom = Plane({ 0.0f, (float)(700 - 1), 0.0f }, { 0.0f, -1.0f, 0.0f });
+	//_left = Plane({ 0.0f, 0.0f, 0.0f }, { 1.0f, 0.0f, 0.0f });
+	//_right = Plane({ (float)(1200 - 1), 0.0f, 0.0f }, { -1.0f, 0.0f, 0.0f });
 }
 
 Plane& Frustum::near() {

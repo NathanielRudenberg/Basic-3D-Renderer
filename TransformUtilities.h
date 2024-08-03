@@ -47,6 +47,9 @@ void transformTriangle(Triangle& tri, const mat4& transformationMatrix);
 // Project a triangle onto a 2D plane
 void projectTriangle(Triangle& tri, int width, int height, float fov, Plane& nearPlane, Plane& farPlane);
 
+// Project a triangle with a given view-projection matrix
+void projectTriangle(Triangle& tri, const mat4& viewProjectionMatrix);
+
 enum coordIndices {
 	X,
 	Y,

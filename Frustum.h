@@ -13,7 +13,8 @@ class Frustum
 	Plane _right;
 
 public:
-	Frustum(Camera& camera, float aspectRatio, float fov, float nearDistance, float farDistance);
+	Frustum();
+	Frustum(Camera& camera, float aspectRatio, float nearDistance, float farDistance);
 	Plane& near();
 	Plane& far();
 	Plane& top();
