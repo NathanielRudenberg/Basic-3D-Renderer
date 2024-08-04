@@ -8,6 +8,7 @@ void Engine::OnLoop() {
 	}
 	 
 	//_renderer.render(objects[0], viewMatrix);
+	_renderer.render(objects);
 
 	float fps = 1.0f / elapsedTime;
 	string fpsString = "FPS: " + to_string(fps);

@@ -68,6 +68,6 @@ public:
 	void toggleSlowMode();
 	void toggleTriEdges();
 	void toggleDrawing();
-	void render(Model& obj);
+	void render(std::vector<Model>& objects);
 };
 
