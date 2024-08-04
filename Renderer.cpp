@@ -104,7 +104,7 @@ void Renderer::clipAgainstScreenEdges(Triangle& clippable, std::list<Triangle>& 
 	Triangle clipped[2];
 	int newTrianglesNum = 1;
 
-	Plane* screenEdges[]{ &_top, &_bottom, /*&_left, &_right*/};
+	Plane* screenEdges[]{ &_top, &_bottom, &_left, &_right};
 	for (Plane* edge : screenEdges) {
 		int numTrisToAdd = 0;
 		while (newTrianglesNum > 0) {
@@ -198,7 +198,7 @@ void Renderer::render(std::vector<Model>& objects) {
 			trisToRaster.push_back(clippable);
 
 			// Clip triangles against all screen edges
-			clipAgainstScreenEdges(clippable, trisToRaster);
+			//clipAgainstScreenEdges(clippable, trisToRaster);
 
 			for (Triangle& t : trisToRaster) {
 				if (drawTriangles) {
@@ -220,14 +220,14 @@ void Renderer::render(std::vector<Model>& objects) {
 					_window->drawPoint((int)t.getVerts()[1][X], (int)t.getVerts()[1][Y]);
 					_window->drawPoint((int)t.getVerts()[2][X], (int)t.getVerts()[2][Y]);
 				}
-
-				if (true) {
-					_window->setDrawColor(0, 255, 0, 255);
-					_window->drawLine(_window->width() / 2, 0, _window->width() / 2, _window->height());
-					_window->drawLine(0, _window->height() / 2, _window->width(), _window->height() / 2);
-				}
 			}
 		}
+	}
+
+	if (true) {
+		_window->setDrawColor(0, 255, 0, 255);
+		_window->drawLine(_window->width() / 2, 0, _window->width() / 2, _window->height());
+		_window->drawLine(0, _window->height() / 2, _window->width(), _window->height() / 2);
 	}
 }
 
