@@ -177,7 +177,7 @@ void Renderer::render(std::vector<Model>& objects) {
 
 					// Convert from world space to view space
 					// i.e. translate the triangle into view
-					projectTriangle(t, viewProjectionMatrix);
+					projectTriangle(t, viewProjectionMatrix, _window->width(), _window->height());
 
 					// Store triangles for clipping against screen edges
 					trisToClip.push_back(t);

@@ -11,8 +11,6 @@ private:
 	bool running;
 	Window _window;
 	Renderer _renderer;
-	const int SCREEN_WIDTH = 1200;
-	const int SCREEN_HEIGHT = 700;
 	std::vector<Model> objects;
 	float elapsedTime = 0;
 

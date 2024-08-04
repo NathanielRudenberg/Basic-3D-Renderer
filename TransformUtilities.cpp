@@ -216,7 +216,7 @@ void projectTriangle(Triangle& tri, int width, int height, float fov, Plane& nea
 	}
 }
 
-void projectTriangle(Triangle& tri, const mat4& viewProjectionMatrix) {
+void projectTriangle(Triangle& tri, const mat4& viewProjectionMatrix, int screenWidth, int screenHeight) {
 	for (int i = 0; i < 3; i++) {
 		tri.getVerts()[i] = tri.getVerts()[i] * viewProjectionMatrix;
 		if (tri.getVerts()[i][W] != 0.0f) {
@@ -229,7 +229,7 @@ void projectTriangle(Triangle& tri, const mat4& viewProjectionMatrix) {
 		tri.getVerts()[i][X] += 1.0f;
 		tri.getVerts()[i][Y] += 1.0f;
 
-		tri.getVerts()[i][X] *= 0.5f * (float)1200;
-		tri.getVerts()[i][Y] *= 0.5f * (float)720;
+		tri.getVerts()[i][X] *= 0.5f * screenWidth;
+		tri.getVerts()[i][Y] *= 0.5f * screenHeight;
 	}
 }
