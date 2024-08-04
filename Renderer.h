@@ -2,9 +2,11 @@
 #include <glm.hpp>
 #include <list>
 #include <array>
+#include <algorithm>
 #include "Triangle.h"
 #include "model.h"
 #include "camera.h"
+#include "Frustum.h"
 #include "Plane.h"
 #include "Slope.h"
 #include "TransformUtilities.h"
@@ -34,10 +36,12 @@ private:
 	Plane _bottom;
 	Plane _left;
 	Plane _right;
+	Frustum _frustum;
 	vec3 getTriangleNormal(Triangle& triTransformed);
 	vec3 getCameraRay(const vec3& v);
 	int getLuminance(const vec3& normal);
 	void clipAgainstScreenEdges(Triangle& clippable, std::list<Triangle>& trisToRaster);
+	void clipAgainstFrustum(Triangle& clippable, Frustum& frustum, std::list<Triangle>& trisToProject);
 	template<typename V>
 	void rasterizeTriangle(const V* v0, const V* v1, const V* v2, auto&& getXY, auto&& makeSlope, auto&& drawScanline)
 		requires std::invocable<decltype(getXY), const V&>
@@ -64,6 +68,6 @@ public:
 	void toggleSlowMode();
 	void toggleTriEdges();
 	void toggleDrawing();
-	void render(Model& obj);
+	void render(std::vector<Model>& objects);
 };
 

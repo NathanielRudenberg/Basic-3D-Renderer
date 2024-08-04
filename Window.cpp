@@ -66,6 +66,10 @@ float Window::getPixelDepth(int pixel){
 	return _depthBuffer[pixel];
 }
 
+float Window::getAspectRatio() {
+	return (float)_screenHeight / _screenWidth;
+}
+
 SDL_Window* Window::get() {
 	return _sdlWindow;
 }

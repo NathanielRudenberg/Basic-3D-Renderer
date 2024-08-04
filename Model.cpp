@@ -20,6 +20,10 @@ Mesh& Model::getMesh() {
 	return objectMesh;
 }
 
+void Model::moveTo(const vec3& position) {
+	_position = position;
+}
+
 void Model::moveTo(float x, float y, float z) {
 	_position = vec3(x, y, z);
 }

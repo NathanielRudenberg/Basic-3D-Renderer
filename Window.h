@@ -17,7 +17,7 @@ private:
 
 public:
 	Window();
-	Window(string windowTitle, int screenWidth, int screenHeight);
+	Window(string windowTitle, int screenWidth = 1200, int screenHeight = 700);
 	void setWidth(int width);
 	void setHeight(int height);
 	void setTitle(string windowTitle);
@@ -32,6 +32,7 @@ public:
 	string getTitle();
 	float* getDepthBuffer();
 	float getPixelDepth(int pixel);
+	float getAspectRatio();
 	SDL_Window* get();
 	SDL_Renderer* getRenderer();
 	void drawPoint(int x, int y);

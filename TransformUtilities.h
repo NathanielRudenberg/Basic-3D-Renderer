@@ -30,22 +30,25 @@ mat4 getZRot(float theta);
 mat4 getRotationMatrix(float thetaX, float thetaY, float thetaZ);
 
 // Get projection matrix
-mat4 getProjectionMatrix(float fovRadians, float aspectRatio, float nearPlane, float farPlane);
+mat4 getProjectionMatrix(float fov, float aspectRatio, float nearPlane, float farPlane);
 
 // Project a 3D vector onto a 2D plane
 vec4 project(const vec4& toProject, float fovRadians, float aspectRatio, float nearPlane, float farPlane);
 
 // Get the intersection of a vector and a plane
-vec4 vectorPlaneIntersect(const vec3& planePoint, const vec3& planeNormal, const vec4& lineStart, const vec4& lineEnd);
+vec4 vectorPlaneIntersect(Plane& plane, const vec4& lineStart, const vec4& lineEnd);
 
 // Clip triangle against plane
-int clipTriangleAgainstPlane(const vec3& planePoint, const vec3& pN, Triangle& inTri, Triangle& outTri1, Triangle& outTri2);
+int clipTriangleAgainstPlane(Plane& plane, Triangle& inTri, Triangle& outTri1, Triangle& outTri2);
 
 // Transform a triangle through 3D space using a transformation matrix
 void transformTriangle(Triangle& tri, const mat4& transformationMatrix);
 
 // Project a triangle onto a 2D plane
-void projectTriangle(Triangle& tri, int width, int height, Plane& nearPlane, Plane& farPlane);
+void projectTriangle(Triangle& tri, int width, int height, float fov, Plane& nearPlane, Plane& farPlane);
+
+// Project a triangle with a given view-projection matrix
+void projectTriangle(Triangle& tri, const mat4& viewProjectionMatrix, int screenWidth, int screenHeight);
 
 enum coordIndices {
 	X,

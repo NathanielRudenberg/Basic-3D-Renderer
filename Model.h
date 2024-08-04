@@ -26,6 +26,9 @@ public:
 	Mesh& getMesh();
 
 	// Move the model to a new position within the world space.
+	void moveTo(const vec3& position);
+
+	// Move the model to a new position within the world space.
 	void moveTo(float x, float y, float z);
 
 	vec3& getPosition();

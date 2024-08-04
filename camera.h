@@ -1,5 +1,6 @@
 #pragma once
 #define GLM_ENABLE_EXPERIMENTAL
+#define PI 3.14159f
 #include <glm.hpp>
 #include <gtx/quaternion.hpp>
 
@@ -18,6 +19,7 @@ private:
 	vec3 _left;
 	vec3 _front;
 	vec3 _back;
+	float _fov;
 	void rotate(float angle, const vec3& axis);
 	vec3 getHoriz();
 
@@ -39,12 +41,16 @@ public:
 	vec3& getUp();
 	vec3& getFront();
 	vec3& getBack();
+	float fov();
+	float fovRad();
+	float inverseFovRad();
 	void translate(const vec3& translateBy, float amount, int dir);
 	void rotateX(float angle);
 	void rotateY(float angle);
 	void setPos(const vec3& pos);
 	void setForward(const vec3& forward);
 	void setUp(const vec3& up);
+	void setFov(float fov);
 
 // Constructor
 public:

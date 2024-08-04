@@ -16,7 +16,7 @@ mat4 getPointAtMatrix(const vec3& pos, const vec3& target, const vec3& up) {
 
 mat4 getTranslationMatrix(vec3 pos) {
 	mat4 translation = mat4(1.0f);
-	translation[0][3] = -pos[X];
+	translation[0][3] = pos[X];
 	translation[1][3] = pos[Y];
 	translation[2][3] = pos[Z];
 
@@ -63,10 +63,11 @@ mat4 getRotationMatrix(float thetaX, float thetaY, float thetaZ) {
 	return getZRot(thetaZ) * getYRot(thetaY) * getXRot(thetaX);
 }
 
-mat4 getProjectionMatrix(float fovRadians, float aspectRatio, float nearPlane, float farPlane) {
+mat4 getProjectionMatrix(float fov, float aspectRatio, float nearPlane, float farPlane) {
+	float projectionFov = 1.0f / tanf(fov * 0.5 / 180.0f * PI);
 	mat4 projMat = mat4(0.0f);
-	projMat[0][0] = -(aspectRatio * fovRadians);
-	projMat[1][1] = -fovRadians;
+	projMat[0][0] = -(aspectRatio * projectionFov);
+	projMat[1][1] = -projectionFov;
 	projMat[2][2] = farPlane / (farPlane - nearPlane);
 	projMat[2][3] = (-farPlane * nearPlane) / (farPlane - nearPlane);
 	projMat[3][2] = 1.0f;
@@ -87,14 +88,12 @@ vec4 project(const vec4& toProject, float fovRadians, float aspectRatio, float n
 	return projected;
 }
 
-vec4 vectorPlaneIntersect(const vec3& planePoint, const vec3& planeNormal, const vec4& lineStart, const vec4& lineEnd) {
-	// planeNormal should already be normal
-	//planeNormal.normalize();
-	// vec3 pN;
+vec4 vectorPlaneIntersect(Plane& plane, const vec4& lineStart, const vec4& lineEnd) {
+	// plane.normal() should already be normalized
 	vec4 start = vec4(lineStart[X], lineStart[Y], lineStart[Z], lineStart[W]);
 	vec4 end = vec4(lineEnd[X], lineEnd[Y], lineEnd[Z], lineEnd[W]);
-	vec4 pN = vec4(planeNormal[X], planeNormal[Y], planeNormal[Z], 0.0f);
-	vec4 pPoint = vec4(planePoint[X], planePoint[Y], planePoint[Z], 0.0f);
+	vec4 pN = vec4(plane.normal()[X], plane.normal()[Y], plane.normal()[Z], 0.0f);
+	vec4 pPoint = vec4(plane.point()[X], plane.point()[Y], plane.point()[Z], 0.0f);
 
 	float planeD = -1.0f * dot(pN, pPoint);
 	float ad = dot(start, pN);
@@ -106,17 +105,17 @@ vec4 vectorPlaneIntersect(const vec3& planePoint, const vec3& planeNormal, const
 	return clippedPoint;
 }
 
-int clipTriangleAgainstPlane(const vec3& planePoint, const vec3& planeNormal, Triangle& inTri, Triangle& outTri1, Triangle& outTri2) {
-	// planeNormal should already be normal
+int clipTriangleAgainstPlane(Plane& plane, Triangle& inTri, Triangle& outTri1, Triangle& outTri2) {
+	// plane.normal() should already be normalized
 
 	// Get shortest distance from point to plane
 	auto dist = [&](vec4& n) {
 		vec3 p = vec3(n[X], n[Y], n[Z]);
 
-		return (planeNormal[X] * p[X]
-			+ planeNormal[Y] * p[Y]
-			+ planeNormal[Z] * p[Z]
-			- dot(planeNormal, planePoint));
+		return (plane.normal()[X] * p[X]
+			+ plane.normal()[Y] * p[Y]
+			+ plane.normal()[Z] * p[Z]
+			- dot(plane.normal(), plane.point()));
 	};
 
 	// Classify vertices on either side of the plane
@@ -170,8 +169,8 @@ int clipTriangleAgainstPlane(const vec3& planePoint, const vec3& planeNormal, Tr
 		outTri1.getVerts()[0] = (*pointsInside[0]);
 
 		// Clip the other two vertices
-		outTri1.getVerts()[1] = (vectorPlaneIntersect(planePoint, planeNormal, *pointsInside[0], *pointsOutside[0]));
-		outTri1.getVerts()[2] = (vectorPlaneIntersect(planePoint, planeNormal, *pointsInside[0], *pointsOutside[1]));
+		outTri1.getVerts()[1] = (vectorPlaneIntersect(plane, *pointsInside[0], *pointsOutside[0]));
+		outTri1.getVerts()[2] = (vectorPlaneIntersect(plane, *pointsInside[0], *pointsOutside[1]));
 
 		return 1;
 	}
@@ -183,11 +182,11 @@ int clipTriangleAgainstPlane(const vec3& planePoint, const vec3& planeNormal, Tr
 		// The first new triangle keeps the two inside vertices
 		outTri1.getVerts()[0] = (*pointsInside[0]);
 		outTri1.getVerts()[1] = (*pointsInside[1]);
-		outTri1.getVerts()[2] = (vectorPlaneIntersect(planePoint, planeNormal, *pointsInside[0], *pointsOutside[0]));
+		outTri1.getVerts()[2] = (vectorPlaneIntersect(plane, *pointsInside[0], *pointsOutside[0]));
 
 		// The second new triangle keeps one inside vertex
 		outTri2.getVerts()[0] = (*pointsInside[1]);
-		outTri2.getVerts()[1] = (vectorPlaneIntersect(planePoint, planeNormal, *pointsInside[1], *pointsOutside[0]));
+		outTri2.getVerts()[1] = (vectorPlaneIntersect(plane, *pointsInside[1], *pointsOutside[0]));
 		outTri2.getVerts()[2] = (outTri1.getVerts()[2]);
 
 		return 2;
@@ -200,8 +199,7 @@ void transformTriangle(Triangle& tri, const mat4& transformationMatrix) {
 	}
 }
 
-void projectTriangle(Triangle& tri, int width, int height, Plane& nearPlane, Plane& farPlane) {
-	float fov = 80.0f;
+void projectTriangle(Triangle& tri, int width, int height, float fov, Plane& nearPlane, Plane& farPlane) {
 	float fovRad = 1.0f / tanf(fov * 0.5f / 180.0f * PI);
 	float aspectRatio = (float)height / (float)width;
 
@@ -215,5 +213,23 @@ void projectTriangle(Triangle& tri, int width, int height, Plane& nearPlane, Pla
 
 		tri.getVerts()[i][X] *= 0.5f * (float)width;
 		tri.getVerts()[i][Y] *= 0.5f * (float)height;
+	}
+}
+
+void projectTriangle(Triangle& tri, const mat4& viewProjectionMatrix, int screenWidth, int screenHeight) {
+	for (int i = 0; i < 3; i++) {
+		tri.getVerts()[i] = tri.getVerts()[i] * viewProjectionMatrix;
+		if (tri.getVerts()[i][W] != 0.0f) {
+			tri.getVerts()[i] = vec4(tri.getVerts()[i][X] / tri.getVerts()[i][W], tri.getVerts()[i][Y] / tri.getVerts()[i][W], tri.getVerts()[i][Z] / tri.getVerts()[i][W], tri.getVerts()[i][W]);
+		}
+		else {
+			tri.getVerts()[i] = vec4(tri.getVerts()[i][X], tri.getVerts()[i][Y], tri.getVerts()[i][Z], tri.getVerts()[i][W]);
+		}
+
+		tri.getVerts()[i][X] += 1.0f;
+		tri.getVerts()[i][Y] += 1.0f;
+
+		tri.getVerts()[i][X] *= 0.5f * screenWidth;
+		tri.getVerts()[i][Y] *= 0.5f * screenHeight;
 	}
 }

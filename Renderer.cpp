@@ -9,7 +9,9 @@ Renderer::Renderer(Window* window) :
 	_top(Plane({ 0.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, 0.0f })),
 	_bottom(Plane({ 0.0f, (float)(_window->height() - 1), 0.0f }, { 0.0f, -1.0f, 0.0f })),
 	_left(Plane({ 0.0f, 0.0f, 0.0f }, { 1.0f, 0.0f, 0.0f })),
-	_right(Plane({ (float)(_window->width() - 1), 0.0f, 0.0f }, { -1.0f, 0.0f, 0.0f })) {}
+	_right(Plane({ (float)(_window->width() - 1), 0.0f, 0.0f }, { -1.0f, 0.0f, 0.0f })) {
+	_frustum = Frustum(_camera, _window->getAspectRatio(), _near.point()[Z], _far.point()[Z]);
+}
 
 Camera& Renderer::camera() {
 	return _camera;
@@ -102,7 +104,7 @@ void Renderer::clipAgainstScreenEdges(Triangle& clippable, std::list<Triangle>& 
 	Triangle clipped[2];
 	int newTrianglesNum = 1;
 
-	Plane* screenEdges[]{ &_top, &_bottom, &_left, &_right };
+	Plane* screenEdges[]{ &_top, &_bottom, &_left, &_right};
 	for (Plane* edge : screenEdges) {
 		int numTrisToAdd = 0;
 		while (newTrianglesNum > 0) {
@@ -110,7 +112,7 @@ void Renderer::clipAgainstScreenEdges(Triangle& clippable, std::list<Triangle>& 
 			trisToRaster.pop_front();
 			newTrianglesNum--;
 
-			numTrisToAdd = clipTriangleAgainstPlane(edge->point(), edge->normal(), test, clipped[0], clipped[1]);
+			numTrisToAdd = clipTriangleAgainstPlane(*edge, test, clipped[0], clipped[1]);
 
 			for (int w = 0; w < numTrisToAdd; w++) {
 				trisToRaster.push_back(clipped[w]);
@@ -120,83 +122,112 @@ void Renderer::clipAgainstScreenEdges(Triangle& clippable, std::list<Triangle>& 
 	}
 }
 
-void Renderer::render(Model& obj) {
+void Renderer::clipAgainstFrustum(Triangle& clippable, Frustum& frustum, std::list<Triangle>& trisToProject) {
+	Triangle clipped[2];
+	int newTrianglesNum = 1;
+
+	Plane& (Frustum:: * frustumPlanes[])() { &Frustum::near, &Frustum::far, & Frustum::top, & Frustum::bottom, & Frustum::left, &Frustum::right };
+	for (Plane& (Frustum::*plane)() : frustumPlanes) {
+		int numTrisToAdd = 0;
+		while (newTrianglesNum > 0) {
+			Triangle test = trisToProject.front();
+			trisToProject.pop_front();
+			newTrianglesNum--;
+
+			numTrisToAdd = clipTriangleAgainstPlane((frustum.*plane)(), test, clipped[0], clipped[1]);
+
+			for (int w = 0; w < numTrisToAdd; w++) {
+				trisToProject.push_back(clipped[w]);
+			}
+		}
+		newTrianglesNum = trisToProject.size();
+	}
+}
+
+void Renderer::render(std::vector<Model>& objects) {
 	vec3 targetVec = _camera.getPos() + _camera.getForward();
 	mat4 cameraMatrix = getPointAtMatrix(_camera.getPos(), targetVec, _camera.getUp());
 	mat4 viewMatrix = inverse(cameraMatrix);
-	mat4 worldMatrix = getTranslationMatrix(obj.getPosition());
+	mat4 viewProjectionMatrix = viewMatrix * getProjectionMatrix(_camera.fov(), _window->getAspectRatio(), _near.point()[Z], _far.point()[Z]);
+	_frustum = Frustum(_camera, _window->getAspectRatio(), _near.point()[Z], _far.point()[Z], viewProjectionMatrix);
 
-	std::vector<Triangle> trisToClip;
+	for (Model& obj : objects) {
+		mat4 worldMatrix = getTranslationMatrix(obj.getPosition());
 
-	for (Triangle tri : obj.getMesh().getTris()) {
-		Triangle& triTransformed = tri;
+		std::vector<Triangle> trisToClip;
 
-		// Translate the triangle into its position in world
-		transformTriangle(triTransformed, worldMatrix);
+		for (Triangle tri : obj.getMesh().getTris()) {
 
-		// Get triangle normals
-		vec3 v = vec3(triTransformed.getVerts()[0][X], triTransformed.getVerts()[0][Y], triTransformed.getVerts()[0][Z]);
-		vec3 normal = getTriangleNormal(triTransformed);
+			// Translate the triangle into its position in world
+			transformTriangle(tri, worldMatrix);
 
-		// Only render triangles that are facing the camera
-		if (dot(normal, getCameraRay(v)) < 0.0f) {
+			// Get triangle normals
+			vec3 v = vec3(tri.getVerts()[0][X], tri.getVerts()[0][Y], tri.getVerts()[0][Z]);
+			vec3 normal = getTriangleNormal(tri);
 
-			// Illuminate the triangle
-			triTransformed.setLuminance(getLuminance(normal));
+			// Only render triangles that are facing the camera
+			if (dot(normal, getCameraRay(v)) < 0.0f) {
+				std::list<Triangle> trisToProject;
+				trisToProject.push_back(tri);
+				clipAgainstFrustum(tri, _frustum, trisToProject);
 
-			// Convert from world space to view space
-			// i.e. translate the triangle into view
-			transformTriangle(triTransformed, viewMatrix);
+				for (Triangle& t : trisToProject) {
+					// Illuminate the triangle
+					t.setLuminance(getLuminance(normal));
 
-			int clippedTriangleNum = 0;
-			Triangle clipped[2];
-			clippedTriangleNum = clipTriangleAgainstPlane(_near.point(), _near.normal(), triTransformed, clipped[0], clipped[1]);
+					// Convert from world space to view space
+					// i.e. translate the triangle into view
+					projectTriangle(t, viewProjectionMatrix, _window->width(), _window->height());
 
-			for (int n = 0; n < clippedTriangleNum; n++) {
-				projectTriangle(clipped[n], _window->width(), _window->height(), _near, _far);
+					// Store triangles for clipping against screen edges
+					trisToClip.push_back(t);
+				}
+			}
+		}
 
-				// Store triangles for clipping against screen edges
-				trisToClip.push_back(clipped[n]);
+		// Sort tris from back to front
+		std::sort(trisToClip.begin(), trisToClip.end(), [](Triangle& t1, Triangle& t2) {
+			float w1 = (t1.getVerts()[0][W] + t1.getVerts()[1][W] + t1.getVerts()[2][W]) / 3.0f;
+			float w2 = (t2.getVerts()[0][W] + t2.getVerts()[1][W] + t2.getVerts()[2][W]) / 3.0f;
+
+			return w1 > w2;
+			});
+
+		for (auto& clippable : trisToClip) {
+			std::list<Triangle> trisToRaster;
+			trisToRaster.push_back(clippable);
+
+			// Clip triangles against all screen edges
+			//clipAgainstScreenEdges(clippable, trisToRaster);
+
+			for (Triangle& t : trisToRaster) {
+				if (drawTriangles) {
+					_window->setDrawColor(t.getLuminance(), t.getLuminance(), t.getLuminance(), 255);
+					rasterize(t);
+				}
+
+				// Draw triangles
+				if (showTriEdges) {
+					_window->setDrawColor(255, 0, 0, 255);
+					_window->drawLine((int)t.getVerts()[0][X], (int)t.getVerts()[0][Y], (int)t.getVerts()[1][X], (int)t.getVerts()[1][Y]);
+					_window->drawLine((int)t.getVerts()[1][X], (int)t.getVerts()[1][Y], (int)t.getVerts()[2][X], (int)t.getVerts()[2][Y]);
+					_window->drawLine((int)t.getVerts()[2][X], (int)t.getVerts()[2][Y], (int)t.getVerts()[0][X], (int)t.getVerts()[0][Y]);
+				}
+
+				if (false) {
+					_window->setDrawColor(255, 255, 0, 255);
+					_window->drawPoint((int)t.getVerts()[0][X], (int)t.getVerts()[0][Y]);
+					_window->drawPoint((int)t.getVerts()[1][X], (int)t.getVerts()[1][Y]);
+					_window->drawPoint((int)t.getVerts()[2][X], (int)t.getVerts()[2][Y]);
+				}
 			}
 		}
 	}
 
-	// Sort tris from back to front
-	/*std::sort(trisToRaster.begin(), trisToRaster.end(), [](Triangle& t1, Triangle& t2) {
-		float w1 = (t1.getVerts()[0][W] + t1.getVerts()[1][W] + t1.getVerts()[2][W]) / 3.0f;
-		float w2 = (t2.getVerts()[0][W] + t2.getVerts()[1][W] + t2.getVerts()[2][W]) / 3.0f;
-
-		return w1 > w2;
-		});*/
-
-	for (auto& clippable : trisToClip) {
-		std::list<Triangle> trisToRaster;
-		trisToRaster.push_back(clippable);
-
-		// Clip triangles against all screen edges
-		clipAgainstScreenEdges(clippable, trisToRaster);
-
-		for (Triangle& t : trisToRaster) {
-			if (drawTriangles) {
-				_window->setDrawColor(t.getLuminance(), t.getLuminance(), t.getLuminance(), 255);
-				rasterize(t);
-			}
-
-			// Draw triangles
-			if (showTriEdges) {
-				_window->setDrawColor(255, 0, 0, 255);
-				_window->drawLine((int)t.getVerts()[0][X], (int)t.getVerts()[0][Y], (int)t.getVerts()[1][X], (int)t.getVerts()[1][Y]);
-				_window->drawLine((int)t.getVerts()[1][X], (int)t.getVerts()[1][Y], (int)t.getVerts()[2][X], (int)t.getVerts()[2][Y]);
-				_window->drawLine((int)t.getVerts()[2][X], (int)t.getVerts()[2][Y], (int)t.getVerts()[0][X], (int)t.getVerts()[0][Y]);
-			}
-
-			if (false) {
-				_window->setDrawColor(255, 255, 0, 255);
-				_window->drawPoint((int)t.getVerts()[0][X], (int)t.getVerts()[0][Y]);
-				_window->drawPoint((int)t.getVerts()[1][X], (int)t.getVerts()[1][Y]);
-				_window->drawPoint((int)t.getVerts()[2][X], (int)t.getVerts()[2][Y]);
-			}
-		}
+	if (true) {
+		_window->setDrawColor(0, 255, 0, 255);
+		_window->drawLine(_window->width() / 2, 0, _window->width() / 2, _window->height());
+		_window->drawLine(0, _window->height() / 2, _window->width(), _window->height() / 2);
 	}
 }
 
