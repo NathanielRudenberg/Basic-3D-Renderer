@@ -30,7 +30,7 @@ mat4 getZRot(float theta);
 mat4 getRotationMatrix(float thetaX, float thetaY, float thetaZ);
 
 // Get projection matrix
-mat4 getProjectionMatrix(float fovRadians, float aspectRatio, float nearPlane, float farPlane);
+mat4 getProjectionMatrix(float fov, float aspectRatio, float nearPlane, float farPlane);
 
 // Project a 3D vector onto a 2D plane
 vec4 project(const vec4& toProject, float fovRadians, float aspectRatio, float nearPlane, float farPlane);

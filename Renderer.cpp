@@ -148,7 +148,7 @@ void Renderer::render(Model& obj) {
 	vec3 targetVec = _camera.getPos() + _camera.getForward();
 	mat4 cameraMatrix = getPointAtMatrix(_camera.getPos(), targetVec, _camera.getUp());
 	mat4 viewMatrix = inverse(cameraMatrix);
-	mat4 viewProjectionMatrix = viewMatrix * getProjectionMatrix(_camera.inverseFovRad(), _window->getAspectRatio(), _near.point()[Z], _far.point()[Z]);
+	mat4 viewProjectionMatrix = viewMatrix * getProjectionMatrix(_camera.fov(), _window->getAspectRatio(), _near.point()[Z], _far.point()[Z]);
 	_frustum = Frustum(_camera, _window->getAspectRatio(), _near.point()[Z], _far.point()[Z], viewProjectionMatrix);
 	mat4 worldMatrix = getTranslationMatrix(obj.getPosition());
 
@@ -197,7 +197,7 @@ void Renderer::render(Model& obj) {
 		trisToRaster.push_back(clippable);
 
 		// Clip triangles against all screen edges
-		//clipAgainstScreenEdges(clippable, trisToRaster);
+		clipAgainstScreenEdges(clippable, trisToRaster);
 
 		for (Triangle& t : trisToRaster) {
 			if (drawTriangles) {
@@ -218,6 +218,12 @@ void Renderer::render(Model& obj) {
 				_window->drawPoint((int)t.getVerts()[0][X], (int)t.getVerts()[0][Y]);
 				_window->drawPoint((int)t.getVerts()[1][X], (int)t.getVerts()[1][Y]);
 				_window->drawPoint((int)t.getVerts()[2][X], (int)t.getVerts()[2][Y]);
+			}
+
+			if (true) {
+				_window->setDrawColor(0, 255, 0, 255);
+				_window->drawLine(_window->width() / 2, 0, _window->width() / 2, _window->height());
+				_window->drawLine(0, _window->height() / 2, _window->width(), _window->height() / 2);
 			}
 		}
 	}
@@ -299,10 +305,10 @@ void Renderer::rasterize(Triangle& triangle) {
 			for (; x < endX; ++x) {
 				// Update depth-buffer if the pixel is closer than the current buffer value
 				int currentPixel = (y * _window->width()) + x;
-				//if (pixelDepth.get() < _window->getPixelDepth(currentPixel)) {
-					//_window->setPixelDepth(currentPixel, pixelDepth.get());
+				if (pixelDepth.get() < _window->getPixelDepth(currentPixel)) {
+					_window->setPixelDepth(currentPixel, pixelDepth.get());
 					_window->drawPoint(x, y);
-				//}
+				}
 				pixelDepth.advance();
 			}
 

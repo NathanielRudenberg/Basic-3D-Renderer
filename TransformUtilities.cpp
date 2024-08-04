@@ -63,10 +63,11 @@ mat4 getRotationMatrix(float thetaX, float thetaY, float thetaZ) {
 	return getZRot(thetaZ) * getYRot(thetaY) * getXRot(thetaX);
 }
 
-mat4 getProjectionMatrix(float fovRadians, float aspectRatio, float nearPlane, float farPlane) {
+mat4 getProjectionMatrix(float fov, float aspectRatio, float nearPlane, float farPlane) {
+	float projectionFov = 1.0f / tanf(fov * 0.5 / 180.0f * PI);
 	mat4 projMat = mat4(0.0f);
-	projMat[0][0] = -(aspectRatio * fovRadians);
-	projMat[1][1] = -fovRadians;
+	projMat[0][0] = -(aspectRatio * projectionFov);
+	projMat[1][1] = -projectionFov;
 	projMat[2][2] = farPlane / (farPlane - nearPlane);
 	projMat[2][3] = (-farPlane * nearPlane) / (farPlane - nearPlane);
 	projMat[3][2] = 1.0f;
