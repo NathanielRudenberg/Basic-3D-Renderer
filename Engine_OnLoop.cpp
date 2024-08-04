@@ -2,12 +2,6 @@
 
 void Engine::OnLoop() {
 	_window.clear();
-
-	for (Model& object : objects) {
-		_renderer.render(object);
-	}
-	 
-	//_renderer.render(objects[0], viewMatrix);
 	_renderer.render(objects);
 
 	float fps = 1.0f / elapsedTime;
