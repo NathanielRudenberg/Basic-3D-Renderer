@@ -1,16 +1,16 @@
 #pragma once
-#include <glm.hpp>
-#include <list>
-#include <array>
-#include <algorithm>
-#include "Triangle.h"
-#include "model.h"
 #include "camera.h"
 #include "Frustum.h"
+#include "model.h"
 #include "Plane.h"
 #include "Slope.h"
 #include "TransformUtilities.h"
+#include "Triangle.h"
 #include "Window.h"
+#include <algorithm>
+#include <array>
+#include <glm.hpp>
+#include <list>
 
 using glm::vec4;
 
@@ -45,22 +45,22 @@ private:
 	template<typename V>
 	void rasterizeTriangle(const V* v0, const V* v1, const V* v2, auto&& getXY, auto&& makeSlope, auto&& drawScanline)
 		requires std::invocable<decltype(getXY), const V&>
-			 and std::invocable<decltype(makeSlope), const V*, const V*, int>
-			 and (std::tuple_size_v<std::remove_cvref_t<decltype(getXY(*v0))>> == 2)
-			 and requires { { +std::get<0>(getXY(*v0)) } -> std::integral; }
-			 and requires { { +std::get<1>(getXY(*v0)) } -> std::integral; }
-			 and requires(std::remove_cvref_t<decltype(makeSlope(v0, v1, 1))> a) { drawScanline(1, a, a); };
+	and std::invocable<decltype(makeSlope), const V*, const V*, int>
+		and (std::tuple_size_v<std::remove_cvref_t<decltype(getXY(*v0))>> == 2)
+		and requires { { +std::get<0>(getXY(*v0)) } -> std::integral; }
+	and requires { { +std::get<1>(getXY(*v0)) } -> std::integral; }
+	and requires(std::remove_cvref_t<decltype(makeSlope(v0, v1, 1))> a) { drawScanline(1, a, a); };
 	void rasterize(Triangle& triangle);
 
 public:
 	Renderer();
 	Renderer(Window* window);
 	Camera& camera();
-	float getCameraRotSpeed();
-	float getCameraMoveSpeed();
+	float getCameraRotSpeed() const;
+	float getCameraMoveSpeed() const;
 	bool getFastMode() const;
 	bool getSlowMode() const;
-	bool getSlowRotateMode();
+	bool getSlowRotateMode() const;
 	void setFastMode(bool mode);
 	void setSlowMode(bool mode);
 	void toggleSlowRotateMode();

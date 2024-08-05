@@ -64,7 +64,7 @@ mat4 getRotationMatrix(float thetaX, float thetaY, float thetaZ) {
 }
 
 mat4 getProjectionMatrix(float fov, float aspectRatio, float nearPlane, float farPlane) {
-	float projectionFov = 1.0f / tanf(fov * 0.5 / 180.0f * PI);
+	float projectionFov = 1.0f / tanf(fov * 0.5f / 180.0f * PI);
 	mat4 projMat = mat4(0.0f);
 	projMat[0][0] = -(aspectRatio * projectionFov);
 	projMat[1][1] = -projectionFov;
@@ -150,7 +150,7 @@ int clipTriangleAgainstPlane(Plane& plane, Triangle& inTri, Triangle& outTri1, T
 	if (d0 >= 0 && d1 < 0 && d2 >= 0) {
 		std::swap(pointsInside[0], pointsInside[1]);
 	}
-	if(d0 < 0 && d1 >= 0 && d2 < 0) {
+	if (d0 < 0 && d1 >= 0 && d2 < 0) {
 		std::swap(pointsOutside[0], pointsOutside[1]);
 	}
 

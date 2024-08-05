@@ -9,7 +9,7 @@ Model::Model(std::string filename) {
 
 Model::Model(std::string filename, float x, float y, float z) {
 	objectMesh.loadObj(filename);
-	_position =  vec3(x, y, z);
+	_position = vec3(x, y, z);
 }
 
 void Model::load(std::string filename) {

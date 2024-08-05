@@ -1,6 +1,6 @@
 #pragma once
-#include <utility>
 #include <glm.hpp>
+#include <utility>
 
 using glm::vec4;
 

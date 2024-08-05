@@ -5,7 +5,7 @@ Camera::Camera() : _pos({ 0.0f, 0.0f, 0.0f }), _forward({ 0.0f, 0.0f, 1.0f }), _
 
 Camera::Camera(const vec3& pos, const vec3& forward, const vec3& up) : _pos(pos), _forward(normalize(forward)), _up(normalize(up)) {}
 
-vec3& Camera:: getPos() {
+vec3& Camera::getPos() {
 	return _pos;
 }
 
@@ -46,7 +46,7 @@ float Camera::fovRad() {
 }
 
 float Camera::inverseFovRad() {
-	return 1.0f / tanf(fovRad() * 0.5);
+	return 1.0f / tanf(fovRad() * 0.5f);
 }
 
 void Camera::translate(const vec3& translateBy, float amount, int dir) {

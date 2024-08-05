@@ -1,8 +1,8 @@
 #pragma once
-#include <fstream>
-#include <iostream>
 #include "mesh.h"
+#include <fstream>
 #include <glm.hpp>
+#include <iostream>
 using glm::vec3;
 
 class Model {

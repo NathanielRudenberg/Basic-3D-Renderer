@@ -1,7 +1,8 @@
 // https://learnopengl.com/Guest-Articles/2021/Scene/Frustum-Culling
+// https://gamedev.stackexchange.com/a/156758
 #pragma once
-#include "Plane.h"
 #include "camera.h"
+#include "Plane.h"
 
 using glm::mat4;
 
@@ -16,7 +17,6 @@ class Frustum
 
 public:
 	Frustum();
-	Frustum(Camera& camera, float aspectRatio, float nearDistance, float farDistance);
 	Frustum(Camera& camera, float aspectRatio, float nearDistance, float farDistance, const mat4& viewProjectionMatrix);
 	Plane& near();
 	Plane& far();
@@ -25,4 +25,3 @@ public:
 	Plane& left();
 	Plane& right();
 };
-

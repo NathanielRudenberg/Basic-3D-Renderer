@@ -10,4 +10,4 @@ Slope::Slope(float begin, float end, int numSteps) {
 
 float Slope::get() const { return cur; }
 
-void Slope::advance() { cur += step;  }
+void Slope::advance() { cur += step; }

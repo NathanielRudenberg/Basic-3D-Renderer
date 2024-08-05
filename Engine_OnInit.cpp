@@ -1,45 +1,45 @@
 #include "Engine.h"
 
 bool Engine::OnInit() {
-    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-        return false;
-    }
+	if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+		return false;
+	}
 
-    _window = Window("Basic 3D Engine");
-    _renderer = Renderer(&_window);
-    _window.init();
-    if (_window.get() == NULL) { return false; }
-    if (_window.getRenderer() == NULL) { return false; }
+	_window = Window("Basic 3D Engine");
+	_renderer = Renderer(&_window);
+	_window.init();
+	if (_window.get() == NULL) { return false; }
+	if (_window.getRenderer() == NULL) { return false; }
 
-    //matExternal.loadObj("pyramid.obj");
-    /*Model pyramid = Model("pyramid.obj");
-    objects.push_back(pyramid);*/
+	//matExternal.loadObj("pyramid.obj");
+	/*Model pyramid = Model("pyramid.obj");
+	objects.push_back(pyramid);*/
 
-    /*Model cube = Model("cube.obj", 0.0f, 0.0f, 4.0f);
-    objects.push_back(cube);*/
-    //objectBuffer.push_back(&cube);
+	/*Model cube = Model("cube.obj", 0.0f, 0.0f, 4.0f);
+	objects.push_back(cube);*/
+	//objectBuffer.push_back(&cube);
 
-    int numberOnEachSideOfZero = 1;
-    float distanceBetweenCubes = 2.5;
-    for (int i = -numberOnEachSideOfZero; i <= numberOnEachSideOfZero; i++) {
-        for (int j = -numberOnEachSideOfZero; j <= numberOnEachSideOfZero; j++) {
-            for (int k = -numberOnEachSideOfZero; k <= numberOnEachSideOfZero; k++) {
-                objects.push_back(Model("cube.obj", (float)(i * distanceBetweenCubes), (float)(k * distanceBetweenCubes), (float)(j * distanceBetweenCubes)));
-            }
-        }
-    }
+	int numberOnEachSideOfZero = 1;
+	float distanceBetweenCubes = 2.5;
+	for (int i = -numberOnEachSideOfZero; i <= numberOnEachSideOfZero; i++) {
+		for (int j = -numberOnEachSideOfZero; j <= numberOnEachSideOfZero; j++) {
+			for (int k = -numberOnEachSideOfZero; k <= numberOnEachSideOfZero; k++) {
+				objects.push_back(Model("cube.obj", (float)(i * distanceBetweenCubes), (float)(k * distanceBetweenCubes), (float)(j * distanceBetweenCubes)));
+			}
+		}
+	}
 
-    Model axis = Model("axis.obj");
-    objects.push_back(axis);
+	Model axis = Model("axis.obj");
+	objects.push_back(axis);
 
-    /*Model ship = Model("VideoShip.obj", -20.0f, 5.3f, 10.0f);
-    objects.push_back(ship);*/
+	/*Model ship = Model("VideoShip.obj", -20.0f, 5.3f, 10.0f);
+	objects.push_back(ship);*/
 
-    /*Model teapot = Model("teapot.obj");
-    objects.push_back(teapot);*/
+	/*Model teapot = Model("teapot.obj");
+	objects.push_back(teapot);*/
 
-    /*Model mountains = Model("mountains.obj", 0.0f, -12.0f, 0.0f);
-    objects.push_back(mountains);*/
+	/*Model mountains = Model("mountains.obj", 0.0f, -12.0f, 0.0f);
+	objects.push_back(mountains);*/
 
-    return true;
+	return true;
 }

@@ -1,10 +1,10 @@
 // Utility functions for transformations and stuff
 #pragma once
 #define PI 3.14159f
+#include "Plane.h"
+#include "triangle.h"
 #include <glm.hpp>
 #include <gtc/matrix_transform.hpp>
-#include "triangle.h"
-#include "Plane.h"
 
 using glm::vec3;
 using glm::vec4;

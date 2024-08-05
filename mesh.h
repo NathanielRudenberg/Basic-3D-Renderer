@@ -1,8 +1,8 @@
 #pragma once
-#include <fstream>
-#include <sstream>
 #include "triangle.h"
+#include <fstream>
 #include <iostream>
+#include <sstream>
 #include <vector>
 
 class Mesh {

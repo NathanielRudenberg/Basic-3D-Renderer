@@ -22,18 +22,20 @@ private:
 	float _fov;
 	void rotate(float angle, const vec3& axis);
 	vec3 getHoriz();
+	enum coords {
+		X,
+		Y,
+		Z
+	};
 
 public:
 	enum direction {
 		PLUS,
 		MINUS
 	};
-	enum coords {
-		X,
-		Y,
-		Z
-	};
-	vec3 _yAxis{0.0f, 1.0f, 0.0f};
+	vec3 _yAxis{ 0.0f, 1.0f, 0.0f };
+	Camera();
+	Camera(const vec3& pos, const vec3& forward, const vec3& up);
 	vec3& getPos();
 	vec3& getForward();
 	vec3& getLeft();
@@ -52,8 +54,5 @@ public:
 	void setUp(const vec3& up);
 	void setFov(float fov);
 
-// Constructor
 public:
-	Camera();
-	Camera(const vec3& pos, const vec3& forward, const vec3& up);
 };

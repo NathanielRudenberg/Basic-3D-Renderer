@@ -62,7 +62,7 @@ float* Window::getDepthBuffer() {
 	return _depthBuffer;
 }
 
-float Window::getPixelDepth(int pixel){
+float Window::getPixelDepth(int pixel) {
 	return _depthBuffer[pixel];
 }
 

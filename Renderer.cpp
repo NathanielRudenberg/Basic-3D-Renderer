@@ -9,22 +9,20 @@ Renderer::Renderer(Window* window) :
 	_top(Plane({ 0.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, 0.0f })),
 	_bottom(Plane({ 0.0f, (float)(_window->height() - 1), 0.0f }, { 0.0f, -1.0f, 0.0f })),
 	_left(Plane({ 0.0f, 0.0f, 0.0f }, { 1.0f, 0.0f, 0.0f })),
-	_right(Plane({ (float)(_window->width() - 1), 0.0f, 0.0f }, { -1.0f, 0.0f, 0.0f })) {
-	_frustum = Frustum(_camera, _window->getAspectRatio(), _near.point()[Z], _far.point()[Z]);
-}
+	_right(Plane({ (float)(_window->width() - 1), 0.0f, 0.0f }, { -1.0f, 0.0f, 0.0f })) {}
 
 Camera& Renderer::camera() {
 	return _camera;
 }
 
-float Renderer::getCameraRotSpeed() {
+float Renderer::getCameraRotSpeed() const {
 	if (slowRotateMode) {
 		return 0.0005f;
 	}
 	return 0.002f;
 }
 
-float Renderer::getCameraMoveSpeed() {
+float Renderer::getCameraMoveSpeed() const {
 	if (fastMode) {
 		return 8.0f;
 	}
@@ -42,7 +40,7 @@ bool Renderer::getSlowMode() const {
 	return slowMode;
 }
 
-bool Renderer::getSlowRotateMode() {
+bool Renderer::getSlowRotateMode() const {
 	return slowRotateMode;
 }
 
@@ -75,7 +73,7 @@ void Renderer::toggleDrawing() {
 }
 
 vec3 Renderer::getTriangleNormal(Triangle& triTransformed) {
-	vec3 normal, line1, line2, v1, v2, v3, cameraRay;
+	vec3 line1, line2, v1, v2, v3, cameraRay;
 	v1 = vec3(triTransformed.getVerts()[0][X], triTransformed.getVerts()[0][Y], triTransformed.getVerts()[0][Z]);
 	v2 = vec3(triTransformed.getVerts()[1][X], triTransformed.getVerts()[1][Y], triTransformed.getVerts()[1][Z]);
 	v3 = vec3(triTransformed.getVerts()[2][X], triTransformed.getVerts()[2][Y], triTransformed.getVerts()[2][Z]);
@@ -104,7 +102,7 @@ void Renderer::clipAgainstScreenEdges(Triangle& clippable, std::list<Triangle>& 
 	Triangle clipped[2];
 	int newTrianglesNum = 1;
 
-	Plane* screenEdges[]{ &_top, &_bottom, &_left, &_right};
+	Plane* screenEdges[]{ &_top, &_bottom, &_left, &_right };
 	for (Plane* edge : screenEdges) {
 		int numTrisToAdd = 0;
 		while (newTrianglesNum > 0) {
@@ -118,7 +116,7 @@ void Renderer::clipAgainstScreenEdges(Triangle& clippable, std::list<Triangle>& 
 				trisToRaster.push_back(clipped[w]);
 			}
 		}
-		newTrianglesNum = trisToRaster.size();
+		newTrianglesNum = (int)trisToRaster.size();
 	}
 }
 
@@ -126,8 +124,8 @@ void Renderer::clipAgainstFrustum(Triangle& clippable, Frustum& frustum, std::li
 	Triangle clipped[2];
 	int newTrianglesNum = 1;
 
-	Plane& (Frustum:: * frustumPlanes[])() { &Frustum::near, &Frustum::far, & Frustum::top, & Frustum::bottom, & Frustum::left, &Frustum::right };
-	for (Plane& (Frustum::*plane)() : frustumPlanes) {
+	Plane& (Frustum:: * frustumPlanes[])() { &Frustum::near, & Frustum::far, & Frustum::top, & Frustum::bottom, & Frustum::left, & Frustum::right };
+	for (Plane& (Frustum::* plane)() : frustumPlanes) {
 		int numTrisToAdd = 0;
 		while (newTrianglesNum > 0) {
 			Triangle test = trisToProject.front();
@@ -140,7 +138,7 @@ void Renderer::clipAgainstFrustum(Triangle& clippable, Frustum& frustum, std::li
 				trisToProject.push_back(clipped[w]);
 			}
 		}
-		newTrianglesNum = trisToProject.size();
+		newTrianglesNum = (int)trisToProject.size();
 	}
 }
 
@@ -214,6 +212,7 @@ void Renderer::render(std::vector<Model>& objects) {
 					_window->drawLine((int)t.getVerts()[2][X], (int)t.getVerts()[2][Y], (int)t.getVerts()[0][X], (int)t.getVerts()[0][Y]);
 				}
 
+				// Draw vertices
 				if (false) {
 					_window->setDrawColor(255, 255, 0, 255);
 					_window->drawPoint((int)t.getVerts()[0][X], (int)t.getVerts()[0][Y]);
@@ -224,7 +223,8 @@ void Renderer::render(std::vector<Model>& objects) {
 		}
 	}
 
-	if (true) {
+	// Draw crosshairs
+	if (false) {
 		_window->setDrawColor(0, 255, 0, 255);
 		_window->drawLine(_window->width() / 2, 0, _window->width() / 2, _window->height());
 		_window->drawLine(0, _window->height() / 2, _window->width(), _window->height() / 2);
@@ -237,12 +237,12 @@ void Renderer::rasterizeTriangle(const V* v0, const V* v1, const V* v2,
 	auto&& makeSlope,
 	auto&& drawScanline)
 	requires std::invocable<decltype(getXY), const V&>
-		 and std::invocable<decltype(makeSlope), const V*, const V*, int>
-		 and (std::tuple_size_v<std::remove_cvref_t<decltype(getXY(*v0))>> == 2)
-			 and requires { { +std::get<0>(getXY(*v0)) } -> std::integral; }
-			 and requires { { +std::get<1>(getXY(*v0)) } -> std::integral; }
-			 and requires(std::remove_cvref_t<decltype(makeSlope(v0, v1, 1))> a) { drawScanline(1, a, a); }
-		 {
+and std::invocable<decltype(makeSlope), const V*, const V*, int>
+and (std::tuple_size_v<std::remove_cvref_t<decltype(getXY(*v0))>> == 2)
+and requires { { +std::get<0>(getXY(*v0)) } -> std::integral; }
+and requires { { +std::get<1>(getXY(*v0)) } -> std::integral; }
+and requires(std::remove_cvref_t<decltype(makeSlope(v0, v1, 1))> a) { drawScanline(1, a, a); }
+{
 
 	// Rasterize from top to bottom
 	auto [x0, y0, x1, y1, x2, y2] = std::tuple_cat(getXY(*v0), getXY(*v1), getXY(*v2));
@@ -269,7 +269,7 @@ void Renderer::rasterizeTriangle(const V* v0, const V* v1, const V* v2,
 		if (y >= endY) {
 			if (y >= y2) break;
 			sides[shortSide] = std::apply(makeSlope, (y < y1) ? std::tuple(v0, v1, (endY = y1) - y0)
-															  : std::tuple(v1, v2, (endY = y2) - y1));
+				: std::tuple(v1, v2, (endY = y2) - y1));
 		}
 		// Draw line of pixels
 		drawScanline(y, sides[0], sides[1]);
@@ -285,14 +285,14 @@ void Renderer::rasterize(Triangle& triangle) {
 
 	rasterizeTriangle(&v0, &v1, &v2,
 		// coord extractor
-		[&](const auto& v) { return std::tuple{ (int)v[X], (int)v[Y]}; },
+		[&](const auto& v) { return std::tuple{ (int)v[X], (int)v[Y] }; },
 		// Slope generator
 		[&](const auto* from, const auto* to, int numSteps) {
 			SlopeData result;
 			// Get begin and end X coordinates
-			result[0] = Slope{ (float)(*from)[X], (float)(*to)[X], numSteps};
+			result[0] = Slope{ (float)(*from)[X], (float)(*to)[X], numSteps };
 			// Get begin and end depth values
-			result[1] = Slope{ (float)(*from)[Z], (float)(*to)[Z], numSteps};
+			result[1] = Slope{ (float)(*from)[Z], (float)(*to)[Z], numSteps };
 			return result;
 		},
 		// Draw scanline
