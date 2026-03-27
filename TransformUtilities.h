@@ -2,16 +2,16 @@
 #pragma once
 #define PI 3.14159f
 #include "Plane.h"
-#include "triangle.h"
-#include <glm.hpp>
-#include <gtc/matrix_transform.hpp>
+#include "Triangle.h"
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
+using glm::mat4;
 using glm::vec3;
 using glm::vec4;
-using glm::mat4;
 
 // Get matrix used to move the camera around the world
-mat4 getPointAtMatrix(const vec3& pos, const vec3& target, const vec3& up);
+mat4 getPointAtMatrix(const vec3 &pos, const vec3 &target, const vec3 &up);
 
 // Get translation matrix
 mat4 getTranslationMatrix(vec3 pos);
@@ -30,29 +30,30 @@ mat4 getZRot(float theta);
 mat4 getRotationMatrix(float thetaX, float thetaY, float thetaZ);
 
 // Get projection matrix
-mat4 getProjectionMatrix(float fov, float aspectRatio, float nearPlane, float farPlane);
+mat4 getProjectionMatrix(float fov, float aspectRatio, float nearPlane,
+                         float farPlane);
 
 // Project a 3D vector onto a 2D plane
-vec4 project(const vec4& toProject, float fovRadians, float aspectRatio, float nearPlane, float farPlane);
+vec4 project(const vec4 &toProject, float fovRadians, float aspectRatio,
+             float nearPlane, float farPlane);
 
 // Get the intersection of a vector and a plane
-vec4 vectorPlaneIntersect(Plane& plane, const vec4& lineStart, const vec4& lineEnd);
+vec4 vectorPlaneIntersect(Plane &plane, const vec4 &lineStart,
+                          const vec4 &lineEnd);
 
 // Clip triangle against plane
-int clipTriangleAgainstPlane(Plane& plane, Triangle& inTri, Triangle& outTri1, Triangle& outTri2);
+int clipTriangleAgainstPlane(Plane &plane, Triangle &inTri, Triangle &outTri1,
+                             Triangle &outTri2);
 
 // Transform a triangle through 3D space using a transformation matrix
-void transformTriangle(Triangle& tri, const mat4& transformationMatrix);
+void transformTriangle(Triangle &tri, const mat4 &transformationMatrix);
 
 // Project a triangle onto a 2D plane
-void projectTriangle(Triangle& tri, int width, int height, float fov, Plane& nearPlane, Plane& farPlane);
+void projectTriangle(Triangle &tri, int width, int height, float fov,
+                     Plane &nearPlane, Plane &farPlane);
 
 // Project a triangle with a given view-projection matrix
-void projectTriangle(Triangle& tri, const mat4& viewProjectionMatrix, int screenWidth, int screenHeight);
+void projectTriangle(Triangle &tri, const mat4 &viewProjectionMatrix,
+                     int screenWidth, int screenHeight);
 
-enum coordIndices {
-	X,
-	Y,
-	Z,
-	W
-};
+enum coordIndices { X, Y, Z, W };

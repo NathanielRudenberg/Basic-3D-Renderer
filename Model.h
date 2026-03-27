@@ -1,7 +1,7 @@
 #pragma once
 #include "mesh.h"
 #include <fstream>
-#include <glm.hpp>
+#include <glm/glm.hpp>
 #include <iostream>
 using glm::vec3;
 

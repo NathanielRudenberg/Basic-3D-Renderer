@@ -1,5 +1,5 @@
 #pragma once
-#include "triangle.h"
+#include "Triangle.h"
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -7,16 +7,11 @@
 
 class Mesh {
 private:
-	enum coords {
-		X,
-		Y,
-		Z,
-		W
-	};
+  enum coords { X, Y, Z, W };
 
-	std::vector<Triangle> tris;
+  std::vector<Triangle> tris;
 
 public:
-	bool loadObj(std::string filename);
-	std::vector<Triangle>& getTris();
+  bool loadObj(std::string filename);
+  std::vector<Triangle> &getTris();
 };
